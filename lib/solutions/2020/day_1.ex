@@ -14,13 +14,14 @@ defmodule Aoe.Y20.Day1 do
 
   @spec parse_input!(input, part) :: problem
   def parse_input!(input, _part) do
-    Input.stream_to_integers(input)
+    input
+    |> Input.stream_to_integers()
+    |> Enum.to_list()
   end
 
   @spec part_one(problem) :: integer
   def part_one(problem) do
     problem
-    |> Enum.to_list()
     |> find_summable(2020)
     |> multiply()
   end
@@ -28,7 +29,6 @@ defmodule Aoe.Y20.Day1 do
   @spec part_two(problem) :: integer
   def part_two(problem) do
     problem
-    |> Enum.to_list()
     |> find_three_summable(2020)
     |> multiply()
   end
