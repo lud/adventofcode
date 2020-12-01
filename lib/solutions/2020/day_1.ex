@@ -21,47 +21,23 @@ defmodule Aoe.Y20.Day1 do
 
   @spec part_one(problem) :: integer
   def part_one(problem) do
-    problem
-    |> find_summable(2020)
-    |> multiply()
+    find_total(problem, 2, 2020, [])
   end
 
   @spec part_two(problem) :: integer
   def part_two(problem) do
-    problem
-    |> find_three_summable(2020)
-    |> multiply()
+    find_total(problem, 3, 2020, [])
   end
 
-  defp find_three_summable(list, checksum) do
-    Enum.find_value(list, fn v ->
-      case find_summable(list, checksum - v) do
-        {a, b} -> {v, a, b}
-        nil -> nil
-      end
-    end)
+  def find_total(_list, 0, 0, acc) do
+    Enum.reduce(acc, &*/2)
   end
 
-  defp find_summable([h | t], checksum) do
-    find_summable(h, t, checksum)
+  def find_total([n | list], parts, rest, acc) when parts > 0 do
+    find_total(list, parts - 1, rest - n, [n | acc]) ||
+      find_total(list, parts, rest, acc)
   end
 
-  defp find_summable([], _checksum) do
-    nil
-  end
-
-  defp find_summable(h, t, checksum) do
-    case Enum.find(t, fn v -> h + v == checksum end) do
-      nil -> find_summable(t, checksum)
-      v -> {h, v}
-    end
-  end
-
-  defp multiply({a, b}) do
-    a * b
-  end
-
-  defp multiply({a, b, c}) do
-    a * b * c
+  def find_total(_, _, _, _) do
   end
 end
