@@ -20,7 +20,9 @@ defmodule Aoe.Y20.Day3 do
 
   @spec part_one(problem) :: integer
   def part_one(problem) do
-    count_trees(problem, {3, 1})
+    solution = count_trees(problem, {3, 1})
+    # print_map(problem, {3, 1})
+    solution
   end
 
   @spec part_two(problem) :: integer
@@ -56,5 +58,34 @@ defmodule Aoe.Y20.Day3 do
       end
 
     {x + right, width, trees, right}
+  end
+
+  def print_map(problem, {right, _}) do
+    problem = Enum.to_list(problem)
+    map_height = length(problem)
+    move_width = map_height * right
+    repeats = ceil(move_width / map_width(problem))
+    IO.puts([IO.ANSI.light_white_background()])
+
+    problem
+    |> Enum.reduce(0, fn chars, pos ->
+      chars
+      |> List.duplicate(repeats)
+      |> List.flatten()
+      |> Enum.with_index()
+      |> Enum.map(
+        &case &1 do
+          {?#, ^pos} -> "❌"
+          {?., ^pos} -> [IO.ANSI.green(), "✔️", IO.ANSI.default_color()]
+          {?#, _} -> "🌲"
+          {?., _} -> "."
+        end
+      )
+      |> IO.puts()
+
+      pos + right
+    end)
+
+    IO.puts([IO.ANSI.reset()])
   end
 end
