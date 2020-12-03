@@ -76,21 +76,22 @@ defmodule Mix.Tasks.Aoe.Create do
       def read_file!(file, _part) do
         # Input.read!(file)
         # Input.stream!(file)
+        # Input.stream_file_lines(file, trim: true)
       end
 
       @spec parse_input!(input, part) :: problem
       def parse_input!(input, _part) do
-        #
+        input
       end
 
       @spec part_one(problem) :: integer
       def part_one(problem) do
-        #
+        problem
       end
 
       @spec part_two(problem) :: integer
       def part_two(problem) do
-        #
+        problem
       end
 
     end
@@ -133,17 +134,17 @@ defmodule Mix.Tasks.Aoe.Create do
           |> Solution.read_file!(:part_one)
           |> Solution.parse_input!(:part_one)
       
-        expected = :CHANGE_ME
+        expected = CHANGE_ME
         assert expected == Solution.part_one(problem)
         
-        # expected = :CHANGE_ME
+        # expected = CHANGE_ME
         # assert expected == Solution.part_two(problem)
       end
 
       # Once your part one was successfully sumbitted, you may uncomment this test
       # to ensure your implementation was not altered when you implement part two.
 
-      # @part_one_solution :CHANGE_ME
+      # @part_one_solution CHANGE_ME
       #
       # test "verify #{year}/#{day} part one" do
       #   assert {:ok, @part_one_solution} == Aoe.run(#{year}, #{day}, :part_one)
@@ -152,7 +153,7 @@ defmodule Mix.Tasks.Aoe.Create do
       # You may also implement a test to validate the part two to ensure that you
       # did not broke your shared modules when implementing another problem.
 
-      # @part_two_solution :CHANGE_ME
+      # @part_two_solution CHANGE_ME
       #
       # test "verify #{year}/#{day} part two" do
       #   assert {:ok, @part_two_solution} == Aoe.run(#{year}, #{day}, :part_two)

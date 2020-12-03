@@ -31,7 +31,7 @@ defmodule Aoe.Y20.Day2Test do
     expected = 2
     assert expected == Solution.part_one(problem)
 
-    # expected = :CHANGE_ME
+    # expected = CHANGE_ME
     # assert expected == Solution.part_two(problem)
   end
 

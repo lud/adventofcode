@@ -39,7 +39,7 @@ defmodule Mix.Tasks.Aoe.Run do
     |> print_result(year, day, :part_two)
   end
 
-  defp print_result({:ok, result}, year, day, part) do
+  defp print_result({:ok, result}, _year, _day, part) do
     Mix.Shell.IO.info([
       "#{part}: ",
       IO.ANSI.cyan(),
