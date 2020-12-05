@@ -7,6 +7,14 @@ defmodule Aoe.Input do
     %FakeFile{content: content}
   end
 
+  def read!(path) when is_binary(path) do
+    File.read!(path)
+  end
+
+  def read!(%FakeFile{content: content}) do
+    content
+  end
+
   def stream_file_lines(path, opts \\ [])
 
   def stream_file_lines(path, opts) when is_binary(path) do
