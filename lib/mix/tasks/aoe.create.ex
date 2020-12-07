@@ -84,12 +84,10 @@ defmodule Mix.Tasks.Aoe.Create do
         input
       end
 
-      @spec part_one(problem) :: integer
       def part_one(problem) do
         problem
       end
 
-      @spec part_two(problem) :: integer
       def part_two(problem) do
         problem
       end
