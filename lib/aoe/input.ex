@@ -56,6 +56,12 @@ defmodule Aoe.Input do
     Stream.map(input, &String.to_integer/1)
   end
 
+  def with_index_first(stream, offset \\ 0) do
+    stream
+    |> Stream.with_index()
+    |> Stream.map(fn {v, i} -> {i, v} end)
+  end
+
   # ---------------------------------------------------------------------------
   #
   # Local input files management
