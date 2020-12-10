@@ -121,22 +121,30 @@ defmodule Mix.Tasks.Aoe.Create do
       #     {:ok, path} = Input.resolve(#{year}, #{day}, "sample-1")
       #
 
+      @sample_1 """
+      This is
+      A Fake
+      Data file
+      """
+
       test "verify #{year}/#{day} part_one - samples" do
-        problem =
-          """
-          This is
-          A Fake
-          Data file
-          """
-          |> Input.as_file()
-          |> Solution.read_file!(:part_one)
-          |> Solution.parse_input!(:part_one)
+        @sample_1
+        |> Input.as_file()
+        |> Solution.read_file!(:part_one)
+        |> Solution.parse_input!(:part_one)
       
         expected = CHANGE_ME
         assert expected == Solution.part_one(problem)
-        
-        # expected = CHANGE_ME
-        # assert expected == Solution.part_two(problem)
+      end
+
+      test "verify #{year}/#{day} part_two - samples" do
+        @sample_1
+        |> Input.as_file()
+        |> Solution.read_file!(:part_two)
+        |> Solution.parse_input!(:part_two)
+      
+        expected = CHANGE_ME
+        assert expected == Solution.part_two(problem)
       end
 
       # Once your part one was successfully sumbitted, you may uncomment this test

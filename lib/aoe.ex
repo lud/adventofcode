@@ -2,12 +2,23 @@ defmodule Aoe do
   alias Aoe.Utils
   alias Aoe.Input
 
-  def run(year, day, part) when part in [:part_one, :part_two] do
+  def run(year, day, part, timer? \\ false) when part in [:part_one, :part_two] do
     module = Utils.module_name(year, day)
-    run(year, day, module, part)
+
+    case do_run(year, day, module, part) do
+      {:ok, {time, result}} = final ->
+        if timer? do
+          final
+        else
+          {:ok, result}
+        end
+
+      other ->
+        other
+    end
   end
 
-  def run(year, day, module, part) when is_atom(module) and part in [:part_one, :part_two] do
+  defp do_run(year, day, module, part) when is_atom(module) and part in [:part_one, :part_two] do
     with {:module, _} <- Code.ensure_loaded(module),
          {:ok, input_path} <- Input.ensure_local(year, day),
          :ok <- ensure_part(module, part) do
@@ -29,6 +40,6 @@ defmodule Aoe do
   defp do_run_part(module, part, input_path) do
     input = module.read_file!(input_path, part)
     problem = module.parse_input!(input, part)
-    apply(module, part, [problem])
+    :timer.tc(module, part, [problem])
   end
 end

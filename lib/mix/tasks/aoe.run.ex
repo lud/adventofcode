@@ -30,21 +30,22 @@ defmodule Mix.Tasks.Aoe.Run do
   end
 
   defp run(year, day, 1) do
-    Aoe.run(year, day, :part_one)
+    Aoe.run(year, day, :part_one, _timer = true)
     |> print_result(year, day, :part_one)
   end
 
   defp run(year, day, 2) do
-    Aoe.run(year, day, :part_two)
-    |> print_result(year, day, :part_two)
+    result = Aoe.run(year, day, :part_two, _timer = true)
+    result |> print_result(year, day, :part_two)
   end
 
-  defp print_result({:ok, result}, _year, _day, part) do
+  defp print_result({:ok, {time, result}}, _year, _day, part) do
     Mix.Shell.IO.info([
       "#{part}: ",
       IO.ANSI.cyan(),
       inspect(result),
-      IO.ANSI.default_color()
+      IO.ANSI.default_color(),
+      " in #{time} µs"
     ])
   end
 
