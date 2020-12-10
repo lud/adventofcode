@@ -78,7 +78,7 @@ defmodule Aoe.Y20.Day10 do
 
   def part_two({adapters, device}) do
     problem = Enum.sort([device | adapters])
-    reachmap = find_reachables([0 | problem], %{})
+    reachmap = build_reachmap([0 | problem], %{})
     countmap = %{device => 1}
 
     [0 | adapters]
@@ -92,11 +92,11 @@ defmodule Aoe.Y20.Day10 do
     |> Map.get(0)
   end
 
-  defp find_reachables([h | t], map) do
-    find_reachables(t, Map.put(map, h, find_reachables(h, t, [])))
+  defp build_reachmap([h | t], map) do
+    build_reachmap(t, Map.put(map, h, find_reachables(h, t, [])))
   end
 
-  defp find_reachables([], map) do
+  defp build_reachmap([], map) do
     map
   end
 
