@@ -80,17 +80,15 @@ defmodule Aoe.Y20.Day10 do
     problem = Enum.sort([device | adapters])
     reachmap = find_reachables([0 | problem], %{})
     countmap = %{device => 1}
-    reachmap |> IO.inspect(label: "reachmap", charlists: :as_lists)
 
     [0 | adapters]
     |> Enum.sort()
     |> :lists.reverse()
-    |> Enum.reduce(countmap, fn adapter, map ->
+    |> Enum.reduce(countmap, fn adapter, countmap ->
       nexts = reachmap[adapter]
-      count = Enum.reduce(nexts, 0, &(&2 + Map.fetch!(map, &1)))
-      Map.put(map, adapter, count)
+      count = Enum.reduce(nexts, 0, &(&2 + countmap[&1]))
+      Map.put(countmap, adapter, count)
     end)
-    |> IO.inspect(label: "countmap", charlists: :as_lists)
     |> Map.get(0)
   end
 
@@ -107,6 +105,6 @@ defmodule Aoe.Y20.Day10 do
   end
 
   defp find_reachables(_, _, acc) do
-    :lists.reverse(acc)
+    acc
   end
 end
