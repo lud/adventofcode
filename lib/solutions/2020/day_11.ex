@@ -37,32 +37,29 @@ defmodule Aoe.Y20.Day11 do
   end
 
   defp reduce_map_p1(map) do
-    new_map =
-      Enum.reduce(map, map, fn {coords, val}, new_map ->
+    changes =
+      Enum.reduce(map, [], fn {coords, val}, changes ->
         neighb_count =
-          Map.take(map, neighbours_keys(coords))
-          |> Enum.filter(fn
-            {{_, _}, ?#} -> true
-            _ -> false
+          Enum.reduce(direct_neighbours(map, coords), 0, fn
+            {{_, _}, ?#}, acc -> acc + 1
+            _, acc -> acc
           end)
-          |> length
 
         case {val, neighb_count} do
-          {?L, 0} -> Map.put(new_map, coords, ?#)
-          {?#, n} when n >= 4 -> Map.put(new_map, coords, ?L)
-          _ -> new_map
+          {?L, 0} -> [{coords, ?#} | changes]
+          {?#, n} when n >= 4 -> [{coords, ?L} | changes]
+          _ -> changes
         end
       end)
 
-    if new_map == map do
-      new_map
-    else
-      reduce_map_p1(new_map)
+    case changes do
+      [] -> map
+      _ -> reduce_map_p1(Map.merge(map, Map.new(changes)))
     end
   end
 
-  defp neighbours_keys({x, y}) do
-    [
+  defp direct_neighbours(map, {x, y}) do
+    Map.take(map, [
       {x - 1, y},
       {x + 1, y},
       {x, y - 1},
@@ -71,7 +68,7 @@ defmodule Aoe.Y20.Day11 do
       {x - 1, y + 1},
       {x + 1, y - 1},
       {x + 1, y + 1}
-    ]
+    ])
   end
 
   def part_two({width, height, map}) do
@@ -85,22 +82,21 @@ defmodule Aoe.Y20.Day11 do
   end
 
   defp reduce_map_p2(map, max_x, max_y) do
-    new_map =
-      Enum.reduce(map, map, fn {coords, val}, new_map ->
+    changes =
+      Enum.reduce(map, [], fn {coords, val}, changes ->
         neighb_count = trace_rays(map, coords, max_x, max_y)
         # neighb_count |> IO.inspect(label: "neighb_count")
 
         case {val, neighb_count} do
-          {?L, 0} -> Map.put(new_map, coords, ?#)
-          {?#, n} when n >= 5 -> Map.put(new_map, coords, ?L)
-          _ -> new_map
+          {?L, 0} -> [{coords, ?#} | changes]
+          {?#, n} when n >= 5 -> [{coords, ?L} | changes]
+          _ -> changes
         end
       end)
 
-    if new_map == map do
-      new_map
-    else
-      reduce_map_p2(new_map, max_x, max_y)
+    case changes do
+      [] -> map
+      _ -> reduce_map_p2(Map.merge(map, Map.new(changes)), max_x, max_y)
     end
   end
 
@@ -125,7 +121,7 @@ defmodule Aoe.Y20.Day11 do
     end
   end
 
-  def trace_ray(map, {x, y}, {add_x, add_y} = add, max_x, max_y) do
+  def trace_ray(_, _, _, _, _) do
     0
   end
 end

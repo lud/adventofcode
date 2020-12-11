@@ -43,7 +43,9 @@ defmodule Mix.Tasks.Aoe.Run do
     Mix.Shell.IO.info([
       "#{part}: ",
       IO.ANSI.cyan(),
+      IO.ANSI.bright(),
       inspect(result),
+      IO.ANSI.normal(),
       IO.ANSI.default_color(),
       " in #{format_time(time)}"
     ])
@@ -57,15 +59,19 @@ defmodule Mix.Tasks.Aoe.Run do
     ])
   end
 
-  defp format_time(time) when time > 999_999 do
+  defp format_time(time) do
+    [IO.ANSI.bright(), do_format_time(time), IO.ANSI.normal()]
+  end
+
+  defp do_format_time(time) when time > 999_999 do
     "#{Float.round(time / 1_000_000, 2)}s"
   end
 
-  defp format_time(time) when time > 9999 do
+  defp do_format_time(time) when time > 9999 do
     "#{Float.round(time / 1000, 2)}ms"
   end
 
-  defp format_time(time) do
+  defp do_format_time(time) do
     "#{time}µs"
   end
 end
