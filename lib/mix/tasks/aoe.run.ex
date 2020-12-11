@@ -45,7 +45,7 @@ defmodule Mix.Tasks.Aoe.Run do
       IO.ANSI.cyan(),
       inspect(result),
       IO.ANSI.default_color(),
-      " in #{time} µs"
+      " in #{format_time(time)}"
     ])
   end
 
@@ -55,5 +55,17 @@ defmodule Mix.Tasks.Aoe.Run do
       "#{part}: #{inspect(Aoe.Utils.module_name(year, day))}.#{part}/1 is not implemented",
       IO.ANSI.default_color()
     ])
+  end
+
+  defp format_time(time) when time > 999_999 do
+    "#{Float.round(time / 1_000_000, 2)}s"
+  end
+
+  defp format_time(time) when time > 9999 do
+    "#{Float.round(time / 1000, 2)}ms"
+  end
+
+  defp format_time(time) do
+    "#{time}µs"
   end
 end
