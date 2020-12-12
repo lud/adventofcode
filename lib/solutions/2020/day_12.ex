@@ -74,7 +74,7 @@ defmodule Aoe.Y20.Day12 do
     do: {ship, {-wp_x, -wp_y}, dir}
 
   defp reduce_p2({side, 270}, state) when side in [?L, ?R],
-    do: reduce_p2({if(side == ?L, do: ?R, else: ?L), 90}, state)
+    do: reduce_p2({(side == ?L && ?R) || ?L, 90}, state)
 
   defp reduce_p2({?L, 90}, {ship, {wp_x, wp_y}, dir}), do: {ship, {wp_y, -wp_x}, dir}
   defp reduce_p2({?R, 90}, {ship, {wp_x, wp_y}, dir}), do: {ship, {-wp_y, wp_x}, dir}
