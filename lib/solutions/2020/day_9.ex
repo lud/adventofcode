@@ -46,7 +46,7 @@ defmodule Aoe.Y20.Day9 do
   def check_chunk(sum, [c | candidates]) do
     case Enum.find(candidates, fn cd -> c + cd == sum end) do
       nil -> check_chunk(sum, candidates)
-      cd -> :valid
+      _cd -> :valid
     end
   end
 

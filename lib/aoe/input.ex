@@ -58,7 +58,7 @@ defmodule Aoe.Input do
 
   def with_index_first(stream, offset \\ 0) do
     stream
-    |> Stream.with_index()
+    |> Stream.with_index(offset)
     |> Stream.map(fn {v, i} -> {i, v} end)
   end
 

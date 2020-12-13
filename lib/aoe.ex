@@ -6,7 +6,7 @@ defmodule Aoe do
     module = Utils.module_name(year, day)
 
     case do_run(year, day, module, part) do
-      {:ok, {time, result}} = final ->
+      {:ok, {_time, result}} = final ->
         if timer? do
           final
         else
