@@ -88,7 +88,6 @@ defmodule Aoe.Y20.Day14 do
   defp handle_input_p2({:value, {addr, value}}, {map, mask}) do
     addresses = mask_addrs([addr], mask) |> :lists.flatten()
     map = Enum.reduce(addresses, map, &Map.put(&2, &1, value))
-    # map = Map.put(map, addr, mask_value(value, mask))
     {map, mask}
   end
 
