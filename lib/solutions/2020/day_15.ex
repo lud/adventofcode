@@ -36,8 +36,6 @@ defmodule Aoe.Y20.Day15 do
   end
 
   defp put_number(state, n, turn) do
-    # IO.puts("put #{n}")
-
     case state do
       %{^n => {prev, ante}} -> Map.merge(state, %{n => {turn, prev}, :last => n})
       %{^n => {prev}} -> Map.merge(state, %{n => {turn, prev}, :last => n})
@@ -50,12 +48,6 @@ defmodule Aoe.Y20.Day15 do
   end
 
   defp loop_turn(%{last: last} = state, turn, max_turn) do
-    # IO.puts("""
-    # ---------------
-    # turn: #{turn} 
-    # last: #{last} 
-    # """)
-
     state =
       case state do
         # last number was only spoken once
