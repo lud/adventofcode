@@ -79,8 +79,7 @@ defmodule Aoe.Y20.Day17 do
     map
   end
 
-  defp apply_rules_p1(map, turn) do
-    %{domain: domain} = map
+  defp apply_rules_p1(%{domain: domain} = map, turn) do
     {min_x, max_x, min_y, max_y, min_z, max_z} = expand_domain_once(domain)
 
     changes =
@@ -88,21 +87,10 @@ defmodule Aoe.Y20.Day17 do
         changes ->
           coords = {x, y, z}
           anc = active_neighbours_count(map, coords)
-          current = Map.get(map, coords, @inactive)
-
-          case {current, anc} do
-            {@active, c} when c in [2, 3] -> changes
-            {@active, _} -> [{coords, @inactive} | changes]
-            {@inactive, 3} -> [{coords, @active} | changes]
-            {@inactive, _} -> changes
-          end
+          maybe_push_change(coords, map, anc, changes)
       end
 
-    new_domain =
-      Enum.reduce(changes, domain, fn
-        {coords, @active}, acc -> expand_domain(acc, coords)
-        {_coords, @inactive}, acc -> acc
-      end)
+    new_domain = expand_domain_from_changes(domain, changes)
 
     map
     |> Map.put(:domain, new_domain)
@@ -110,12 +98,22 @@ defmodule Aoe.Y20.Day17 do
     |> apply_rules_p1(turn - 1)
   end
 
+  defp maybe_push_change(coords, map, anc, changes) do
+    current = Map.get(map, coords, @inactive)
+
+    case {current, anc} do
+      {@active, c} when c in [2, 3] -> changes
+      {@active, _} -> [{coords, @inactive} | changes]
+      {@inactive, 3} -> [{coords, @active} | changes]
+      {@inactive, _} -> changes
+    end
+  end
+
   defp apply_rules_p2(map, 0) do
     map
   end
 
-  defp apply_rules_p2(map, turn) do
-    %{domain: domain} = map
+  defp apply_rules_p2(%{domain: domain} = map, turn) do
     {min_x, max_x, min_y, max_y, min_z, max_z, min_w, max_w} = expand_domain_once(domain)
 
     changes =
@@ -127,21 +125,10 @@ defmodule Aoe.Y20.Day17 do
         changes ->
           coords = {x, y, z, w}
           anc = active_neighbours_count(map, coords)
-          current = Map.get(map, coords, @inactive)
-
-          case {current, anc} do
-            {@active, c} when c in [2, 3] -> changes
-            {@active, _} -> [{coords, @inactive} | changes]
-            {@inactive, 3} -> [{coords, @active} | changes]
-            {@inactive, _} -> changes
-          end
+          maybe_push_change(coords, map, anc, changes)
       end
 
-    new_domain =
-      Enum.reduce(changes, domain, fn
-        {coords, @active}, acc -> expand_domain(acc, coords)
-        {_coords, @inactive}, acc -> acc
-      end)
+    new_domain = expand_domain_from_changes(domain, changes)
 
     map
     |> Map.put(:domain, new_domain)
@@ -164,6 +151,13 @@ defmodule Aoe.Y20.Day17 do
   defp expand_domain({min_x, max_x, min_y, max_y, min_z, max_z, min_w, max_w}, {x, y, z, w}) do
     {min(min_x, x), max(max_x, x), min(min_y, y), max(max_y, y), min(min_z, z), max(max_z, z),
      min(min_w, w), max(max_w, w)}
+  end
+
+  defp expand_domain_from_changes(domain, changes) do
+    Enum.reduce(changes, domain, fn
+      {coords, @active}, acc -> expand_domain(acc, coords)
+      {_coords, @inactive}, acc -> acc
+    end)
   end
 
   defp active_neighbours_count(map, {x, y, z} = coords) do
