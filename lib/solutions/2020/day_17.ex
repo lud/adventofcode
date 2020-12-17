@@ -25,10 +25,10 @@ defmodule Aoe.Y20.Day17 do
           into: %{},
           do: {{x, y, z}, parse_char(col)}
 
-    max_x = Enum.max(map |> Enum.map(fn {{x, _, _}, _} -> x end))
-    min_x = Enum.min(map |> Enum.map(fn {{x, _, _}, _} -> x end))
-    max_y = Enum.max(map |> Enum.map(fn {{_, y, _}, _} -> y end))
-    min_y = Enum.min(map |> Enum.map(fn {{_, y, _}, _} -> y end))
+    max_x = Enum.max(Enum.map(map, &get_x/1))
+    min_x = Enum.min(Enum.map(map, &get_x/1))
+    max_y = Enum.max(Enum.map(map, &get_y/1))
+    min_y = Enum.min(Enum.map(map, &get_y/1))
 
     Map.put(map, :domain, {min_x, max_x, min_y, max_y, 0, 0})
   end
@@ -43,13 +43,18 @@ defmodule Aoe.Y20.Day17 do
           into: %{},
           do: {{x, y, z, w}, parse_char(col)}
 
-    max_x = Enum.max(map |> Enum.map(fn {{x, _, _, _}, _} -> x end))
-    min_x = Enum.min(map |> Enum.map(fn {{x, _, _, _}, _} -> x end))
-    max_y = Enum.max(map |> Enum.map(fn {{_, y, _, _}, _} -> y end))
-    min_y = Enum.min(map |> Enum.map(fn {{_, y, _, _}, _} -> y end))
+    max_x = Enum.max(Enum.map(map, &get_x/1))
+    min_x = Enum.min(Enum.map(map, &get_x/1))
+    max_y = Enum.max(Enum.map(map, &get_y/1))
+    min_y = Enum.min(Enum.map(map, &get_y/1))
 
     Map.put(map, :domain, {min_x, max_x, min_y, max_y, 0, 0, 0, 0})
   end
+
+  def get_x({{x, _, _}, _}), do: x
+  def get_x({{x, _, _, _}, _}), do: x
+  def get_y({{_, y, _}, _}), do: y
+  def get_y({{_, y, _, _}, _}), do: y
 
   @active 1
   @inactive 0
@@ -59,20 +64,12 @@ defmodule Aoe.Y20.Day17 do
 
   def part_one(problem) do
     map = apply_rules_p1(problem, 6)
-
-    for {_, v} <- map, v == @active do
-      1
-    end
-    |> Enum.sum()
+    Enum.sum(for {_, v} <- map, v == @active, do: 1)
   end
 
   def part_two(problem) do
     map = apply_rules_p2(problem, 6)
-
-    for {_, v} <- map, v == @active do
-      1
-    end
-    |> Enum.sum()
+    Enum.sum(for {_, v} <- map, v == @active, do: 1)
   end
 
   defp apply_rules_p1(map, 0) do
@@ -96,17 +93,6 @@ defmodule Aoe.Y20.Day17 do
     |> Map.put(:domain, new_domain)
     |> Map.merge(Map.new(changes))
     |> apply_rules_p1(turn - 1)
-  end
-
-  defp maybe_push_change(coords, map, anc, changes) do
-    current = Map.get(map, coords, @inactive)
-
-    case {current, anc} do
-      {@active, c} when c in [2, 3] -> changes
-      {@active, _} -> [{coords, @inactive} | changes]
-      {@inactive, 3} -> [{coords, @active} | changes]
-      {@inactive, _} -> changes
-    end
   end
 
   defp apply_rules_p2(map, 0) do
@@ -158,6 +144,17 @@ defmodule Aoe.Y20.Day17 do
       {coords, @active}, acc -> expand_domain(acc, coords)
       {_coords, @inactive}, acc -> acc
     end)
+  end
+
+  defp maybe_push_change(coords, map, anc, changes) do
+    current = Map.get(map, coords, @inactive)
+
+    case {current, anc} do
+      {@active, c} when c in [2, 3] -> changes
+      {@active, _} -> [{coords, @inactive} | changes]
+      {@inactive, 3} -> [{coords, @active} | changes]
+      {@inactive, _} -> changes
+    end
   end
 
   defp active_neighbours_count(map, {x, y, z} = coords) do
