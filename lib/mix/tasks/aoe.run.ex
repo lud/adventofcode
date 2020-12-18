@@ -67,7 +67,7 @@ defmodule Mix.Tasks.Aoe.Run do
     "#{Float.round(time / 1_000_000, 2)}s"
   end
 
-  defp do_format_time(time) when time > 9999 do
+  defp do_format_time(time) when time > 999 do
     "#{Float.round(time / 1000, 2)}ms"
   end
 

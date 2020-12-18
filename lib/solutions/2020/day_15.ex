@@ -37,13 +37,13 @@ defmodule Aoe.Y20.Day15 do
 
   defp put_number(state, n, turn) do
     case state do
-      %{^n => {prev, ante}} -> Map.merge(state, %{n => {turn, prev}, :last => n})
+      %{^n => {prev, _ante}} -> Map.merge(state, %{n => {turn, prev}, :last => n})
       %{^n => {prev}} -> Map.merge(state, %{n => {turn, prev}, :last => n})
       _ -> Map.merge(state, %{n => {turn}, :last => n})
     end
   end
 
-  defp loop_turn(%{last: last} = state, turn, max_turn) when turn > max_turn do
+  defp loop_turn(%{last: last}, turn, max_turn) when turn > max_turn do
     last
   end
 
