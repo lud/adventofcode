@@ -151,16 +151,52 @@ defmodule Aoe.Y20.Day20 do
     rotations = [:normal, {:rotate, 90}, {:rotate, -90}, {:rotate, 180}]
     flips = [:normal, :flip_horiz, :flip_vert, :flip_both]
 
-    for rotation <- rotations, flip <- flips do
-      {rotation, flip} |> IO.inspect(label: "{rotation, flip}")
-      grid = final_grid |> apply_transform(rotation) |> apply_transform(flip)
-      monsters = match_monsters(grid)
-      {{rotation, flip}, monsters}
-    end
-    |> Enum.filter(fn
-      {_, []} -> false
-      {_, _} -> true
+    {transform, monsters_middle} =
+      for rotation <- rotations, flip <- flips do
+        {rotation, flip} |> IO.inspect(label: "{rotation, flip}")
+        grid = final_grid |> apply_transform(rotation) |> apply_transform(flip)
+        monsters = match_monsters(grid)
+        {{rotation, flip}, monsters}
+      end
+      |> Enum.filter(fn
+        {_, []} -> false
+        {_, _} -> true
+      end)
+      |> IO.inspect(label: "matches_results")
+      |> hd
+
+    {t1, t2} = transform
+    monsters_middle
+
+    solution_grid =
+      final_grid
+      |> apply_transform(t1)
+      |> apply_transform(t2)
+
+    Enum.reduce(monsters_middle, solution_grid, fn {x, y}, grid ->
+      replace_monster(grid, x, y - 1)
     end)
+    |> print_final_grid
+  end
+
+  # 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,11,12,13,14,15,16,17,18,19
+  # __,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,?#,__,
+  # ?#,__,__,__,__,?#,?#,__,__,__,__,?#,?#,__,__,__,__,?#,?#,?#,
+  # __,?#,__,__,?#,__,__,?#,__,__,?#,__,__,?#,__,__,?#,__,__,__,
+  @monster_parts Enum.map([18], &{&1, 0}) ++
+                   Enum.map([0, 5, 6, 11, 12, 17, 18, 19], &{&1, 1}) ++
+                   Enum.map([1, 4, 7, 10, 13, 16], &{&1, 2})
+
+  defp replace_monster(grid, x, y) do
+    Enum.reduce(@monster_parts, grid, fn {px, py}, grid ->
+      replace_char(grid, px + x, py + y, ?O)
+    end)
+  end
+
+  defp replace_char(grid, x, y, char) do
+    row = Enum.at(grid, y)
+    new_row = List.replace_at(row, x, char)
+    List.replace_at(grid, y, new_row)
   end
 
   defp match_monsters(grid) do
@@ -177,7 +213,7 @@ defmodule Aoe.Y20.Day20 do
       |> Enum.filter(fn {x_indexes, y} -> length(x_indexes) > 0 end)
 
     # # we will flatten our pairs of coordinates : [{[x1, x2], y}] -> [{x1, y}, {x2, y}]
-    # middle_indexes = for {xs, y} <- middle_indexes, x <- xs, do: {x, y}
+    middle_indexes = for {xs, y} <- middle_indexes, x <- xs, do: {x, y}
 
     # case middle_indexes do
     #   [] -> nil
@@ -188,27 +224,35 @@ defmodule Aoe.Y20.Day20 do
     # found a middle-line sea monster, we must match for the other monster rows
 
     middle_indexes
-    # |> Enum.filter(fn {x, y} ->
-    #   has_monster_row_1(grid, x, y - 1) and has_monster_row_3(grid, x, y + 1)
-    # end)
+    |> Enum.filter(fn {x, y} ->
+      has_monster_row_1(grid, x, y - 1) and has_monster_row_3(grid, x, y + 1)
+    end)
   end
 
   defp has_monster_row_1(grid, x, y) do
     chars = grid |> Enum.at(y) |> Enum.drop(x)
 
-    case chars do
-      [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, ?# | _] -> true
-      _ -> false
-    end
+    has? =
+      case(chars) do
+        [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, ?# | _] -> true
+        _ -> false
+      end
+
+    IO.puts("check row 1 #{x}:#{y}: #{has?}")
+    has?
   end
 
   defp has_monster_row_3(grid, x, y) do
     chars = grid |> Enum.at(y) |> Enum.drop(x)
 
-    case chars do
-      [_, _, _, ?#, _, _, ?#, _, _, ?#, _, _, ?#, _, _, ?#, _, _, ?# | _] -> true
-      _ -> false
-    end
+    has? =
+      case chars do
+        [_, ?#, _, _, ?#, _, _, ?#, _, _, ?#, _, _, ?#, _, _, ?# | _] -> true
+        _ -> false
+      end
+
+    IO.puts("check row 1 #{x}:#{y}: #{has?}")
+    has?
   end
 
   defp match_middle(
@@ -285,6 +329,7 @@ defmodule Aoe.Y20.Day20 do
 
   defp print_final_grid(grid) do
     for row <- grid, do: IO.puts(row)
+    grid
   end
 
   defp remove_borders({coords, %{rows: rows} = tile}) do
