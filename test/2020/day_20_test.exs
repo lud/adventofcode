@@ -145,7 +145,7 @@ defmodule Aoe.Y20.Day20Test do
       |> Solution.read_file!(:part_two)
       |> Solution.parse_input!(:part_two)
 
-    expected = CHANGE_ME
+    expected = 273
     assert expected == Solution.part_two(problem)
   end
 

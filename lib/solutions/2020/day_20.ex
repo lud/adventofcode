@@ -144,7 +144,14 @@ defmodule Aoe.Y20.Day20 do
 
     final_grid = assemble_map(to_check, correct_map, pool, registry)
 
-    find_monsters(final_grid)
+    solution_grid = find_monsters(final_grid)
+
+    solution_grid
+    |> :lists.flatten()
+    |> Enum.reduce(0, fn
+      ?#, acc -> acc + 1
+      _, acc -> acc
+    end)
   end
 
   defp find_monsters(final_grid) do
