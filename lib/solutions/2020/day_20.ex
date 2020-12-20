@@ -1,5 +1,6 @@
 defmodule Aoe.Y20.Day20 do
   alias Aoe.Input, warn: false
+  import :lists, only: [reverse: 1]
 
   @type input_path :: binary
   @type file :: input_path | %Aoe.Input.FakeFile{}
@@ -18,7 +19,6 @@ defmodule Aoe.Y20.Day20 do
     |> String.split(~r/\n{2,}/, trim: true)
     |> Enum.map(&parse_tile/1)
     |> Map.new()
-    |> IO.inspect(label: "map")
   end
 
   defdelegate stc(str), to: String, as: :to_charlist
@@ -26,85 +26,239 @@ defmodule Aoe.Y20.Day20 do
   defp parse_tile("Tile " <> rest) do
     [header | rows] = String.split(rest, "\n", trim: true)
     {id, ":"} = Integer.parse(header)
-    {id, rows}
+    {id, rows |> Enum.map(&stc/1)}
   end
 
   def part_one(map, return_data? \\ false) do
-    signmap =
+    map =
       map
-      |> Enum.map(&tile_to_signatures/1)
+      |> Enum.map(&expand_tile/1)
       |> Map.new()
 
-    sign2neighbours = signmap |> Enum.reduce(%{}, &register_signatures/2)
+    all_signatures =
+      map
+      |> Enum.reduce(%{}, &register_signatures/2)
 
-    neighbourcounts =
-      sign2neighbours
-      |> Enum.reduce(%{}, &count_neighbours/2)
-
-    corners =
-      neighbourcounts
-      |> Enum.filter(fn {id, count} -> count == 2 end)
-
-    if return_data? do
-      {signmap, sign2neighbours, neighbourcounts, corners}
-    else
-      corners
-      |> Enum.map(&elem(&1, 0))
-      |> Enum.reduce(&(&1 * &2))
-    end
+    # to solve part 1 we get all sides that have only two neighbours
+    # the we multiply
+    all_signatures
+    |> get_corners
+    |> Enum.reduce(1, fn corner_id, acc -> corner_id * acc end)
   end
 
-  defp tile_to_signatures({id, rows}) do
-    rows = rows |> Enum.map(&stc/1)
+  defp get_corners(all_signatures) do
+    all_signatures
+    |> Enum.filter(fn {_sign, tiles_sides} ->
+      length(tiles_sides) == 1
+    end)
+    # then we discard the signature and keep the {id, side} tuples
+    |> Enum.map(&elem(&1, 1))
+    |> :lists.flatten()
+    # we count the frequencies by id. A corner has only two sides with
+    # neighbours, so it should be found twice in this list of sides without
+    # connexion. But as we have registered each side normal and reversed, we
+    # look for ids that appear four times.
+    # 
+    # first we count the frequencies by id
+    |> Enum.frequencies_by(&elem(&1, 0))
+    # and take thoses that appear four times
+    |> Enum.filter(&(elem(&1, 1) == 4))
+    |> Enum.map(&elem(&1, 0))
+  end
+
+  defp expand_tile({id, rows}, signatures? \\ true, coords \\ nil) do
     top_row = rows |> hd
     bottom_row = rows |> List.last()
     left_col = rows |> Enum.map(&hd/1)
-    rigth_col = rows |> Enum.map(&List.last/1)
+    right_col = rows |> Enum.map(&List.last/1)
 
-    # tile =
-    #   for {row, y} <- Enum.with_index(rows),
-    #       {char, x} <- Enum.with_index(stc(row)),
-    #       into: %{} do
-    #     {{x, y}, char}
-    #   end
-
-    # {id,
-    #  %{
-    #    top: signature(top_row),
-    #    bottom: signature(bottom_row),
-    #    left: signature(left_col),
-    #    right: signature(rigth_col)
-    #  }}
-    {id, [signature(top_row), signature(bottom_row), signature(left_col), signature(rigth_col)]}
+    {id,
+     %{
+       coords: coords,
+       id: id,
+       rows: rows,
+       top: top_row,
+       bottom: bottom_row,
+       left: left_col,
+       right: right_col,
+       signatures:
+         if signatures? do
+           [
+             top: top_row,
+             bottom: bottom_row,
+             left: left_col,
+             right: right_col,
+             top_rev: reverse(top_row),
+             bottom_rev: reverse(bottom_row),
+             left_rev: reverse(left_col),
+             right_rev: reverse(right_col)
+           ]
+         else
+           nil
+         end
+       # signatures: [
+       #   signature(top_row),
+       #   signature(bottom_row),
+       #   signature(left_col),
+       #   signature(right_col)
+       # ]
+     }}
   end
 
-  defp register_signatures({id, signatures}, acc) do
-    Enum.reduce(signatures, acc, fn sign, acc ->
-      Map.update(acc, sign, [id], &[id | &1])
+  @snap_keys ~w(top top_rev bottom bottom_rev left left_rev right right_rev)a
+
+  defp register_signatures({id, %{signatures: signatures}}, acc) do
+    signatures
+    |> Enum.reduce(acc, fn {side, signature}, acc ->
+      Map.update(acc, signature, [{id, side}], &[{id, side} | &1])
     end)
   end
 
-  defp count_neighbours({_sign, ids}, acc) do
-    case ids do
-      # This side signature corresponds to two tiles, so each tile is the neighbour of the other, we add +1 neighbour to each tile id
-      [id_a, id_b] ->
-        acc
-        |> Map.update(id_a, 1, &(&1 + 1))
-        |> Map.update(id_b, 1, &(&1 + 1))
+  def part_two(map) do
+    map =
+      map
+      |> Enum.map(&expand_tile/1)
+      |> Map.new()
 
-      # This side is a border
-      [alone] ->
-        acc
+    all_signatures =
+      map
+      |> Enum.reduce(%{}, &register_signatures/2)
+
+    # get a random corder
+    [corner_id | _] = get_corners(all_signatures)
+    corner_id
+
+    # build a registry to find a tile from a corner
+    registry =
+      all_signatures
+      |> Enum.filter(fn {signature, sides} -> length(sides) > 1 end)
+      |> Map.new()
+
+    # to assemble the map we initialize it with a corner
+    to_check = as_checkables(corner_id)
+    pool = Map.delete(map, corner_id)
+
+    correct_map = %{corner_id => Map.put(Map.get(map, corner_id), :coords, {0, 0})}
+
+    registry = unregister(all_signatures, Map.get(map, corner_id))
+
+    assemble_map(to_check, correct_map, pool, registry)
+  end
+
+  defp as_checkables(id) do
+    [{id, :left}, {id, :right}, {id, :top}, {id, :bottom}]
+  end
+
+  defp assemble_map([{id, side} | to_check], correct_map, pool, registry) do
+    signature = correct_map |> Map.fetch!(id) |> Map.fetch!(side)
+    coords = correct_map[id].coords
+
+    case Map.get(registry, signature) do
+      nil ->
+        assemble_map(to_check, correct_map, pool, registry)
+
+      [{neighbour_id, neighb_side}] ->
+        {%{^neighbour_id => neigh}, pool} = Map.split(pool, [neighbour_id])
+        registry = unregister(registry, neigh)
+        neigh_to_check = as_checkables(neighbour_id)
+        transform = find_transform(side, neighb_side)
+        neigh_rows = apply_transform(neigh.rows, transform)
+        neigh_coords = coords_from(coords, side)
+        {^neighbour_id, neigh} = expand_tile({neighbour_id, neigh_rows}, false, neigh_coords)
+        IO.puts("Added neighbour #{neighbour_id}")
+        correct_map = Map.put(correct_map, neighbour_id, neigh)
+        assemble_map(neigh_to_check ++ to_check, correct_map, pool, registry)
     end
   end
 
-  defp signature(chars) do
-    rev = :lists.reverse(chars)
-    [a, b] = :lists.sort([chars, rev])
-    :lists.flatten([a, '|', b])
+  defp assemble_map([], correct_map, pool, registry) when map_size(pool) == 0 do
+    correct_map =
+      correct_map
+      |> Enum.map(fn {id, tile} -> {tile.coords, tile} end)
+      |> Map.new()
+
+    all_coords = Map.keys(correct_map)
+    {min_x, _} = Enum.min_by(all_coords, &elem(&1, 0))
+    {max_x, _} = Enum.max_by(all_coords, &elem(&1, 0))
+    {_, min_y} = Enum.min_by(all_coords, &elem(&1, 1))
+    {_, max_y} = Enum.max_by(all_coords, &elem(&1, 1))
+    domain = {min_x, max_x, min_y, max_y}
+    map = Map.put(correct_map, :domain, domain)
+
+    print_map(map)
   end
 
-  def part_two(problem) do
-    {signmap, sign2neighbours, neighbourcounts, corners} = part_one(problem, true)
+  defp print_map(%{domain: {min_x, max_x, min_y, max_y}} = map) do
+    # map = Enum.map(map, fn {coords, %{rows: rows} = tile} ->
+    #   rows = Enum.map(rows, &[?\s|&1]) ++ ['          ']
+    #   {coord, Map.put(tile, :rows, rows)}
+    # end)
+    # |> Enum.into(%{})
+    for y <- min_y..max_y do
+      for i <- 0..9 do
+        for x <- min_x..max_x do
+          tile = Map.get(map, {x, y})
+          IO.write(Enum.at(tile.rows, i))
+          IO.write("  ")
+        end
+
+        IO.puts("")
+      end
+
+      IO.puts("")
+    end
+  end
+
+  defp find_transform(:right, :right_rev), do: {:rotate, 180}
+  defp find_transform(:top, :top_rev), do: {:rotate, 180}
+  defp find_transform(:left, :left_rev), do: {:rotate, 180}
+  defp find_transform(:left, :bottom_rev), do: {:rotate, -90}
+  defp find_transform(:top, :bottom_rev), do: :flip_horiz
+
+  def apply_transform(rows, {:rotate, 180}) do
+    rows
+    |> reverse
+    |> Enum.map(&reverse/1)
+  end
+
+  def apply_transform(rows, {:rotate, -90}) do
+    rotate_left(rows, [])
+  end
+
+  def apply_transform(rows, :flip_horiz) do
+    Enum.map(rows, &reverse/1)
+  end
+
+  defp rotate_left([[] | _], acc) do
+    acc
+    acc |> IO.inspect(label: "acc")
+  end
+
+  defp rotate_left(lists, acc) do
+    heads = Enum.map(lists, &hd/1)
+    # heads |> IO.inspect(label: "heads")
+    tails = Enum.map(lists, &tl/1)
+    # tails |> IO.inspect(label: "tails")
+    rotate_left(tails, [heads | acc])
+  end
+
+  defp coords_from({x, y}, :left), do: {x - 1, y}
+  defp coords_from({x, y}, :right), do: {x + 1, y}
+  defp coords_from({x, y}, :top), do: {x, y - 1}
+
+  defp unregister(registry, %{id: id, signatures: signatures}) do
+    signatures |> IO.inspect(label: "signatures")
+
+    signatures
+    |> Enum.reduce(registry, fn {side, signature}, registry ->
+      # side |> IO.inspect(label: "side")
+      # id |> IO.inspect(label: "id")
+
+      case Map.get(registry, signature) do
+        [] -> exit({:empty, side, id})
+        [{id, side}] -> Map.delete(registry, signature)
+        list -> Map.put(registry, signature, List.keydelete(list, id, 0))
+      end
+    end)
   end
 end
