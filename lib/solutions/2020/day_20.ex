@@ -185,17 +185,56 @@ defmodule Aoe.Y20.Day20 do
     domain = {min_x, max_x, min_y, max_y}
     map = Map.put(correct_map, :domain, domain)
 
-    print_map(map)
+    print_map_ids(map)
+    print_map_overlaps(map, 0..9)
+
+    map =
+      map
+      |> Enum.map(&remove_borders/1)
+      |> Enum.into(%{})
+
+    final_grid = assemble_grid(map)
   end
 
-  defp print_map(%{domain: {min_x, max_x, min_y, max_y}} = map) do
+  defp remove_borders({coords, %{rows: rows} = tile}) do
+    rows = remove_ends(rows)
+    rows = Enum.map(rows, &remove_ends/1)
+    {coords, Map.put(tile, :rows, rows)}
+  end
+
+  defp remove_ends(list) do
+    [_ | tail] = list
+    tail |> reverse() |> tl() |> reverse()
+  end
+
+  defp remove_borders({:domain, _} = domain) do
+    domain
+  end
+
+  defp print_map_ids(%{domain: {min_x, max_x, min_y, max_y}} = map) do
     # map = Enum.map(map, fn {coords, %{rows: rows} = tile} ->
     #   rows = Enum.map(rows, &[?\s|&1]) ++ ['          ']
     #   {coord, Map.put(tile, :rows, rows)}
     # end)
     # |> Enum.into(%{})
     for y <- min_y..max_y do
-      for i <- 0..9 do
+      for x <- min_x..max_x do
+        tile = Map.get(map, {x, y})
+        IO.write("#{tile.id} ")
+      end
+
+      IO.puts("")
+    end
+  end
+
+  defp print_map_overlaps(%{domain: {min_x, max_x, min_y, max_y}} = map, dimension) do
+    # map = Enum.map(map, fn {coords, %{rows: rows} = tile} ->
+    #   rows = Enum.map(rows, &[?\s|&1]) ++ ['          ']
+    #   {coord, Map.put(tile, :rows, rows)}
+    # end)
+    # |> Enum.into(%{})
+    for y <- min_y..max_y do
+      for i <- dimension do
         for x <- min_x..max_x do
           tile = Map.get(map, {x, y})
           IO.write(Enum.at(tile.rows, i))
@@ -206,6 +245,17 @@ defmodule Aoe.Y20.Day20 do
       end
 
       IO.puts("")
+    end
+  end
+
+  defp assemble_grid(%{domain: {min_x, max_x, min_y, max_y}} = map) do
+    for y <- min_y..max_y, i <- 0..7 do
+      big_row =
+        for x <- min_x..max_x do
+          tile = Map.get(map, {x, y})
+          row = Enum.at(tile.rows, i)
+        end
+        |> :lists.flatten()
     end
   end
 
