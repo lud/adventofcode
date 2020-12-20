@@ -29,7 +29,7 @@ defmodule Aoe.Y20.Day20 do
     {id, rows |> Enum.map(&stc/1)}
   end
 
-  def part_one(map, return_data? \\ false) do
+  def part_one(map) do
     map =
       map
       |> Enum.map(&expand_tile/1)
@@ -105,8 +105,6 @@ defmodule Aoe.Y20.Day20 do
      }}
   end
 
-  @snap_keys ~w(top top_rev bottom bottom_rev left left_rev right right_rev)a
-
   defp register_signatures({id, %{signatures: signatures}}, acc) do
     signatures
     |> Enum.reduce(acc, fn {side, signature}, acc ->
@@ -120,27 +118,21 @@ defmodule Aoe.Y20.Day20 do
       |> Enum.map(&expand_tile/1)
       |> Map.new()
 
-    all_signatures =
+    registry =
       map
       |> Enum.reduce(%{}, &register_signatures/2)
 
     # get a random corder
-    [corner_id | _] = get_corners(all_signatures)
-    corner_id
+    [corner_id | _] = get_corners(registry)
 
-    # build a registry to find a tile from a corner
-    registry =
-      all_signatures
-      |> Enum.filter(fn {signature, sides} -> length(sides) > 1 end)
-      |> Map.new()
-
-    # to assemble the map we initialize it with a corner
+    # to assemble the map we initialize it with a corner tile
     to_check = as_checkables(corner_id)
     pool = Map.delete(map, corner_id)
 
     correct_map = %{corner_id => Map.put(Map.get(map, corner_id), :coords, {0, 0})}
 
-    registry = unregister(all_signatures, Map.get(map, corner_id))
+    # build a registry to find a tile from a side
+    registry = unregister(registry, Map.get(map, corner_id))
 
     final_grid = assemble_map(to_check, correct_map, pool, registry)
 
@@ -171,7 +163,6 @@ defmodule Aoe.Y20.Day20 do
       |> hd
 
     {t1, t2} = transform
-    monsters_middle
 
     solution_grid =
       final_grid
@@ -181,8 +172,7 @@ defmodule Aoe.Y20.Day20 do
     Enum.reduce(monsters_middle, solution_grid, fn {x, y}, grid ->
       replace_monster(grid, x, y - 1)
     end)
-
-    # |> print_final_grid
+    |> print_final_grid
   end
 
   # 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,11,12,13,14,15,16,17,18,19
@@ -195,7 +185,12 @@ defmodule Aoe.Y20.Day20 do
 
   defp replace_monster(grid, x, y) do
     Enum.reduce(@monster_parts, grid, fn {px, py}, grid ->
-      replace_char(grid, px + x, py + y, ?O)
+      replace_char(grid, px + x, py + y, [
+        IO.ANSI.light_green(),
+        IO.ANSI.bright(),
+        ?O,
+        IO.ANSI.reset()
+      ])
     end)
   end
 
@@ -207,10 +202,9 @@ defmodule Aoe.Y20.Day20 do
 
   defp match_monsters(grid) do
     # match the second line of the monster as it is the most specific.
-    # as it is the second line, we drop the first line and start at rowindex 1
-    # and also discard the last line.
+    # As it is the second line, start search at rowindex 1 and end at max-y - 1
     # 
-    # We build a list of {x_index, y_index} for the grid
+    # We build a list of matches as {x_index, y_index} for the grid
     max_row = length(grid) - 2
 
     middle_indexes =
@@ -218,9 +212,9 @@ defmodule Aoe.Y20.Day20 do
       |> Enum.slice(1..max_row)
       |> Enum.map(&match_middle(&1, 0, []))
       |> Enum.with_index(1)
-      |> Enum.filter(fn {x_indexes, y} -> length(x_indexes) > 0 end)
+      |> Enum.filter(fn {x_indexes, _y} -> length(x_indexes) > 0 end)
 
-    # # we will flatten our pairs of coordinates : [{[x1, x2], y}] -> [{x1, y}, {x2, y}]
+    # we will flatten our pairs of coordinates : [{[x1, x2], y}] -> [{x1, y}, {x2, y}]
     middle_indexes = for {xs, y} <- middle_indexes, x <- xs, do: {x, y}
 
     # case middle_indexes do
@@ -266,17 +260,16 @@ defmodule Aoe.Y20.Day20 do
          index,
          acc
        ) do
-    # IO.puts("matched at index #{index}")
-    [skip | list] = list
+    [_skip | list] = list
     match_middle(list, index + 1, [index | acc])
   end
 
-  defp match_middle([skip | list], index, acc) do
+  defp match_middle([_skip | list], index, acc) do
     # index |> IO.inspect(label: "noindex")
     match_middle(list, index + 1, acc)
   end
 
-  defp match_middle([], index, acc) do
+  defp match_middle([], _index, acc) do
     acc
   end
 
@@ -305,10 +298,10 @@ defmodule Aoe.Y20.Day20 do
     end
   end
 
-  defp assemble_map([], correct_map, pool, registry) when map_size(pool) == 0 do
+  defp assemble_map([], correct_map, pool, _registry) when map_size(pool) == 0 do
     correct_map =
       correct_map
-      |> Enum.map(fn {id, tile} -> {tile.coords, tile} end)
+      |> Enum.map(fn {_id, tile} -> {tile.coords, tile} end)
       |> Enum.reduce(%{}, fn {coords, tile}, map ->
         if Map.has_key?(map, coords) do
           raise "coords #{inspect(coords)} already defined"
@@ -325,22 +318,17 @@ defmodule Aoe.Y20.Day20 do
     domain = {min_x, max_x, min_y, max_y}
     map = Map.put(correct_map, :domain, domain)
 
-    # print_map_ids(map)
-    # print_map_overlaps(map, 0..9)
-
     map =
       map
       |> Enum.map(&remove_borders/1)
       |> Enum.into(%{})
 
     final_grid = assemble_grid(map)
-    # print_final_grid(final_grid)
     final_grid
   end
 
   defp print_final_grid(grid) do
-    length(grid) |> IO.inspect(label: "length(grid)")
-    length(hd(grid)) |> IO.inspect(label: "length(hd(grid))")
+    IO.puts("")
     for row <- grid, do: IO.puts(row)
     grid
   end
@@ -351,88 +339,52 @@ defmodule Aoe.Y20.Day20 do
     {coords, Map.put(tile, :rows, rows)}
   end
 
+  defp remove_borders({:domain, _} = domain) do
+    domain
+  end
+
   defp remove_ends(list) do
     [_ | tail] = list
     tail |> reverse() |> tl() |> reverse()
   end
 
-  defp remove_borders({:domain, _} = domain) do
-    domain
-  end
-
-  defp print_map_ids(%{domain: {min_x, max_x, min_y, max_y}} = map) do
-    # map = Enum.map(map, fn {coords, %{rows: rows} = tile} ->
-    #   rows = Enum.map(rows, &[?\s|&1]) ++ ['          ']
-    #   {coord, Map.put(tile, :rows, rows)}
-    # end)
-    # |> Enum.into(%{})
-    for y <- min_y..max_y do
-      for x <- min_x..max_x do
-        tile = Map.get(map, {x, y})
-        IO.write("#{tile.id} ")
-      end
-
-      IO.puts("")
-    end
-  end
-
-  defp print_map_overlaps(%{domain: {min_x, max_x, min_y, max_y}} = map, dimension) do
-    # map = Enum.map(map, fn {coords, %{rows: rows} = tile} ->
-    #   rows = Enum.map(rows, &[?\s|&1]) ++ ['          ']
-    #   {coord, Map.put(tile, :rows, rows)}
-    # end)
-    # |> Enum.into(%{})
-    for y <- min_y..max_y do
-      for i <- dimension do
-        for x <- min_x..max_x do
-          tile = Map.get(map, {x, y})
-          IO.write(Enum.at(tile.rows, i))
-          IO.write("  ")
-        end
-
-        IO.puts("")
-      end
-
-      IO.puts("")
-    end
-  end
-
   defp assemble_grid(%{domain: {min_x, max_x, min_y, max_y}} = map) do
     for y <- min_y..max_y, i <- 0..7 do
-      big_row =
-        for x <- min_x..max_x do
-          tile = Map.get(map, {x, y})
-          row = Enum.at(tile.rows, i)
-        end
-        |> :lists.flatten()
+      for x <- min_x..max_x do
+        tile = Map.get(map, {x, y})
+        Enum.at(tile.rows, i)
+      end
+      |> :lists.flatten()
     end
   end
 
-  defp find_transform(:right, :right_rev), do: {:rotate, 180}
-  defp find_transform(:top, :top_rev), do: {:rotate, 180}
-  defp find_transform(:left, :left_rev), do: {:rotate, 180}
-  defp find_transform(:left, :bottom_rev), do: {:rotate, -90}
-  defp find_transform(:top, :bottom_rev), do: :flip_horiz
-  defp find_transform(:right, :left_rev), do: :flip_vert
-  defp find_transform(:right, :bottom_rev), do: [{:rotate, 90}, :flip_vert]
-  defp find_transform(:right, :bottom), do: {:rotate, 90}
-  defp find_transform(:right, :top), do: [:flip_horiz, {:rotate, -90}]
-  defp find_transform(:right, :right), do: :flip_horiz
-  defp find_transform(:right, :left), do: :normal
-  defp find_transform(:bottom, :left_rev), do: {:rotate, 90}
-  defp find_transform(:left, :top_rev), do: [{:rotate, 90}, :flip_vert]
-  defp find_transform(:left, :right_rev), do: :flip_vert
-  defp find_transform(:left, :bottom), do: [{:rotate, -90}, :flip_vert]
-  defp find_transform(:left, :right), do: :normal
-  defp find_transform(:right, :top_rev), do: {:rotate, -90}
-  defp find_transform(:bottom, :left), do: [{:rotate, 90}, :flip_horiz]
-  defp find_transform(:bottom, :right), do: {:rotate, -90}
-  defp find_transform(:left, :top), do: {:rotate, 90}
-  defp find_transform(:bottom, :bottom_rev), do: :flip_both
-  defp find_transform(:left, :left), do: :flip_horiz
-  defp find_transform(:top, :bottom), do: :normal
-  defp find_transform(:top, :left), do: {:rotate, -90}
+  # tells the transform to apply to a nighbour tile for its side (2nd arg) to
+  # match the current tile (1st arg).
   defp find_transform(:bottom, :bottom), do: :flip_vert
+  defp find_transform(:bottom, :bottom_rev), do: :flip_both
+  defp find_transform(:bottom, :left), do: [{:rotate, 90}, :flip_horiz]
+  defp find_transform(:bottom, :left_rev), do: {:rotate, 90}
+  defp find_transform(:bottom, :right), do: {:rotate, -90}
+  defp find_transform(:left, :bottom), do: [{:rotate, -90}, :flip_vert]
+  defp find_transform(:left, :bottom_rev), do: {:rotate, -90}
+  defp find_transform(:left, :left), do: :flip_horiz
+  defp find_transform(:left, :left_rev), do: {:rotate, 180}
+  defp find_transform(:left, :right), do: :normal
+  defp find_transform(:left, :right_rev), do: :flip_vert
+  defp find_transform(:left, :top), do: {:rotate, 90}
+  defp find_transform(:left, :top_rev), do: [{:rotate, 90}, :flip_vert]
+  defp find_transform(:right, :bottom), do: {:rotate, 90}
+  defp find_transform(:right, :bottom_rev), do: [{:rotate, 90}, :flip_vert]
+  defp find_transform(:right, :left), do: :normal
+  defp find_transform(:right, :left_rev), do: :flip_vert
+  defp find_transform(:right, :right), do: :flip_horiz
+  defp find_transform(:right, :right_rev), do: {:rotate, 180}
+  defp find_transform(:right, :top), do: [:flip_horiz, {:rotate, -90}]
+  defp find_transform(:right, :top_rev), do: {:rotate, -90}
+  defp find_transform(:top, :bottom), do: :normal
+  defp find_transform(:top, :bottom_rev), do: :flip_horiz
+  defp find_transform(:top, :left), do: {:rotate, -90}
+  defp find_transform(:top, :top_rev), do: {:rotate, 180}
 
   def apply_transform(rows, :normal), do: rows
 
@@ -501,7 +453,7 @@ defmodule Aoe.Y20.Day20 do
     |> Enum.reduce(registry, fn {side, signature}, registry ->
       case Map.get(registry, signature) do
         [] -> exit({:empty, side, id})
-        [{id, side}] -> Map.delete(registry, signature)
+        [{_id, _side}] -> Map.delete(registry, signature)
         list -> Map.put(registry, signature, List.keydelete(list, id, 0))
       end
     end)
