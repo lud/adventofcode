@@ -150,10 +150,33 @@ defmodule Aoe.Y20.Day20Test do
   end
 
   test "verify 2020/20 apply_transform" do
-    input = ['ABCD', 'EFGH']
-    expected = ['DH', 'CG', 'BF', 'AE']
+    input = [
+      'ABCD',
+      'EFGH'
+    ]
+
+    expected = [
+      'DH',
+      'CG',
+      'BF',
+      'AE'
+    ]
 
     assert expected == Solution.apply_transform(input, {:rotate, -90})
+
+    input = [
+      'ABCD',
+      'EFGH'
+    ]
+
+    expected = [
+      'EA',
+      'FB',
+      'GC',
+      'HD'
+    ]
+
+    assert expected == Solution.apply_transform(input, {:rotate, 90})
   end
 
   # Once your part one was successfully sumbitted, you may uncomment this test

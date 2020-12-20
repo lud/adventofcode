@@ -142,7 +142,92 @@ defmodule Aoe.Y20.Day20 do
 
     registry = unregister(all_signatures, Map.get(map, corner_id))
 
-    assemble_map(to_check, correct_map, pool, registry)
+    final_grid = assemble_map(to_check, correct_map, pool, registry)
+
+    find_monsters(final_grid)
+  end
+
+  defp find_monsters(final_grid) do
+    rotations = [:normal, {:rotate, 90}, {:rotate, -90}, {:rotate, 180}]
+    flips = [:normal, :flip_horiz, :flip_vert, :flip_both]
+
+    for rotation <- rotations, flip <- flips do
+      {rotation, flip} |> IO.inspect(label: "{rotation, flip}")
+      grid = final_grid |> apply_transform(rotation) |> apply_transform(flip)
+      monsters = match_monsters(grid)
+      {{rotation, flip}, monsters}
+    end
+    |> Enum.filter(fn
+      {_, []} -> false
+      {_, _} -> true
+    end)
+  end
+
+  defp match_monsters(grid) do
+    # match the second line of the monster as it is the most specific.
+    # as it is the second line, we drop the first line and start at rowindex 1
+    # and also discard the last line.
+    # 
+    # We build a list of {x_index, y_index} for the grid
+    middle_indexes =
+      grid
+      |> Enum.slice(1..22)
+      |> Enum.map(&match_middle(&1, 0, []))
+      |> Enum.with_index(1)
+      |> Enum.filter(fn {x_indexes, y} -> length(x_indexes) > 0 end)
+
+    # # we will flatten our pairs of coordinates : [{[x1, x2], y}] -> [{x1, y}, {x2, y}]
+    # middle_indexes = for {xs, y} <- middle_indexes, x <- xs, do: {x, y}
+
+    # case middle_indexes do
+    #   [] -> nil
+    #   mis -> IO.inspect(mis, label: "middle_indexes")
+    # end
+
+    # now we need to validate our sea monsters. for each row/col index where we
+    # found a middle-line sea monster, we must match for the other monster rows
+
+    middle_indexes
+    # |> Enum.filter(fn {x, y} ->
+    #   has_monster_row_1(grid, x, y - 1) and has_monster_row_3(grid, x, y + 1)
+    # end)
+  end
+
+  defp has_monster_row_1(grid, x, y) do
+    chars = grid |> Enum.at(y) |> Enum.drop(x)
+
+    case chars do
+      [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, ?# | _] -> true
+      _ -> false
+    end
+  end
+
+  defp has_monster_row_3(grid, x, y) do
+    chars = grid |> Enum.at(y) |> Enum.drop(x)
+
+    case chars do
+      [_, _, _, ?#, _, _, ?#, _, _, ?#, _, _, ?#, _, _, ?#, _, _, ?# | _] -> true
+      _ -> false
+    end
+  end
+
+  defp match_middle(
+         [?#, _, _, _, _, ?#, ?#, _, _, _, _, ?#, ?#, _, _, _, _, ?#, ?#, ?# | _] = list,
+         index,
+         acc
+       ) do
+    # IO.puts("matched at index #{index}")
+    [skip | list] = list
+    match_middle(list, index + 1, [index | acc])
+  end
+
+  defp match_middle([skip | list], index, acc) do
+    # index |> IO.inspect(label: "noindex")
+    match_middle(list, index + 1, acc)
+  end
+
+  defp match_middle([], index, acc) do
+    acc
   end
 
   defp as_checkables(id) do
@@ -194,6 +279,12 @@ defmodule Aoe.Y20.Day20 do
       |> Enum.into(%{})
 
     final_grid = assemble_grid(map)
+    print_final_grid(final_grid)
+    final_grid
+  end
+
+  defp print_final_grid(grid) do
+    for row <- grid, do: IO.puts(row)
   end
 
   defp remove_borders({coords, %{rows: rows} = tile}) do
@@ -265,6 +356,8 @@ defmodule Aoe.Y20.Day20 do
   defp find_transform(:left, :bottom_rev), do: {:rotate, -90}
   defp find_transform(:top, :bottom_rev), do: :flip_horiz
 
+  def apply_transform(rows, :normal), do: rows
+
   def apply_transform(rows, {:rotate, 180}) do
     rows
     |> reverse
@@ -275,13 +368,26 @@ defmodule Aoe.Y20.Day20 do
     rotate_left(rows, [])
   end
 
+  def apply_transform(rows, {:rotate, 90}) do
+    rotate_rigth(rows, [])
+  end
+
   def apply_transform(rows, :flip_horiz) do
     Enum.map(rows, &reverse/1)
   end
 
+  def apply_transform(rows, :flip_vert) do
+    reverse(rows)
+  end
+
+  def apply_transform(rows, :flip_both) do
+    rows
+    |> apply_transform(:flip_horiz)
+    |> apply_transform(:flip_vert)
+  end
+
   defp rotate_left([[] | _], acc) do
     acc
-    acc |> IO.inspect(label: "acc")
   end
 
   defp rotate_left(lists, acc) do
@@ -290,6 +396,17 @@ defmodule Aoe.Y20.Day20 do
     tails = Enum.map(lists, &tl/1)
     # tails |> IO.inspect(label: "tails")
     rotate_left(tails, [heads | acc])
+  end
+
+  defp rotate_rigth([[] | _], acc) do
+    acc |> :lists.reverse()
+  end
+
+  defp rotate_rigth(lists, acc) do
+    heads = Enum.map(lists, &hd/1) |> :lists.reverse()
+
+    tails = Enum.map(lists, &tl/1)
+    rotate_rigth(tails, [heads | acc])
   end
 
   defp coords_from({x, y}, :left), do: {x - 1, y}
