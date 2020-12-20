@@ -160,7 +160,6 @@ defmodule Aoe.Y20.Day20 do
 
     {transform, monsters_middle} =
       for rotation <- rotations, flip <- flips do
-        {rotation, flip} |> IO.inspect(label: "{rotation, flip}")
         grid = final_grid |> apply_transform(rotation) |> apply_transform(flip)
         monsters = match_monsters(grid)
         {{rotation, flip}, monsters}
@@ -169,7 +168,6 @@ defmodule Aoe.Y20.Day20 do
         {_, []} -> false
         {_, _} -> true
       end)
-      |> IO.inspect(label: "matches_results")
       |> hd
 
     {t1, t2} = transform
@@ -183,7 +181,8 @@ defmodule Aoe.Y20.Day20 do
     Enum.reduce(monsters_middle, solution_grid, fn {x, y}, grid ->
       replace_monster(grid, x, y - 1)
     end)
-    |> print_final_grid
+
+    # |> print_final_grid
   end
 
   # 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,11,12,13,14,15,16,17,18,19
@@ -212,9 +211,11 @@ defmodule Aoe.Y20.Day20 do
     # and also discard the last line.
     # 
     # We build a list of {x_index, y_index} for the grid
+    max_row = length(grid) - 2
+
     middle_indexes =
       grid
-      |> Enum.slice(1..22)
+      |> Enum.slice(1..max_row)
       |> Enum.map(&match_middle(&1, 0, []))
       |> Enum.with_index(1)
       |> Enum.filter(fn {x_indexes, y} -> length(x_indexes) > 0 end)
@@ -245,7 +246,6 @@ defmodule Aoe.Y20.Day20 do
         _ -> false
       end
 
-    IO.puts("check row 1 #{x}:#{y}: #{has?}")
     has?
   end
 
@@ -258,7 +258,6 @@ defmodule Aoe.Y20.Day20 do
         _ -> false
       end
 
-    IO.puts("check row 1 #{x}:#{y}: #{has?}")
     has?
   end
 
@@ -301,7 +300,6 @@ defmodule Aoe.Y20.Day20 do
         neigh_rows = apply_transform(neigh.rows, transform)
         neigh_coords = coords_from(coords, side)
         {^neighbour_id, neigh} = expand_tile({neighbour_id, neigh_rows}, false, neigh_coords)
-        IO.puts("Added neighbour #{neighbour_id}")
         correct_map = Map.put(correct_map, neighbour_id, neigh)
         assemble_map(neigh_to_check ++ to_check, correct_map, pool, registry)
     end
@@ -311,7 +309,13 @@ defmodule Aoe.Y20.Day20 do
     correct_map =
       correct_map
       |> Enum.map(fn {id, tile} -> {tile.coords, tile} end)
-      |> Map.new()
+      |> Enum.reduce(%{}, fn {coords, tile}, map ->
+        if Map.has_key?(map, coords) do
+          raise "coords #{inspect(coords)} already defined"
+        end
+
+        Map.put(map, coords, tile)
+      end)
 
     all_coords = Map.keys(correct_map)
     {min_x, _} = Enum.min_by(all_coords, &elem(&1, 0))
@@ -321,8 +325,8 @@ defmodule Aoe.Y20.Day20 do
     domain = {min_x, max_x, min_y, max_y}
     map = Map.put(correct_map, :domain, domain)
 
-    print_map_ids(map)
-    print_map_overlaps(map, 0..9)
+    # print_map_ids(map)
+    # print_map_overlaps(map, 0..9)
 
     map =
       map
@@ -330,11 +334,13 @@ defmodule Aoe.Y20.Day20 do
       |> Enum.into(%{})
 
     final_grid = assemble_grid(map)
-    print_final_grid(final_grid)
+    # print_final_grid(final_grid)
     final_grid
   end
 
   defp print_final_grid(grid) do
+    length(grid) |> IO.inspect(label: "length(grid)")
+    length(hd(grid)) |> IO.inspect(label: "length(hd(grid))")
     for row <- grid, do: IO.puts(row)
     grid
   end
@@ -407,6 +413,26 @@ defmodule Aoe.Y20.Day20 do
   defp find_transform(:left, :left_rev), do: {:rotate, 180}
   defp find_transform(:left, :bottom_rev), do: {:rotate, -90}
   defp find_transform(:top, :bottom_rev), do: :flip_horiz
+  defp find_transform(:right, :left_rev), do: :flip_vert
+  defp find_transform(:right, :bottom_rev), do: [{:rotate, 90}, :flip_vert]
+  defp find_transform(:right, :bottom), do: {:rotate, 90}
+  defp find_transform(:right, :top), do: [:flip_horiz, {:rotate, -90}]
+  defp find_transform(:right, :right), do: :flip_horiz
+  defp find_transform(:right, :left), do: :normal
+  defp find_transform(:bottom, :left_rev), do: {:rotate, 90}
+  defp find_transform(:left, :top_rev), do: [{:rotate, 90}, :flip_vert]
+  defp find_transform(:left, :right_rev), do: :flip_vert
+  defp find_transform(:left, :bottom), do: [{:rotate, -90}, :flip_vert]
+  defp find_transform(:left, :right), do: :normal
+  defp find_transform(:right, :top_rev), do: {:rotate, -90}
+  defp find_transform(:bottom, :left), do: [{:rotate, 90}, :flip_horiz]
+  defp find_transform(:bottom, :right), do: {:rotate, -90}
+  defp find_transform(:left, :top), do: {:rotate, 90}
+  defp find_transform(:bottom, :bottom_rev), do: :flip_both
+  defp find_transform(:left, :left), do: :flip_horiz
+  defp find_transform(:top, :bottom), do: :normal
+  defp find_transform(:top, :left), do: {:rotate, -90}
+  defp find_transform(:bottom, :bottom), do: :flip_vert
 
   def apply_transform(rows, :normal), do: rows
 
@@ -433,9 +459,15 @@ defmodule Aoe.Y20.Day20 do
   end
 
   def apply_transform(rows, :flip_both) do
+    apply_transform(rows, [:flip_horiz, :flip_vert])
+  end
+
+  def apply_transform(rows, [t | transforms]) do
+    rows |> apply_transform(t) |> apply_transform(transforms)
+  end
+
+  def apply_transform(rows, []) do
     rows
-    |> apply_transform(:flip_horiz)
-    |> apply_transform(:flip_vert)
   end
 
   defp rotate_left([[] | _], acc) do
@@ -444,9 +476,7 @@ defmodule Aoe.Y20.Day20 do
 
   defp rotate_left(lists, acc) do
     heads = Enum.map(lists, &hd/1)
-    # heads |> IO.inspect(label: "heads")
     tails = Enum.map(lists, &tl/1)
-    # tails |> IO.inspect(label: "tails")
     rotate_left(tails, [heads | acc])
   end
 
@@ -464,15 +494,11 @@ defmodule Aoe.Y20.Day20 do
   defp coords_from({x, y}, :left), do: {x - 1, y}
   defp coords_from({x, y}, :right), do: {x + 1, y}
   defp coords_from({x, y}, :top), do: {x, y - 1}
+  defp coords_from({x, y}, :bottom), do: {x, y + 1}
 
   defp unregister(registry, %{id: id, signatures: signatures}) do
-    signatures |> IO.inspect(label: "signatures")
-
     signatures
     |> Enum.reduce(registry, fn {side, signature}, registry ->
-      # side |> IO.inspect(label: "side")
-      # id |> IO.inspect(label: "id")
-
       case Map.get(registry, signature) do
         [] -> exit({:empty, side, id})
         [{id, side}] -> Map.delete(registry, signature)
