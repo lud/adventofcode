@@ -172,7 +172,8 @@ defmodule Aoe.Y20.Day20 do
     Enum.reduce(monsters_middle, solution_grid, fn {x, y}, grid ->
       replace_monster(grid, x, y - 1)
     end)
-    |> print_final_grid
+
+    # |> print_final_grid
   end
 
   # 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,11,12,13,14,15,16,17,18,19
@@ -327,9 +328,18 @@ defmodule Aoe.Y20.Day20 do
     final_grid
   end
 
-  defp print_final_grid(grid) do
+  def print_final_grid(grid) do
     IO.puts("")
-    for row <- grid, do: IO.puts(row)
+
+    for row <- grid,
+        do:
+          IO.puts(
+            Enum.map(row, fn
+              ?. -> [IO.ANSI.blue(), ?~, IO.ANSI.reset()]
+              char -> char
+            end)
+          )
+
     grid
   end
 

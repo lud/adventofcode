@@ -43,7 +43,7 @@ defmodule Aoe.Y20.Day20FirstTry do
 
     corners =
       neighbourcounts
-      |> Enum.filter(fn {id, count} -> count == 2 end)
+      |> Enum.filter(fn {_id, count} -> count == 2 end)
 
     if return_data? do
       {map, sign2neighbours, neighbourcounts, corners}
@@ -101,7 +101,7 @@ defmodule Aoe.Y20.Day20FirstTry do
         |> Map.update(id_b, 1, &(&1 + 1))
 
       # This side is a border
-      [alone] ->
+      [_alone] ->
         acc
     end
   end
@@ -113,8 +113,7 @@ defmodule Aoe.Y20.Day20FirstTry do
   end
 
   def part_two(map) do
-    # map
-    {map, sign2neighbours, neighbourcounts, corners} = part_one(map, true)
+    {_map, sign2neighbours, _neighbourcounts, _corners} = part_one(map, true)
 
     sign2neighbours
     |> Enum.sort(&(length(elem(&1, 1)) <= length(elem(&2, 1))))
