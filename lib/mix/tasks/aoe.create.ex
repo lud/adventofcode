@@ -18,6 +18,8 @@ defmodule Mix.Tasks.Aoe.Create do
     case Task.await(download_input) do
       {:ok, path} ->
         Mix.Shell.IO.info("Input file exists in #{path}")
+        Mix.Shell.IO.info("Opening https://adventofcode.com/#{year}/day/#{day}")
+        System.cmd("open", ["https://adventofcode.com/#{year}/day/#{day}"])
 
       {:error, reason} ->
         Mix.Shell.IO.info("Warning: Could not download input: #{inspect(reason)}")
