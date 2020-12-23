@@ -34,15 +34,15 @@ defmodule Aoe.Y20.Day23Test do
     assert expected == Solution.part_one(problem, 10)
   end
 
-  test "verify 2020/23 part_one - big sample" do
-    problem = [3, 8, 9, 1, 2, 5, 4, 6, 7] ++ Enum.to_list(10..20)
-    Solution.part_one(problem, 100)
-  end
+  # test "verify 2020/23 part_one - big sample" do
+  #   problem = [3, 8, 9, 1, 2, 5, 4, 6, 7] ++ Enum.to_list(10..20)
+  #   Solution.part_one(problem, 100)
+  # end
 
-  test "verify 2020/23 part_one - ordered" do
-    problem = Enum.to_list(1..9)
-    Solution.part_one(problem, 100)
-  end
+  # test "verify 2020/23 part_one - ordered" do
+  #   problem = Enum.to_list(1..9)
+  #   Solution.part_one(problem, 100)
+  # end
 
   # test "verify 2020/23 part_two - samples" do
   #   problem =

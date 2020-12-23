@@ -1,4 +1,4 @@
-defmodule Aoe.Y20.Day23 do
+defmodule Aoe.Y20.Day23Fail do
   alias Aoe.Input, warn: false
 
   @type input_path :: binary
@@ -23,7 +23,7 @@ defmodule Aoe.Y20.Day23 do
     result =
       cups
       |> print_move("INITIAL")
-      |> moves(1, moves_amount)
+      |> moves(1, moves_amount, Enum.max(cups))
       |> to_answer
 
     IO.puts("---------------------------------")
@@ -39,7 +39,7 @@ defmodule Aoe.Y20.Day23 do
 
     cups =
       cups
-      |> moves(1, moves_amount)
+      |> moves(1, moves_amount, 1_000_000)
 
     IO.puts("---------------------------------")
 
@@ -60,18 +60,18 @@ defmodule Aoe.Y20.Day23 do
     # |> :erlang.list_to_integer()
   end
 
-  defp moves(cups, n, max) when n > max do
+  defp moves(cups, n, max_move, _) when n > max_move do
     cups
   end
 
-  defp moves(cups, n, max) do
-    Process.sleep(1000)
+  defp moves(cups, n, max_move, max_cup) do
+    # Process.sleep(1000)
 
     cups
-    |> move()
+    |> move(max_cup)
     # |> print_position_of(3)
     |> print_move(n)
-    |> moves(n + 1, max)
+    |> moves(n + 1, max_move, max_cup)
   end
 
   def print_move([h | _] = cups, n) do
@@ -93,13 +93,21 @@ defmodule Aoe.Y20.Day23 do
     cups
   end
 
-  defp move(cups) do
+  defp move(cups, max_cup) do
     [cur, a, b, c | cups] = unpack(cups, 4)
-    dest = find_destination(cur, cups, cups)
-    # cur |> IO.inspect(label: "cur")
-    # dest |> IO.inspect(label: "dest")
+    dest = to_dest(cur - 1, [a, b, c], max_cup)
+    # dest = find_destination(cur, cups, cups)
+    cur |> IO.inspect(label: "cur")
+    dest |> IO.inspect(label: "dest")
     cups = rearrange(cups, dest, {a, b, c}, cur)
   end
+
+  def to_dest(0, ignore, max_cup), do: to_dest(max_cup, ignore, max_cup)
+
+  def to_dest(cur, [a, b, c] = ignore, max_cup) when cur in [a, b, c],
+    do: to_dest(cur - 1, ignore, max_cup)
+
+  def to_dest(cur, [a, b, c], max_cup), do: cur
 
   defp unpack(cups, 0) do
     cups
