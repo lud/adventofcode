@@ -34,38 +34,71 @@ defmodule Aoe.Y20.Day23 do
     |> to_string
   end
 
+  def part_two(cups) do
+    max_cup = Enum.max(cups)
+    cups = cups ++ Enum.to_list(10..1_000_000)
+    [cur | _] = cups
+    cmap = init_map(cups, 1_000_000)
+    Map.fetch!(cmap, 1_000_000) |> IO.inspect(label: "Map.fetch!(cmap, 1000000)")
+
+    cmap
+    |> to_list(cur, 40)
+    |> IO.inspect(label: "initial partial", charlists: :as_lists)
+
+    cmap = move(cmap, cur, 10_000_000, 1, max_cup)
+    next_a = cmap[1]
+    next_b = cmap[next_a]
+    next_a * next_b
+  end
+
   defp move(cmap, cur, max_move, nmove, max_cup) when nmove <= max_move do
-    IO.puts("move #{nmove}: #{cur}")
+    # Process.sleep(1000)
+
+    if rem(nmove, 1000) == 0 do
+      IO.puts("move #{nmove}: #{cur}")
+    end
+
     {a, b, c, d} = pick4(cmap, cur)
     dest = find_dest(cur - 1, {a, b, c}, max_cup)
     dest_next = Map.fetch!(cmap, dest)
 
-    # cmap
-    # |> to_list(cur)
-    # |> IO.inspect(label: "list")
+    # IO.puts("current: #{cur}, move #{a},#{b},#{c} after #{dest}, before #{dest_next}")
+    [cur: cur, a: a, b: b, c: c, d: d, dest: dest, dest_next: dest_next]
+    |> IO.inspect(label: "binding(partial)")
 
-    cmap
-    |> Map.merge(%{dest => a, c => dest_next, cur => d})
-    |> move(d, max_move, nmove + 1, max_cup)
+    cmap =
+      cmap
+      |> Map.merge(%{dest => a, c => dest_next, cur => d})
+
+    # cmap
+    # |> to_list(cur, 40)
+    # |> IO.inspect(label: "list", charlists: :as_lists)
+
+    # cmap
+    # |> to_list(1_000_000, 40)
+    # |> IO.inspect(label: "xend", charlists: :as_lists)
+
+    move(cmap, d, max_move, nmove + 1, max_cup)
   end
 
   defp move(cmap, _cur, _max_move, _nmove, _max_cup) do
     cmap
   end
 
-  defp to_list(cmap, cur, cur) do
+  defp _to_list(_, _, _, 0) do
     []
   end
 
-  defp to_list(cmap, cur, stop) do
-    IO.puts("picked #{cur} != #{stop}")
-    Process.sleep(10)
-    [cur | to_list(cmap, cmap[cur], stop)]
+  defp _to_list(_, cur, cur, _) do
+    []
   end
 
-  defp to_list(cmap, cur) do
-    cmap |> IO.inspect(label: "cmap")
-    [cur | to_list(cmap, cmap[cur], cur)]
+  defp _to_list(cmap, cur, stop, length) when length > 0 do
+    [cur | _to_list(cmap, cmap[cur], stop, length - 1)]
+  end
+
+  defp to_list(cmap, cur, length \\ 1_000_000) do
+    [cur | _to_list(cmap, cmap[cur], cur, length - 1)]
   end
 
   defp pick4(cmap, cur) do
@@ -102,9 +135,5 @@ defmodule Aoe.Y20.Day23 do
 
   defp init_map([], _later, map) do
     map
-  end
-
-  def part_two(problem) do
-    problem
   end
 end

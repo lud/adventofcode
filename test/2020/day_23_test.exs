@@ -51,7 +51,7 @@ defmodule Aoe.Y20.Day23Test do
   #     |> Solution.read_file!(:part_two)
   #     |> Solution.parse_input!(:part_two)
 
-  #   expected = "149245887792"
+  #   expected = 149_245_887_792
   #   assert expected == Solution.part_two(problem)
   # end
 
