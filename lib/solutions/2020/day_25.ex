@@ -9,25 +9,30 @@ defmodule Aoe.Y20.Day25 do
 
   @spec read_file!(file, part) :: input
   def read_file!(file, _part) do
-    # Input.read!(file)
-    # Input.stream!(file)
-    # Input.stream_file_lines(file, trim: true)
+    Input.read!(file)
   end
-
-  def magic_n, do: 7
 
   @spec parse_input!(input, part) :: problem
   def parse_input!(input, _part) do
-    input
+    [card_pubkey, door_pubkey] =
+      input
+      |> String.split("\n", parts: 2, trim: true)
+      |> Enum.map(&String.trim/1)
+      |> Enum.map(&String.to_integer/1)
+
+    {card_pubkey, door_pubkey}
   end
 
-  def part_one(problem) do
-    problem
+  def part_one({card_pubkey, door_pubkey}) do
+    card_ls = guess_loopsize(card_pubkey)
+    create_key(door_pubkey, card_ls)
   end
 
   def part_two(problem) do
     problem
   end
+
+  def magic_n, do: 7
 
   def create_pubkey(loop_size) do
     create_key(7, loop_size)
@@ -43,6 +48,10 @@ defmodule Aoe.Y20.Day25 do
 
   defp create_key(value, subject, loop_size) do
     create_key(crypt_step(value, subject), subject, loop_size - 1)
+  end
+
+  def guess_loopsize(expected) do
+    guess_loopsize(1, expected, magic_n, 0)
   end
 
   def guess_loopsize(expected, subject) do
