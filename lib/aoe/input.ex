@@ -1,4 +1,6 @@
 defmodule Aoe.Input do
+  require Aoe.Utils
+
   defmodule FakeFile do
     defstruct content: ""
   end
@@ -84,7 +86,7 @@ defmodule Aoe.Input do
     end
   end
 
-  def ensure_local(year, day, suffix \\ nil) when year in 2015..2020 and day in 1..25 do
+  def ensure_local(year, day, suffix \\ nil) when Aoe.Utils.is_valid_day(year, day) do
     _path = input_path(year, day, suffix)
 
     case resolve(year, day, suffix) do

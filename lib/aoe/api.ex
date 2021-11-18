@@ -1,5 +1,7 @@
 defmodule Aoe.API do
-  def fetch_input(year, day) when year in 2015..2020 and day in 1..25 do
+  require Aoe.Utils
+
+  def fetch_input(year, day) when Aoe.Utils.is_valid_day(year, day) do
     filename = cache_filename([:input, year, day])
     cpath = cache_path(filename)
 
