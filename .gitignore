@@ -29,3 +29,5 @@ aoe-*.tar
 /.api-cache/
 /priv/input/
 /t.exs
+
+config/secret.exs
