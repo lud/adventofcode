@@ -73,18 +73,17 @@ defmodule Aoe.Y21.Day16Test do
   # Once your part one was successfully sumbitted, you may uncomment this test
   # to ensure your implementation was not altered when you implement part two.
 
-  # @part_one_solution CHANGE_ME
-  #
-  # test "verify 2021/16 part one" do
-  #   assert {:ok, @part_one_solution} == Aoe.run(2021, 16, :part_one)
-  # end
+  @part_one_solution 877
+  test "verify 2021/16 part one" do
+    assert {:ok, @part_one_solution} == Aoe.run(2021, 16, :part_one)
+  end
 
   # You may also implement a test to validate the part two to ensure that you
   # did not broke your shared modules when implementing another problem.
 
-  # @part_two_solution CHANGE_ME
-  #
-  # test "verify 2021/16 part two" do
-  #   assert {:ok, @part_two_solution} == Aoe.run(2021, 16, :part_two)
-  # end
+  @part_two_solution 194_435_634_456
+
+  test "verify 2021/16 part two" do
+    assert {:ok, @part_two_solution} == Aoe.run(2021, 16, :part_two)
+  end
 end

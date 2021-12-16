@@ -26,8 +26,38 @@ defmodule Aoe.Y21.Day16 do
     sum_versions(pkt)
   end
 
-  def part_two(problem) do
-    problem
+  def part_two(pkt) do
+    eval(pkt)
+  end
+
+  defp eval(pkt(type: :lit, value: n)), do: n
+
+  defp eval(pkt(type: {:op, 0}, subs: subs)) do
+    subs |> Enum.map(&eval/1) |> Enum.sum()
+  end
+
+  defp eval(pkt(type: {:op, 1}, subs: subs)) do
+    subs |> Enum.map(&eval/1) |> Enum.product()
+  end
+
+  defp eval(pkt(type: {:op, 2}, subs: subs)) do
+    subs |> Enum.map(&eval/1) |> Enum.min()
+  end
+
+  defp eval(pkt(type: {:op, 3}, subs: subs)) do
+    subs |> Enum.map(&eval/1) |> Enum.max()
+  end
+
+  defp eval(pkt(type: {:op, 5}, subs: [a, b])) do
+    if eval(a) > eval(b), do: 1, else: 0
+  end
+
+  defp eval(pkt(type: {:op, 6}, subs: [a, b])) do
+    if eval(a) < eval(b), do: 1, else: 0
+  end
+
+  defp eval(pkt(type: {:op, 7}, subs: [a, b])) do
+    if eval(a) == eval(b), do: 1, else: 0
   end
 
   def sum_versions(pkt(type: :lit, vsn: vsn)), do: vsn

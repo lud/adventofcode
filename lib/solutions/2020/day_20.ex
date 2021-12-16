@@ -58,7 +58,7 @@ defmodule Aoe.Y20.Day20 do
     # neighbours, so it should be found twice in this list of sides without
     # connexion. But as we have registered each side normal and reversed, we
     # look for ids that appear four times.
-    # 
+    #
     # first we count the frequencies by id
     |> Enum.frequencies_by(&elem(&1, 0))
     # and take thoses that appear four times
@@ -204,7 +204,7 @@ defmodule Aoe.Y20.Day20 do
   defp match_monsters(grid) do
     # match the second line of the monster as it is the most specific.
     # As it is the second line, start search at rowindex 1 and end at max-y - 1
-    # 
+    #
     # We build a list of matches as {x_index, y_index} for the grid
     max_row = length(grid) - 2
 
@@ -361,15 +361,18 @@ defmodule Aoe.Y20.Day20 do
   defp assemble_grid(%{domain: {min_x, max_x, min_y, max_y}} = map) do
     for y <- min_y..max_y, i <- 0..7 do
       for x <- min_x..max_x do
-        tile = Map.get(map, {x, y})
+        tile = Map.fetch!(map, {x, y})
         Enum.at(tile.rows, i)
       end
       |> :lists.flatten()
     end
   end
 
-  # tells the transform to apply to a nighbour tile for its side (2nd arg) to
+  # tells the transform to apply to a neighbour tile for its side (2nd arg) to
   # match the current tile (1st arg).
+  defp find_transform(:top, :top), do: [:flip_vert]
+  defp find_transform(:top, :left_rev), do: [{:rotate, -90}, :flip_horiz]
+  defp find_transform(:top, :right_rev), do: [{:rotate, 90}, :flip_horiz]
   defp find_transform(:bottom, :bottom), do: :flip_vert
   defp find_transform(:bottom, :bottom_rev), do: :flip_both
   defp find_transform(:bottom, :left), do: [{:rotate, 90}, :flip_horiz]
