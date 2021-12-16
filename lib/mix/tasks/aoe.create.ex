@@ -18,8 +18,6 @@ defmodule Mix.Tasks.Aoe.Create do
     case Task.await(download_input) do
       {:ok, path} ->
         Mix.Shell.IO.info("Input file exists in #{path}")
-        Mix.Shell.IO.info("Opening https://adventofcode.com/#{year}/day/#{day}")
-        System.cmd("open", ["https://adventofcode.com/#{year}/day/#{day}"])
 
       {:error, reason} ->
         Mix.Shell.IO.info("Warning: Could not download input: #{inspect(reason)}")
@@ -118,7 +116,7 @@ defmodule Mix.Tasks.Aoe.Create do
       #
       #     mix aoe.run --year #{year} --day #{day} --part 1
       #
-      # Use sample input: 
+      # Use sample input:
       #
       #     {:ok, path} = Input.resolve(#{year}, #{day}, "sample-1")
       #
@@ -130,18 +128,18 @@ defmodule Mix.Tasks.Aoe.Create do
       """
 
       test "verify #{year}/#{day} part_one - samples" do
-        problem = 
+        problem =
           @sample_1
           |> Input.as_file()
           |> Solution.read_file!(:part_one)
           |> Solution.parse_input!(:part_one)
-      
+
         expected = CHANGE_ME
         assert expected == Solution.part_one(problem)
       end
 
       # test "verify #{year}/#{day} part_two - samples" do
-      #   problem = 
+      #   problem =
       #     @sample_1
       #     |> Input.as_file()
       #     |> Solution.read_file!(:part_two)
