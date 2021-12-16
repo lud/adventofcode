@@ -13,8 +13,6 @@ defmodule Aoe.Y21.Day16 do
   @spec read_file!(file, part) :: input
   def read_file!(file, _part) do
     Input.read!(file) |> String.trim()
-    # Input.stream!(file)
-    # Input.stream_file_lines(file, trim: true)
   end
 
   @spec parse_input!(input, part) :: problem
@@ -32,32 +30,21 @@ defmodule Aoe.Y21.Day16 do
 
   defp eval(pkt(type: :lit, value: n)), do: n
 
-  defp eval(pkt(type: {:op, 0}, subs: subs)) do
-    subs |> Enum.map(&eval/1) |> Enum.sum()
+  defp eval(pkt(type: {:op, op}, subs: subs)) when op in 0..3 do
+    case op do
+      0 -> subs |> Enum.map(&eval/1) |> Enum.sum()
+      1 -> subs |> Enum.map(&eval/1) |> Enum.product()
+      2 -> subs |> Enum.map(&eval/1) |> Enum.min()
+      3 -> subs |> Enum.map(&eval/1) |> Enum.max()
+    end
   end
 
-  defp eval(pkt(type: {:op, 1}, subs: subs)) do
-    subs |> Enum.map(&eval/1) |> Enum.product()
-  end
-
-  defp eval(pkt(type: {:op, 2}, subs: subs)) do
-    subs |> Enum.map(&eval/1) |> Enum.min()
-  end
-
-  defp eval(pkt(type: {:op, 3}, subs: subs)) do
-    subs |> Enum.map(&eval/1) |> Enum.max()
-  end
-
-  defp eval(pkt(type: {:op, 5}, subs: [a, b])) do
-    if eval(a) > eval(b), do: 1, else: 0
-  end
-
-  defp eval(pkt(type: {:op, 6}, subs: [a, b])) do
-    if eval(a) < eval(b), do: 1, else: 0
-  end
-
-  defp eval(pkt(type: {:op, 7}, subs: [a, b])) do
-    if eval(a) == eval(b), do: 1, else: 0
+  defp eval(pkt(type: {:op, op}, subs: [a, b])) do
+    case op do
+      5 -> if eval(a) > eval(b), do: 1, else: 0
+      6 -> if eval(a) < eval(b), do: 1, else: 0
+      7 -> if eval(a) == eval(b), do: 1, else: 0
+    end
   end
 
   def sum_versions(pkt(type: :lit, vsn: vsn)), do: vsn
@@ -79,9 +66,14 @@ defmodule Aoe.Y21.Day16 do
     decode_lit(pkt(vsn: vsn, type: :lit), rest, 0)
   end
 
-  defp decode_bin(
-         <<vsn::3, op::3, 0::1, sublen::15, subs::bitstring-size(sublen), rest::bitstring>>
-       ) do
+  defp decode_bin(<<
+         vsn::3,
+         op::3,
+         0::1,
+         sublen::15,
+         subs::bitstring-size(sublen),
+         rest::bitstring
+       >>) do
     subs = decode_multi(subs)
 
     p = pkt(vsn: vsn, type: {:op, op}, subs: subs)
