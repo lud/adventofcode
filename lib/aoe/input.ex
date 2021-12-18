@@ -17,6 +17,22 @@ defmodule Aoe.Input do
     content
   end
 
+  def read!(path) when is_binary(path) do
+    File.read!(path)
+  end
+
+  def read!(%FakeFile{content: content}) do
+    content
+  end
+
+  def read!(%FakeFile{content: content}) do
+    content
+  end
+
+  def stream!(path, opts \\ []) do
+    stream_file_lines(path, opts)
+  end
+
   def stream_file_lines(path, opts \\ [])
 
   def stream_file_lines(path, opts) when is_binary(path) do
@@ -71,7 +87,7 @@ defmodule Aoe.Input do
   # ---------------------------------------------------------------------------
   #
   # Local input files management
-  # 
+  #
   # ---------------------------------------------------------------------------
 
   def resolve(year, day, suffix \\ nil)
