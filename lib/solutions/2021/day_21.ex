@@ -34,65 +34,91 @@ defmodule Aoe.Y21.Day21 do
   # end
 
   def part_two({start_1, start_2}) do
-    p1 = %{{start_1, 0} => 1, :win => 0}
-    p2 = %{{start_2, 0} => 1, :win => 0}
-    solve(p1, p2)
+    # {p1_state, p2_state, universes}
+    state = [{{start_1, 0}, {start_2, 0}, 1}]
+    solve(state)
   end
 
-  defp solve(p1, p2) do
-    %{win: add_p1_win} =
-      new_p1 =
-      for {{pos, score}, universes} <- p1, {moves, freq} <- outcomes(), reduce: %{win: 0} do
-        new_p1 ->
-          new_pos = add_pos(pos, moves)
-          new_score = score + new_pos
-          new_universes = universes * freq
+  defp solve(state) do
+    turn = Process.get(:turn, 1)
+    Process.put(:turn, turn + 1)
+    IO.puts("-------- TURN #{turn} ---------")
 
-          if new_score >= @score_max do
-            Map.update!(new_p1, :win, &(&1 + new_universes))
-          else
-            Map.update(new_p1, {new_pos, new_score}, new_universes, &(&1 + new_universes))
-          end
-      end
 
-    p1 = Map.update!(new_p1, :win, &(&1 + p1.win))
+    Enum.flat_map(state, fn {p1, p2, chances} ->)
+      play_turn(p1, p2, chances)
 
-    p2 = apply_wins(p2, add_p1_win)
+    end)
 
-    IO.puts("after p1 played")
+
+
+
+    {p1, p1_wins} = play_turn({p1})
+    p2 = apply_wins(p2, p1_wins)
+
+    IO.puts("-- after p1 played")
+    p1_wins |> IO.inspect(label: "p1_wins")
     p1 |> IO.inspect(label: "p1")
     p2 |> IO.inspect(label: "p2")
 
-    %{win: add_p2_win} =
-      new_p2 =
-      for {{pos, score}, universes} <- p2, {moves, freq} <- outcomes(), reduce: %{win: 0} do
-        new_p2 ->
-          new_pos = add_pos(pos, moves)
-          new_score = score + new_pos
-          new_universes = universes * freq
+    {p2, p2_wins} = play_turn(p2)
+    p1 = apply_wins(p1, p2_wins)
 
-          if new_score >= @score_max do
-            Map.update!(new_p2, :win, &(&1 + new_universes))
-          else
-            Map.update(new_p2, {new_pos, new_score}, new_universes, &(&1 + new_universes))
-          end
-      end
-
-    p2 = Map.update!(new_p2, :win, &(&1 + p2.win))
-    p1 = apply_wins(p1, add_p2_win)
-
-    IO.puts("after p2 played")
+    IO.puts("-- after p2 played")
+    p2_wins |> IO.inspect(label: "p2_wins")
     p1 |> IO.inspect(label: "p1")
     p2 |> IO.inspect(label: "p2")
+
+    # Process.sleep(1000)
 
     sum_p1 = p1 |> Map.values() |> Enum.sum()
     sum_p2 = p2 |> Map.values() |> Enum.sum()
+
+    sum_p1 |> IO.inspect(label: "sum_p1")
+    sum_p2 |> IO.inspect(label: "sum_p2")
 
     if Map.size(p1) > 1 || Map.size(p1) > 2 do
       solve(p1, p2)
     else
       {p1, p2}
     end
+  end
+
+  defp play_turn(player) do
+    outcomes =
+      for {{pos, score}, universes} <- player,
+          d <- @outcomes do
+        new_pos = add_pos(pos, d)
+        new_score = score + new_pos
+        # new_universes = universes
+        {{new_pos, new_score}, universes}
+      end
+      |> Enum.reduce({%{win: 0}, 0}, fn {{new_pos, new_score}, new_universes},
+                                        {new_player, count_wins} ->
+        if new_score >= @score_max do
+          {Map.update!(new_player, :win, &(&1 + new_universes)), count_wins + new_universes}
+        else
+          {Map.update(new_player, {new_pos, new_score}, new_universes, &(&1 + new_universes)),
+           count_wins}
+        end
+      end)
+
+    # {player, player_wins} =
+    #   for {{pos, score}, universes} <- player,
+    #       d <- 1..3,
+    #       reduce: {%{win: player.win}, 0} do
+    #     {new_player, count_wins} ->
+    #       new_pos = add_pos(pos, d)
+    #       new_score = score + new_pos
+    #       new_universes = universes
+
+    #       if new_score >= @score_max do
+    #         {Map.update!(new_player, :win, &(&1 + new_universes)), count_wins + new_universes}
+    #       else
+    #         {Map.update(new_player, {new_pos, new_score}, new_universes, &(&1 + new_universes)),
+    #          count_wins}
+    #       end
+    #   end
   end
 
   defp add_pos(pos, moves) do
@@ -102,12 +128,13 @@ defmodule Aoe.Y21.Day21 do
   defp apply_wins(map, wins) do
     map
     |> Map.map(fn
-      {:win, v} -> v * 27
-      {{_, _}, univ} -> max(univ * 27 - wins, 0)
+      {:win, v} -> v
+      {{_, _}, univ} -> univ * 27
     end)
-    |> Map.filter(fn
-      {:win, _} -> true
-      {{_, _}, univ} -> univ > 0
-    end)
+
+    # |> Map.filter(fn
+    #   {:win, _} -> true
+    #   {{_, _}, univ} -> univ > 0
+    # end)
   end
 end
