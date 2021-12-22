@@ -8,7 +8,7 @@ defmodule Aoe.Y21.Day21 do
   @type problem :: any
 
   @outcomes for(r1 <- 1..3, r2 <- 1..3, r3 <- 1..3, do: r1 + r2 + r3) |> Enum.frequencies()
-  @score_max 6
+  @score_max 21
 
   defp outcomes, do: @outcomes
 
@@ -35,90 +35,70 @@ defmodule Aoe.Y21.Day21 do
 
   def part_two({start_1, start_2}) do
     # {p1_state, p2_state, universes}
-    state = [{{start_1, 0}, {start_2, 0}, 1}]
-    solve(state)
+    state = [{{{start_1, 0}, {start_2, 0}}, 1}]
+    wins = {0, 0}
+    {p1, p2} = solve(state, wins)
+    max(p1, p2)
   end
 
-  defp solve(state) do
-    turn = Process.get(:turn, 1)
-    Process.put(:turn, turn + 1)
-    IO.puts("-------- TURN #{turn} ---------")
+  defp solve(state, wins) do
+    # turn = Process.get(:turn, 1)
+    # Process.put(:turn, turn + 1)
+    # IO.puts("-------- TURN #{turn} ---------")
 
+    {state, wins} =
+      Enum.flat_map(state, fn {{p1, p2}, univs} ->
+        play_turn(p1, p2, univs)
+      end)
+      |> Enum.reduce({[], wins}, fn
+        {{:win, _}, universes}, {state, {p1_wins, p2_wins}} ->
+          {state, {p1_wins + universes, p2_wins}}
 
-    Enum.flat_map(state, fn {p1, p2, chances} ->)
-      play_turn(p1, p2, chances)
+        {players, universes}, {state, wins} ->
+          {[{players, universes} | state], wins}
+      end)
 
-    end)
+    state =
+      Enum.group_by(state, &elem(&1, 0), &elem(&1, 1))
+      |> Enum.map(fn {k, v} -> {k, Enum.sum(v)} end)
 
+    # state |> IO.inspect(label: "state")
 
+    {state, wins} =
+      Enum.flat_map(state, fn {{p1, p2}, univs} ->
+        play_turn(p2, p1, univs) |> Enum.map(fn {{p2, p1}, univs} -> {{p1, p2}, univs} end)
+      end)
+      |> Enum.reduce({[], wins}, fn
+        {{_, :win}, universes}, {state, {p1_wins, p2_wins}} ->
+          {state, {p1_wins, p2_wins + universes}}
 
+        {players, universes}, {state, wins} ->
+          {[{players, universes} | state], wins}
+      end)
 
-    {p1, p1_wins} = play_turn({p1})
-    p2 = apply_wins(p2, p1_wins)
+    state =
+      Enum.group_by(state, &elem(&1, 0), &elem(&1, 1))
+      |> Enum.map(fn {k, v} -> {k, Enum.sum(v)} end)
 
-    IO.puts("-- after p1 played")
-    p1_wins |> IO.inspect(label: "p1_wins")
-    p1 |> IO.inspect(label: "p1")
-    p2 |> IO.inspect(label: "p2")
+    # state |> IO.inspect(label: "state")
 
-    {p2, p2_wins} = play_turn(p2)
-    p1 = apply_wins(p1, p2_wins)
-
-    IO.puts("-- after p2 played")
-    p2_wins |> IO.inspect(label: "p2_wins")
-    p1 |> IO.inspect(label: "p1")
-    p2 |> IO.inspect(label: "p2")
-
-    # Process.sleep(1000)
-
-    sum_p1 = p1 |> Map.values() |> Enum.sum()
-    sum_p2 = p2 |> Map.values() |> Enum.sum()
-
-    sum_p1 |> IO.inspect(label: "sum_p1")
-    sum_p2 |> IO.inspect(label: "sum_p2")
-
-    if Map.size(p1) > 1 || Map.size(p1) > 2 do
-      solve(p1, p2)
-    else
-      {p1, p2}
+    case state do
+      [] -> wins
+      _ -> solve(state, wins)
     end
   end
 
-  defp play_turn(player) do
-    outcomes =
-      for {{pos, score}, universes} <- player,
-          d <- @outcomes do
-        new_pos = add_pos(pos, d)
-        new_score = score + new_pos
-        # new_universes = universes
-        {{new_pos, new_score}, universes}
+  defp play_turn({pos, score}, other_player, univs) do
+    for {moves, freq} <- outcomes do
+      new_pos = add_pos(pos, moves)
+      score = score + new_pos
+
+      if score >= @score_max do
+        {{:win, other_player}, univs * freq}
+      else
+        {{{new_pos, score}, other_player}, univs * freq}
       end
-      |> Enum.reduce({%{win: 0}, 0}, fn {{new_pos, new_score}, new_universes},
-                                        {new_player, count_wins} ->
-        if new_score >= @score_max do
-          {Map.update!(new_player, :win, &(&1 + new_universes)), count_wins + new_universes}
-        else
-          {Map.update(new_player, {new_pos, new_score}, new_universes, &(&1 + new_universes)),
-           count_wins}
-        end
-      end)
-
-    # {player, player_wins} =
-    #   for {{pos, score}, universes} <- player,
-    #       d <- 1..3,
-    #       reduce: {%{win: player.win}, 0} do
-    #     {new_player, count_wins} ->
-    #       new_pos = add_pos(pos, d)
-    #       new_score = score + new_pos
-    #       new_universes = universes
-
-    #       if new_score >= @score_max do
-    #         {Map.update!(new_player, :win, &(&1 + new_universes)), count_wins + new_universes}
-    #       else
-    #         {Map.update(new_player, {new_pos, new_score}, new_universes, &(&1 + new_universes)),
-    #          count_wins}
-    #       end
-    #   end
+    end
   end
 
   defp add_pos(pos, moves) do

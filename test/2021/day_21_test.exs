@@ -56,9 +56,9 @@ defmodule Aoe.Y21.Day21Test do
   # You may also implement a test to validate the part two to ensure that you
   # did not broke your shared modules when implementing another problem.
 
-  # @part_two_solution CHANGE_ME
-  #
-  # test "verify 2021/21 part two" do
-  #   assert {:ok, @part_two_solution} == Aoe.run(2021, 21, :part_two)
-  # end
+  @part_two_solution 116_741_133_558_209
+
+  test "verify 2021/21 part two" do
+    assert {:ok, @part_two_solution} == Aoe.run(2021, 21, :part_two)
+  end
 end
