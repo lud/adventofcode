@@ -31,16 +31,16 @@ defmodule Aoe.Y21.Day22 do
     }
   end
 
-  def part_one(lines) do
-    lines
+  def part_one(blocks) do
+    blocks
     |> Enum.map(&shrink_zone/1)
     |> Enum.filter(&is_tuple/1)
     |> part_two()
   end
 
-  def part_two(lines) do
-    lines
-    |> Enum.reduce([], &insert_block/2)
+  def part_two(blocks) do
+    blocks
+    |> insert_multi([])
     |> Enum.reduce(0, &sum_blocks/2)
   end
 
