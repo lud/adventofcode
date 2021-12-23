@@ -33,6 +33,7 @@ defmodule Aoe.Y21.Day23 do
         {8, 2} => c2b(l4)
       },
       nrj: 0,
+      moves: 0,
       large: false
     }
   end
@@ -40,7 +41,7 @@ defmodule Aoe.Y21.Day23 do
   defp c2b(x), do: :erlang.list_to_binary([x])
 
   def part_one(world) do
-    reduce([world])
+    reduce([{0, world}])
   end
 
   defp destinations_from({_, 0}, letter, _large = false) do
@@ -53,34 +54,50 @@ defmodule Aoe.Y21.Day23 do
   defp destinations_from({x, y}, letter, _large = false) when y > 0 do
     dest_x = x_for(letter)
 
-    if dest_x != x do
-      [
-        {x_for(letter), 2},
-        {x_for(letter), 1}
-      ]
-    else
+    if y == 2 and dest_x == x do
       []
-    end ++
-      [
-        {0, 0},
-        {1, 0},
-        {3, 0},
-        {5, 0},
-        {7, 0},
-        {9, 0},
-        {10, 0}
-      ]
+    else
+      if dest_x != x do
+        [
+          {x_for(letter), 2},
+          {x_for(letter), 1}
+        ]
+      else
+        []
+      end ++
+        [
+          {0, 0},
+          {1, 0},
+          {3, 0},
+          {5, 0},
+          {7, 0},
+          {9, 0},
+          {10, 0}
+        ]
+    end
   end
 
-  defp reduce([%{nrj: j} = best | rest] = all) do
-    j |> IO.inspect(label: "best.nrj")
+  defp reduce_map(map) do
+    min_nrj = Enum.min(Map.keys(map))
+    min_nrj |> IO.inspect(label: "min_nrj")
+  end
+
+  defp reduce([{nrj, best} | rest] = all) do
+    length(all) |> IO.inspect(label: "length(all)")
+
+    nrj |> IO.inspect(label: "best.nrj")
+
+    if nrj > 50 do
+      print_world(best)
+    end
+
+    best.moves |> IO.inspect(label: "best.moves")
 
     if is_win(best) do
-      best.nrj
+      nrj
     else
       nexts = possible_nexts(best)
       news = Enum.reduce(nexts, rest, &insert_world/2)
-      news = Enum.take(news, 1000)
       reduce(news)
     end
   end
@@ -146,7 +163,8 @@ defmodule Aoe.Y21.Day23 do
 
       if can_move?(steps, poses, letter, dest, grid, large?) do
         # IO.puts(" => valid")
-        move(w, pos, dest, steps)
+        %{nrj: new_nrj} = new = move(w, pos, dest, steps)
+        {new_nrj, new}
       else
         # IO.puts("=> invalid")
         :invalid
@@ -155,7 +173,7 @@ defmodule Aoe.Y21.Day23 do
     |> filter_invalid()
   end
 
-  def move(%{grid: grid, nrj: nrj} = world, pos, dest, steps) do
+  def move(%{moves: n, grid: grid, nrj: nrj} = world, pos, dest, steps) do
     letter = Map.fetch!(grid, pos)
     energy = cost(letter) * length(steps)
 
@@ -166,7 +184,7 @@ defmodule Aoe.Y21.Day23 do
 
     # energy |> IO.inspect(label: "add energy")
 
-    %{world | grid: grid, nrj: nrj + energy}
+    %{world | grid: grid, nrj: nrj + energy, moves: n + 1}
   end
 
   defp filter_invalid([:invalid | rest]), do: filter_invalid(rest)
@@ -227,23 +245,41 @@ defmodule Aoe.Y21.Day23 do
 
   defp is_win(_), do: false
 
-  defp insert_world(%{nrj: nrj}, rest) when nrj > 20000, do: rest
+  defp insert_world({_, %{moves: n}}, rest) when n > 10, do: rest
+  defp insert_world({nrj, _}, rest) when nrj > 20000, do: rest
 
-  defp insert_world(%{grid: same, nrj: jw} = w, [%{grid: same, nrj: jc} = candidate | rest]) do
+  defp insert_world({jw, %{grid: same}} = new, [{jc, %{grid: same}} = candidate | rest]) do
     if jw <= jc do
-      [w | rest]
+      [new | rest]
     else
       [candidate | rest]
     end
   end
 
-  defp insert_world(%{nrj: left} = w, [%{nrj: right} = candidate | rest]) when left > right,
-    do: [candidate | insert_world(w, rest)]
+  defp insert_world({left, _} = new, [{right, _} = candidate | rest]) when left > right,
+    do: [candidate | insert_world(new, rest)]
 
-  defp insert_world(%{nrj: left} = w, [%{nrj: right} = candidate | rest]) when left <= right,
-    do: [w, candidate | rest]
+  defp insert_world({left, _} = new, [{right, _} = candidate | rest]) when left <= right,
+    do: [new, candidate | rest]
 
   defp insert_world(w, []), do: [w]
+  # defp insert_world(%{nrj: nrj}, rest) when nrj > 20000, do: rest
+
+  # defp insert_world(%{grid: same, nrj: jw} = w, [%{grid: same, nrj: jc} = candidate | rest]) do
+  #   if jw <= jc do
+  #     [w | rest]
+  #   else
+  #     [candidate | rest]
+  #   end
+  # end
+
+  # defp insert_world(%{nrj: left} = w, [%{nrj: right} = candidate | rest]) when left > right,
+  #   do: [candidate | insert_world(w, rest)]
+
+  # defp insert_world(%{nrj: left} = w, [%{nrj: right} = candidate | rest]) when left <= right,
+  #   do: [w, candidate | rest]
+
+  # defp insert_world(w, []), do: [w]
 
   # defp move(world, from, {to_x, to_y} = to) do
   #   pod = Map.fetch!(world, from)
@@ -337,6 +373,10 @@ defmodule Aoe.Y21.Day23 do
       0 = to_y
       :ok
     end
+  end
+
+  def print_world({_, w}) do
+    print_world(w)
   end
 
   def print_world(w) do

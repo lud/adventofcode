@@ -64,10 +64,10 @@ defmodule Aoe.Y21.Day23Test do
   #   Solution.part_one(world)
   # end
 
-  defp move(world, from, to) do
-    steps = Solution.calc_steps(from, to)
-    Solution.move(world, from, to, steps)
-  end
+  # defp move(world, from, to) do
+  #   steps = Solution.calc_steps(from, to)
+  #   Solution.move(world, from, to, steps)
+  # end
 
   # test "verify 2021/23 part_two - samples" do
   #   problem =
