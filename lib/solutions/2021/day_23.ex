@@ -44,21 +44,37 @@ defmodule Aoe.Y21.Day23 do
     reduce(worlds)
   end
 
-  defp reduce([best | rest] = all) do
-    # IO.puts("BEST")
-    # print_world(best)
-    best.nrj |> IO.inspect(label: "best.nrj")
+  # defp reduce(
+  #        [
+  #          %{
+  #            grid: %{
+  #              {2, 2} => "A",
+  #              {4, 1} => "B",
+  #              {4, 2} => "B",
+  #              {5, 0} => "A",
+  #              {6, 1} => "C",
+  #              {6, 2} => "C",
+  #              {8, 1} => "D",
+  #              {8, 2} => "D"
+  #            },
+  #            large: false,
+  #            nrj: 42
+  #          }
+  #          | rest
+  #        ] = all
+  #      ) do
+  #   raise "SSSTOOO"
+  # end
+
+  defp reduce([%{nrj: j} = best | rest] = all) do
+    j |> IO.inspect(label: "j")
 
     if is_win(best) do
       best.nrj
     else
       nexts = possible_nexts(best)
-      # IO.puts("NEXTS")
-      # nexts |> Enum.map(&print_world/1)
-      # IO.puts("#{length(nexts)} possible nexts")
       news = Enum.reduce(nexts, rest, &insert_world/2)
-
-      # Process.sleep(500)
+      news = Enum.take(news, 1000)
       reduce(news)
     end
   end
@@ -74,10 +90,10 @@ defmodule Aoe.Y21.Day23 do
     dest_x = x_for(letter)
 
     if dest_x != x do
-      cond do
-        y == 1 -> [{x_for(letter), 2}]
-        y == 2 -> []
-      end
+      [
+        {x_for(letter), 2},
+        {x_for(letter), 1}
+      ]
     else
       []
     end ++
@@ -92,7 +108,7 @@ defmodule Aoe.Y21.Day23 do
       ]
   end
 
-  defp possible_nexts(%{nrj: nrj, grid: grid, large: false = large?} = w) do
+  def possible_nexts(%{nrj: nrj, grid: grid, large: false = large?} = w) do
     poses = Map.keys(grid)
 
     # grid |> IO.inspect(label: "grid")
@@ -195,7 +211,7 @@ defmodule Aoe.Y21.Day23 do
     if jw <= jc do
       [w | rest]
     else
-      insert_world(w, rest)
+      [candidate | rest]
     end
   end
 
