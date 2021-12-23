@@ -40,43 +40,7 @@ defmodule Aoe.Y21.Day23 do
   defp c2b(x), do: :erlang.list_to_binary([x])
 
   def part_one(world) do
-    worlds = [world]
-    reduce(worlds)
-  end
-
-  # defp reduce(
-  #        [
-  #          %{
-  #            grid: %{
-  #              {2, 2} => "A",
-  #              {4, 1} => "B",
-  #              {4, 2} => "B",
-  #              {5, 0} => "A",
-  #              {6, 1} => "C",
-  #              {6, 2} => "C",
-  #              {8, 1} => "D",
-  #              {8, 2} => "D"
-  #            },
-  #            large: false,
-  #            nrj: 42
-  #          }
-  #          | rest
-  #        ] = all
-  #      ) do
-  #   raise "SSSTOOO"
-  # end
-
-  defp reduce([%{nrj: j} = best | rest] = all) do
-    j |> IO.inspect(label: "j")
-
-    if is_win(best) do
-      best.nrj
-    else
-      nexts = possible_nexts(best)
-      news = Enum.reduce(nexts, rest, &insert_world/2)
-      news = Enum.take(news, 1000)
-      reduce(news)
-    end
+    reduce([world])
   end
 
   defp destinations_from({_, 0}, letter, _large = false) do
@@ -108,6 +72,62 @@ defmodule Aoe.Y21.Day23 do
       ]
   end
 
+  defp reduce([%{nrj: j} = best | rest] = all) do
+    j |> IO.inspect(label: "best.nrj")
+
+    if is_win(best) do
+      best.nrj
+    else
+      nexts = possible_nexts(best)
+      news = Enum.reduce(nexts, rest, &insert_world/2)
+      news = Enum.take(news, 1000)
+      reduce(news)
+    end
+  end
+
+  defp recurse(%{nrj: nrj} = world, depth) when nrj < 20_000 do
+    depth |> IO.inspect(label: "depth")
+    nrj |> IO.inspect(label: "nrj")
+    if is_win(world), do: world.nrj, else: possible_nexts_rec(world, depth + 1)
+  end
+
+  defp recurse(%{nrj: nrj} = world, _) do
+    if is_win(world),
+      do: world.nrj,
+      else: []
+  end
+
+  def possible_nexts_rec(%{nrj: nrj, grid: grid, large: false = large?} = w, depth) do
+    poses = Map.keys(grid)
+
+    moves =
+      for {pos, letter} <- grid, dest <- destinations_from(pos, letter, large?), dest != pos do
+        # pos |> IO.inspect(label: "pos")
+        # letter |> IO.inspect(label: "letter")
+        # dest |> IO.inspect(label: "dest")
+
+        steps = calc_steps(pos, dest)
+        # steps |> IO.inspect(label: "steps")
+
+        # IO.puts("move #{letter} from #{inspect(pos)} to #{inspect(dest)}, for $#{energy}")
+
+        if can_move?(steps, poses, letter, dest, grid, large?) do
+          # IO.puts(" => valid")
+          energy = cost(letter) * length(steps)
+          {w, pos, dest, steps, energy}
+        else
+          :invalid
+        end
+      end
+      |> filter_invalid()
+      |> Enum.sort_by(fn {w, pos, dest, steps, energy} -> energy end)
+
+    Enum.map(moves, fn
+      :invalid -> []
+      {w, pos, dest, steps, _} -> recurse(move(w, pos, dest, steps), depth)
+    end)
+  end
+
   def possible_nexts(%{nrj: nrj, grid: grid, large: false = large?} = w) do
     poses = Map.keys(grid)
 
@@ -117,9 +137,9 @@ defmodule Aoe.Y21.Day23 do
       # pos |> IO.inspect(label: "pos")
       # letter |> IO.inspect(label: "letter")
       # dest |> IO.inspect(label: "dest")
-      true = pos != dest
+
       steps = calc_steps(pos, dest)
-      [_ | _] = steps
+
       # steps |> IO.inspect(label: "steps")
 
       # IO.puts("move #{letter} from #{inspect(pos)} to #{inspect(dest)}, for $#{energy}")
@@ -207,6 +227,8 @@ defmodule Aoe.Y21.Day23 do
 
   defp is_win(_), do: false
 
+  defp insert_world(%{nrj: nrj}, rest) when nrj > 20000, do: rest
+
   defp insert_world(%{grid: same, nrj: jw} = w, [%{grid: same, nrj: jc} = candidate | rest]) do
     if jw <= jc do
       [w | rest]
@@ -215,10 +237,10 @@ defmodule Aoe.Y21.Day23 do
     end
   end
 
-  defp insert_world(%{nrj: left} = w, [%{nrj: right} = candidate | rest]) when left >= right,
+  defp insert_world(%{nrj: left} = w, [%{nrj: right} = candidate | rest]) when left > right,
     do: [candidate | insert_world(w, rest)]
 
-  defp insert_world(%{nrj: left} = w, [%{nrj: right} = candidate | rest]) when left < right,
+  defp insert_world(%{nrj: left} = w, [%{nrj: right} = candidate | rest]) when left <= right,
     do: [w, candidate | rest]
 
   defp insert_world(w, []), do: [w]

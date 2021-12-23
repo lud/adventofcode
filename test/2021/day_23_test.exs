@@ -36,33 +36,33 @@ defmodule Aoe.Y21.Day23Test do
     assert expected == Solution.part_one(problem)
   end
 
-  test "check moves" do
-    world =
-      @sample_1
-      |> Input.as_file()
-      |> Solution.read_file!(:part_one)
-      |> Solution.parse_input!(:part_one)
+  # test "check moves" do
+  #   world =
+  #     @sample_1
+  #     |> Input.as_file()
+  #     |> Solution.read_file!(:part_one)
+  #     |> Solution.parse_input!(:part_one)
 
-    world |> IO.inspect(label: "world")
+  #   world |> IO.inspect(label: "world")
 
-    world = move(world, {4, 1}, {5, 0})
-    assert world.nrj == 2
-    Solution.print_world(world)
+  #   world = move(world, {4, 1}, {5, 0})
+  #   assert world.nrj == 2
+  #   Solution.print_world(world)
 
-    IO.puts("POSSIBLE:")
-    nexts = Solution.possible_nexts(world)
+  #   IO.puts("POSSIBLE:")
+  #   nexts = Solution.possible_nexts(world)
 
-    Enum.map(nexts, fn w ->
-      Solution.print_world(w)
-      w |> IO.inspect(label: "w")
-    end)
+  #   Enum.map(nexts, fn w ->
+  #     Solution.print_world(w)
+  #     w |> IO.inspect(label: "w")
+  #   end)
 
-    # world = move(world, {2, 1}, {4, 1})
-    # assert world.nrj == 42
-    # Solution.print_world(world)
+  #   # world = move(world, {2, 1}, {4, 1})
+  #   # assert world.nrj == 42
+  #   # Solution.print_world(world)
 
-    Solution.part_one(world)
-  end
+  #   Solution.part_one(world)
+  # end
 
   defp move(world, from, to) do
     steps = Solution.calc_steps(from, to)
