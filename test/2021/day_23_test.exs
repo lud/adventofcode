@@ -20,20 +20,34 @@ defmodule Aoe.Y21.Day23Test do
   @sample_1 """
   #############
   #...........#
-  ###B#C#B#D###
-    #A#D#C#A#
+  ###B#A#C#D###
+    #A#B#C#D#
     #########
   """
 
-  # test "verify 2021/23 part_one - samples" do
-  #   problem =
+  test "verify 2021/23 part_one - samples" do
+    problem =
+      @sample_1
+      |> Input.as_file()
+      |> Solution.read_file!(:part_one)
+      |> Solution.parse_input!(:part_one)
+
+    expected = 45
+    assert expected == Solution.part_one(problem)
+  end
+
+  # test "check moves" do
+  #   world =
   #     @sample_1
   #     |> Input.as_file()
   #     |> Solution.read_file!(:part_one)
   #     |> Solution.parse_input!(:part_one)
 
-  #   expected = 12521
-  #   assert expected == Solution.part_one(problem)
+  #   world |> IO.inspect(label: "world")
+  #   steps = Solution.calc_steps({4, 1}, {5, 0})
+  #   world = Solution.move(world, {4, 1}, {5, 0}, steps)
+  #   Solution.print_world(world)
+  #   Solution.part_one(world)
   # end
 
   # test "verify 2021/23 part_two - samples" do
