@@ -41,7 +41,7 @@ defmodule Aoe.Y21.Day23 do
   defp c2b(x), do: :erlang.list_to_binary([x])
 
   def part_one(world) do
-    reduce([{0, world}])
+    reduce([{0, world}], %{world.grid => 0})
   end
 
   defp destinations_from({_, 0}, letter, _large = false) do
@@ -82,14 +82,14 @@ defmodule Aoe.Y21.Day23 do
     min_nrj |> IO.inspect(label: "min_nrj")
   end
 
-  defp reduce([{nrj, best} | rest] = all) do
+  defp reduce([{nrj, best} | rest] = all, seen) do
     length(all) |> IO.inspect(label: "length(all)")
 
     nrj |> IO.inspect(label: "best.nrj")
 
-    if nrj > 50 do
-      print_world(best)
-    end
+    # if nrj > 50 do
+    #   print_world(best)
+    # end
 
     best.moves |> IO.inspect(label: "best.moves")
 
@@ -97,8 +97,18 @@ defmodule Aoe.Y21.Day23 do
       nrj
     else
       nexts = possible_nexts(best)
+
+      {nexts, seen} =
+        Enum.reduce(nexts, {[], seen}, fn {nrj, world}, {acc, seen} ->
+          case Map.get(seen, world.grid) do
+            nil -> {[{nrj, world} | acc], seen}
+            cj when cj <= nrj -> {acc, seen}
+            cj when cj > nrj -> TODO.remove_grid()
+          end
+        end)
+
       news = Enum.reduce(nexts, rest, &insert_world/2)
-      reduce(news)
+      reduce(news, seen)
     end
   end
 
