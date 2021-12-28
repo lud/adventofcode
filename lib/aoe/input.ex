@@ -21,29 +21,21 @@ defmodule Aoe.Input do
     File.read!(path)
   end
 
-  def read!(%FakeFile{content: content}) do
-    content
-  end
-
-  def read!(%FakeFile{content: content}) do
-    content
-  end
-
   def stream!(path, opts \\ []) do
     stream_file_lines(path, opts)
   end
 
   def stream_file_lines(path, opts \\ [])
 
-  def stream_file_lines(path, opts) when is_binary(path) do
-    path
-    |> File.stream!()
-    |> apply_stream_opts(opts)
-  end
-
   def stream_file_lines(%FakeFile{content: content}, opts) do
     content
     |> String.split("\n")
+    |> apply_stream_opts(opts)
+  end
+
+  def stream_file_lines(path, opts) when is_binary(path) do
+    path
+    |> File.stream!()
     |> apply_stream_opts(opts)
   end
 

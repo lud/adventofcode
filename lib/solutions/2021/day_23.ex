@@ -3,14 +3,14 @@ defmodule Aoe.Y21.Day23.StepCompiler do
     []
   end
 
-  def calc_steps({from_x, from_y}, {to_x, to_y} = to) when from_y == 0 and from_x != to_x do
+  def calc_steps({from_x, from_y}, {to_x, _} = to) when from_y == 0 and from_x != to_x do
     # moving the x
     next = {next_coord(from_x, to_x), from_y}
     # next |> IO.inspect(label: "next")
     [next | calc_steps(next, to)]
   end
 
-  def calc_steps({from_x, from_y}, {to_x, to_y} = to) when from_y > 0 and from_x != to_x do
+  def calc_steps({from_x, from_y}, {to_x, _} = to) when from_y > 0 and from_x != to_x do
     # moving the y UP
     next = {from_x, from_y - 1}
     # next |> IO.inspect(label: "next")
@@ -30,7 +30,6 @@ end
 
 defmodule Aoe.Y21.Day23 do
   alias Aoe.Input, warn: false
-  alias :gb_trees, as: Tree
 
   @type input_path :: binary
   @type file :: input_path | %Aoe.Input.FakeFile{}
@@ -126,7 +125,7 @@ defmodule Aoe.Y21.Day23 do
           # this state is new. maybe it's win. otherwise we add the state in the
           # list and ernegy to the seen
           :error ->
-            {worlds = insert_world(worlds, nrj, world), Map.put(seen, world, nrj)}
+            {insert_world(worlds, nrj, world), Map.put(seen, world, nrj)}
         end
       end)
 
@@ -173,8 +172,8 @@ defmodule Aoe.Y21.Day23 do
     end)
   end
 
-  defp blocked_path?(world, [p | path]) when is_map_key(world, p), do: true
-  defp blocked_path?(world, [p | path]), do: blocked_path?(world, path)
+  defp blocked_path?(world, [p | _]) when is_map_key(world, p), do: true
+  defp blocked_path?(world, [_ | path]), do: blocked_path?(world, path)
   defp blocked_path?(_, _), do: false
 
   defp move(world, pos, dest, letter) do
@@ -218,10 +217,10 @@ defmodule Aoe.Y21.Day23 do
     |> Enum.filter(&(Map.get(world, &1) == nil))
   end
 
-  defp in_bad_room({x, _y = 0}, _letter), do: false
+  defp in_bad_room({_x, _y = 0}, _letter), do: false
   defp in_bad_room({x, y}, letter) when y > 0, do: x_for(letter) != x
 
-  defp in_place?(_, {x, _y = 0}, _letter, _), do: false
+  defp in_place?(_, {_x, _y = 0}, _letter, _), do: false
 
   defp in_place?(world, {x, y}, letter, yo) when y > 0 do
     ^x = x_for(letter)
@@ -229,7 +228,7 @@ defmodule Aoe.Y21.Day23 do
     below_in_place?(world, {x, y + 1}, letter, yo)
   end
 
-  defp below_in_place?(world, {x, y}, letter, yo) when y > yo do
+  defp below_in_place?(_world, {_x, y}, _letter, yo) when y > yo do
     true
   end
 
@@ -261,7 +260,7 @@ defmodule Aoe.Y21.Day23 do
     end
   end
 
-  defp next_inroom(world, x, _y = 0, letter) do
+  defp next_inroom(_world, _x, _y = 0, _letter) do
     []
   end
 
@@ -272,7 +271,7 @@ defmodule Aoe.Y21.Day23 do
     end
   end
 
-  defp room_clean?(world, x, _y = 0, letter) do
+  defp room_clean?(_world, _x, _y = 0, _letter) do
     true
   end
 
@@ -390,9 +389,5 @@ defmodule Aoe.Y21.Day23 do
     """)
 
     defp get_path(unquote(start), unquote(dest)), do: unquote(path)
-  end
-
-  def part_two(problem) do
-    problem
   end
 end
