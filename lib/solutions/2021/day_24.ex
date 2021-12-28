@@ -69,39 +69,112 @@ defmodule Aoe.Y21.Day24 do
   defp contains_0([_ | rest]), do: contains_0(rest)
   defp contains_0([]), do: false
 
+  defp initial_state do
+    %{
+      # digit we operate on, from 0 to 13
+      index: 13,
+      digits: Integer.digits(99_999_999_999_999),
+      best: 4_252_432_513
+    }
+  end
+
   def part_one(program) do
-    [
-      # 99_999_999_999_999,
-      # 99_999_999_999_998,
-      # 99_999_999_999_997,
-      # 99_999_999_999_996,
-      # 99_999_999_999_995,
-      # 99_999_999_999_994,
-      99_999_999_995_893,
-      99_999_999_985_893,
-      99_999_999_975_893,
-      99_999_999_965_893,
-      99_999_999_955_893,
-      99_999_999_945_893,
-      99_999_999_935_893,
-      99_999_999_925_893,
-      99_999_999_915_893,
-      99_999_999_995_893
-      # 99_999_999_999_992,
-      # 99_999_999_999_991
-    ]
-    |> Enum.map(&Integer.digits/1)
-    # monads()
-    # |> Stream.take(10)
-    |> Enum.drop_while(fn digits ->
-      IO.write("digits: #{Integer.undigits(digits)}")
-      %{z: res} = run(program, digits)
-      IO.puts(" => #{res}")
-      res != 0
-    end)
-    |> Enum.take(1)
+    reduce([initial_state()], program)
+    # expand(initial_state(), program)
+    # expand(%{index: 12, digits: Integer.digits(99_999_999_999_993), best: 163_555_096}, program)
+    # expand(%{index: 11, digits: Integer.digits(99_999_999_999_993), best: 163_555_096}, program)
+    # expand(%{index: 10, digits: Integer.digits(99_999_999_999_893), best: 163_555_091}, program)
+    # expand(%{index: 13, digits: Integer.digits(99_999_999_999_899), best: 163_555_091}, program)
+    # expand(%{index: 3, digits: Integer.digits(99_999_999_999_899), best: 163_555_091}, program)
+    # expand(%{index: 09, digits: Integer.digits(99_999_999_995_893), best: 6_290_580}, program)
+    # expand(%{index: 08, digits: Integer.digits(99_999_999_935_893), best: 241_945}, program)
+    # expand(%{index: 07, digits: Integer.digits(99_999_999_935_893), best: 241_945}, program)
+    # expand(%{index: 06, digits: Integer.digits(99_999_999_935_893), best: 241_945}, program)
+    # expand(%{index: 05, digits: Integer.digits(99_999_999_935_893), best: 241_945}, program)
+    # expand(%{index: 04, digits: Integer.digits(99_999_999_935_893), best: 241_945}, program)
+
+    # # monads()
+    # # |> Stream.take(10)
+    # |> Enum.drop_while(fn digits ->
+    #   IO.write("digits: #{Integer.undigits(digits)}")
+    #   %{z: res} = run(program, digits)
+    #   IO.puts(" => #{res}")
+    #   res != 0
+    # end)
+    # |> Enum.take(1)
 
     # |> hd()
+  end
+
+  defp reduce([state | others], program) do
+    case expand(state, program) do
+      :deadend -> reduce(others, program)
+      possibles -> reduce(possibles ++ others, program)
+    end
+  end
+
+  defp expand(%{index: -1} = state, program) do
+    :deadend
+  end
+
+  defp expand(%{digits: digits, index: index, best: best} = state, program) do
+    index |> IO.inspect(label: "------------------ index")
+    best |> IO.inspect(label: "best        ")
+
+    1..9
+    |> Enum.map(fn d ->
+      digits = List.replace_at(digits, index, d)
+
+      z = digits_to_z(digits, program)
+
+      if z == 0 do
+        throw({:win, digits})
+      end
+
+      IO.puts("#{Integer.undigits(digits)} => #{z}")
+      {z, digits}
+    end)
+    # |> IO.inspect(label: "got ")
+    |> Enum.filter(fn {z, _} ->
+      z <= best
+    end)
+    # |> IO.inspect(label: "kept")
+    |> Enum.sort()
+    # |> IO.inspect(label: "sorted")
+    # |> Enum.map(&IO.inspect/1)
+    |> case do
+      [] ->
+        :deadend
+
+      [{least_z, least_digits} | _] = possibles ->
+        least_z |> IO.inspect(label: "least_z     ")
+
+        # least_digits |> IO.inspect(label: "least_digits")
+
+        # Process.sleep(1000)
+
+        # if all_same_z(possibles, least_z) and least_z != 0 do
+        #   # IO.puts("deadend at index #{index}: #{least_z}")
+        #   :deadend
+        # else
+        possibles
+        |> Enum.map(fn {z, new_digits} ->
+          %{state | digits: new_digits, index: index - 1, best: z}
+        end)
+
+        # end
+    end
+  end
+
+  defp all_same_z([], _), do: true
+  defp all_same_z([{least, _} | rest], least), do: all_same_z(rest, least)
+  defp all_same_z([{other, _} | _rest], least) when other != least, do: false
+
+  defp digits_to_z(digits, program) do
+    # %{z: z} = run(program, digits)
+    # %{z: z} = run(program, digits)
+    z = pp(digits)
+    z
   end
 
   def part_two(program) do
@@ -118,17 +191,17 @@ defmodule Aoe.Y21.Day24 do
     run(rest, buf, state)
   end
 
-  def run([], buf, state) do
+  def run([], [], state) do
     state
   end
 
   def putval(state, k, v) when k in ~w(w x y z)a,
-    do: Map.put(state, k, v)
+    do: Map.put(state, k, v) |> IO.inspect(label: "state")
 
   def value(state, k) when k in ~w(w x y z)a,
     do: Map.fetch!(state, k)
 
-  def value(state, int) when is_integer(int),
+  def value(_state, int) when is_integer(int),
     do: int
 
   def call({:inp, a}, [b | buf], state),
@@ -164,4 +237,523 @@ defmodule Aoe.Y21.Day24 do
     val = if va == vb, do: 1, else: 0
     {buf, putval(state, a, val)}
   end
+
+  def pp(buf) do
+    w = 0
+    x = 0
+    y = 0
+    z = 0
+    [w | buf] = buf
+    x = x * 0
+    x = x + z
+    x = rem(x, 26)
+    z = div(z, 1)
+    x = x + 12
+    x = eql(x, w)
+    x = eql(x, 0)
+    y = y * 0
+    y = y + 25
+    y = y * x
+    y = y + 1
+    z = z * y
+    y = y * 0
+    y = y + w
+    y = y + 4
+    y = y * x
+    z = z + y
+    [w | buf] = buf
+    x = x * 0
+    x = x + z
+    x = rem(x, 26)
+    z = div(z, 1)
+    x = x + 11
+    x = eql(x, w)
+    x = eql(x, 0)
+    y = y * 0
+    y = y + 25
+    y = y * x
+    y = y + 1
+    z = z * y
+    y = y * 0
+    y = y + w
+    y = y + 10
+    y = y * x
+    z = z + y
+    [w | buf] = buf
+    x = x * 0
+    x = x + z
+    x = rem(x, 26)
+    z = div(z, 1)
+    x = x + 14
+    x = eql(x, w)
+    x = eql(x, 0)
+    y = y * 0
+    y = y + 25
+    y = y * x
+    y = y + 1
+    z = z * y
+    y = y * 0
+    y = y + w
+    y = y + 12
+    y = y * x
+    z = z + y
+    [w | buf] = buf
+    x = x * 0
+    x = x + z
+    x = rem(x, 26)
+    z = div(z, 26)
+    x = x + -6
+    x = eql(x, w)
+    x = eql(x, 0)
+    y = y * 0
+    y = y + 25
+    y = y * x
+    y = y + 1
+    z = z * y
+    y = y * 0
+    y = y + w
+    y = y + 14
+    y = y * x
+    z = z + y
+    [w | buf] = buf
+    x = x * 0
+    x = x + z
+    x = rem(x, 26)
+    z = div(z, 1)
+    x = x + 15
+    x = eql(x, w)
+    x = eql(x, 0)
+    y = y * 0
+    y = y + 25
+    y = y * x
+    y = y + 1
+    z = z * y
+    y = y * 0
+    y = y + w
+    y = y + 6
+    y = y * x
+    z = z + y
+    [w | buf] = buf
+    x = x * 0
+    x = x + z
+    x = rem(x, 26)
+    z = div(z, 1)
+    x = x + 12
+    x = eql(x, w)
+    x = eql(x, 0)
+    y = y * 0
+    y = y + 25
+    y = y * x
+    y = y + 1
+    z = z * y
+    y = y * 0
+    y = y + w
+    y = y + 16
+    y = y * x
+    z = z + y
+    [w | buf] = buf
+    x = x * 0
+    x = x + z
+    x = rem(x, 26)
+    z = div(z, 26)
+    x = x + -9
+    x = eql(x, w)
+    x = eql(x, 0)
+    y = y * 0
+    y = y + 25
+    y = y * x
+    y = y + 1
+    z = z * y
+    y = y * 0
+    y = y + w
+    y = y + 1
+    y = y * x
+    z = z + y
+    [w | buf] = buf
+    x = x * 0
+    x = x + z
+    x = rem(x, 26)
+    z = div(z, 1)
+    x = x + 14
+    x = eql(x, w)
+    x = eql(x, 0)
+    y = y * 0
+    y = y + 25
+    y = y * x
+    y = y + 1
+    z = z * y
+    y = y * 0
+    y = y + w
+    y = y + 7
+    y = y * x
+    z = z + y
+    [w | buf] = buf
+    x = x * 0
+    x = x + z
+    x = rem(x, 26)
+    z = div(z, 1)
+    x = x + 14
+    x = eql(x, w)
+    x = eql(x, 0)
+    y = y * 0
+    y = y + 25
+    y = y * x
+    y = y + 1
+    z = z * y
+    y = y * 0
+    y = y + w
+    y = y + 8
+    y = y * x
+    z = z + y
+    [w | buf] = buf
+    x = x * 0
+    x = x + z
+    x = rem(x, 26)
+    z = div(z, 26)
+    x = x + -5
+    x = eql(x, w)
+    x = eql(x, 0)
+    y = y * 0
+    y = y + 25
+    y = y * x
+    y = y + 1
+    z = z * y
+    y = y * 0
+    y = y + w
+    y = y + 11
+    y = y * x
+    z = z + y
+    [w | buf] = buf
+    x = x * 0
+    x = x + z
+    x = rem(x, 26)
+    z = div(z, 26)
+    x = x + -9
+    x = eql(x, w)
+    x = eql(x, 0)
+    y = y * 0
+    y = y + 25
+    y = y * x
+    y = y + 1
+    z = z * y
+    y = y * 0
+    y = y + w
+    y = y + 8
+    y = y * x
+    z = z + y
+    [w | buf] = buf
+    x = x * 0
+    x = x + z
+    x = rem(x, 26)
+    z = div(z, 26)
+    x = x + -5
+    x = eql(x, w)
+    x = eql(x, 0)
+    y = y * 0
+    y = y + 25
+    y = y * x
+    y = y + 1
+    z = z * y
+    y = y * 0
+    y = y + w
+    y = y + 3
+    y = y * x
+    z = z + y
+    [w | buf] = buf
+    x = x * 0
+    x = x + z
+    x = rem(x, 26)
+    z = div(z, 26)
+    x = x + -2
+    x = eql(x, w)
+    x = eql(x, 0)
+    y = y * 0
+    y = y + 25
+    y = y * x
+    y = y + 1
+    z = z * y
+    y = y * 0
+    y = y + w
+    y = y + 1
+    y = y * x
+    z = z + y
+    [w] = buf
+    x = x * 0
+    x = x + z
+    x = rem(x, 26)
+    z = div(z, 26)
+    x = x + -7
+    x = eql(x, w)
+    x = eql(x, 0)
+    y = y * 0
+    y = y + 25
+    y = y * x
+    y = y + 1
+    z = z * y
+    y = y * 0
+    y = y + w
+    y = y + 8
+    y = y * x
+    z = z + y
+    z
+  end
+
+  def pp1(buf) do
+    y = 0
+    z = 0
+    [w | buf] = buf
+    x = rem(z, 26)
+    z = div(z, 1)
+    x = x + 12
+    x = eql(x, w)
+    x = eql(x, 0)
+    y = y * 0
+    y = y + 25
+    y = y * x
+    y = y + 1
+    z = z * y
+    y = y * 0
+    y = y + w
+    y = y + 4
+    y = y * x
+    z = z + y
+    [w | buf] = buf
+    x = x * 0
+    x = x + z
+    x = rem(x, 26)
+    z = div(z, 1)
+    x = x + 11
+    x = eql(x, w)
+    x = eql(x, 0)
+    y = y * 0
+    y = y + 25
+    y = y * x
+    y = y + 1
+    z = z * y
+    y = y * 0
+    y = y + w
+    y = y + 10
+    y = y * x
+    z = z + y
+    [w | buf] = buf
+    x = x * 0
+    x = x + z
+    x = rem(x, 26)
+    z = div(z, 1)
+    x = x + 14
+    x = eql(x, w)
+    x = eql(x, 0)
+    y = y * 0
+    y = y + 25
+    y = y * x
+    y = y + 1
+    z = z * y
+    y = y * 0
+    y = y + w
+    y = y + 12
+    y = y * x
+    z = z + y
+    [w | buf] = buf
+    x = x * 0
+    x = x + z
+    x = rem(x, 26)
+    z = div(z, 26)
+    x = x + -6
+    x = eql(x, w)
+    x = eql(x, 0)
+    y = y * 0
+    y = y + 25
+    y = y * x
+    y = y + 1
+    z = z * y
+    y = y * 0
+    y = y + w
+    y = y + 14
+    y = y * x
+    z = z + y
+    [w | buf] = buf
+    x = x * 0
+    x = x + z
+    x = rem(x, 26)
+    z = div(z, 1)
+    x = x + 15
+    x = eql(x, w)
+    x = eql(x, 0)
+    y = y * 0
+    y = y + 25
+    y = y * x
+    y = y + 1
+    z = z * y
+    y = y * 0
+    y = y + w
+    y = y + 6
+    y = y * x
+    z = z + y
+    [w | buf] = buf
+    x = x * 0
+    x = x + z
+    x = rem(x, 26)
+    z = div(z, 1)
+    x = x + 12
+    x = eql(x, w)
+    x = eql(x, 0)
+    y = y * 0
+    y = y + 25
+    y = y * x
+    y = y + 1
+    z = z * y
+    y = y * 0
+    y = y + w
+    y = y + 16
+    y = y * x
+    z = z + y
+    [w | buf] = buf
+    x = x * 0
+    x = x + z
+    x = rem(x, 26)
+    z = div(z, 26)
+    x = x + -9
+    x = eql(x, w)
+    x = eql(x, 0)
+    y = y * 0
+    y = y + 25
+    y = y * x
+    y = y + 1
+    z = z * y
+    y = y * 0
+    y = y + w
+    y = y + 1
+    y = y * x
+    z = z + y
+    [w | buf] = buf
+    x = x * 0
+    x = x + z
+    x = rem(x, 26)
+    z = div(z, 1)
+    x = x + 14
+    x = eql(x, w)
+    x = eql(x, 0)
+    y = y * 0
+    y = y + 25
+    y = y * x
+    y = y + 1
+    z = z * y
+    y = y * 0
+    y = y + w
+    y = y + 7
+    y = y * x
+    z = z + y
+    [w | buf] = buf
+    x = x * 0
+    x = x + z
+    x = rem(x, 26)
+    z = div(z, 1)
+    x = x + 14
+    x = eql(x, w)
+    x = eql(x, 0)
+    y = y * 0
+    y = y + 25
+    y = y * x
+    y = y + 1
+    z = z * y
+    y = y * 0
+    y = y + w
+    y = y + 8
+    y = y * x
+    z = z + y
+    [w | buf] = buf
+    x = x * 0
+    x = x + z
+    x = rem(x, 26)
+    z = div(z, 26)
+    x = x + -5
+    x = eql(x, w)
+    x = eql(x, 0)
+    y = y * 0
+    y = y + 25
+    y = y * x
+    y = y + 1
+    z = z * y
+    y = y * 0
+    y = y + w
+    y = y + 11
+    y = y * x
+    z = z + y
+    [w | buf] = buf
+    x = x * 0
+    x = x + z
+    x = rem(x, 26)
+    z = div(z, 26)
+    x = x + -9
+    x = eql(x, w)
+    x = eql(x, 0)
+    y = y * 0
+    y = y + 25
+    y = y * x
+    y = y + 1
+    z = z * y
+    y = y * 0
+    y = y + w
+    y = y + 8
+    y = y * x
+    z = z + y
+    [w | buf] = buf
+    x = x * 0
+    x = x + z
+    x = rem(x, 26)
+    z = div(z, 26)
+    x = x + -5
+    x = eql(x, w)
+    x = eql(x, 0)
+    y = y * 0
+    y = y + 25
+    y = y * x
+    y = y + 1
+    z = z * y
+    y = y * 0
+    y = y + w
+    y = y + 3
+    y = y * x
+    z = z + y
+    [w | buf] = buf
+    x = x * 0
+    x = x + z
+    x = rem(x, 26)
+    z = div(z, 26)
+    x = x + -2
+    x = eql(x, w)
+    x = eql(x, 0)
+    y = y * 0
+    y = y + 25
+    y = y * x
+    y = y + 1
+    z = z * y
+    y = y * 0
+    y = y + w
+    y = y + 1
+    y = y * x
+    z = z + y
+    [w] = buf
+    x = x * 0
+    x = x + z
+    x = rem(x, 26)
+    z = div(z, 26)
+    x = x + -7
+    x = eql(x, w)
+    x = eql(x, 0)
+    y = y * 0
+    y = y + 25
+    y = y * x
+    y = y + 1
+    z = z * y
+    y = y * 0
+    y = y + w
+    y = y + 8
+    y = y * x
+    z = z + y
+    z
+  end
+
+  defp eql(same, same), do: 1
+  defp eql(_, _), do: 0
 end
