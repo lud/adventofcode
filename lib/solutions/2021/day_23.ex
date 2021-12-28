@@ -64,18 +64,49 @@ defmodule Aoe.Y21.Day23 do
 
   defp c2b(x), do: :erlang.list_to_atom([x])
 
-  def part_one(problem) do
+  def part_all(problem, large?) do
     seen = %{problem => 0}
-    reduce([{0, problem}], seen, false)
+    reduce([{0, problem}], seen, large?)
   catch
     {:win, nrj} -> nrj
+  end
+
+  def part_one(problem) do
+    part_all(problem, false)
+  end
+
+  def part_two(world) do
+    %{
+      {2, 2} => l1,
+      {4, 2} => l2,
+      {6, 2} => l3,
+      {8, 2} => l4
+    } = world
+
+    world
+    |> Map.merge(%{
+      {2, 4} => l1,
+      {4, 4} => l2,
+      {6, 4} => l3,
+      {8, 4} => l4,
+      #
+      {2, 2} => :D,
+      {4, 2} => :C,
+      {6, 2} => :B,
+      {8, 2} => :A,
+      {2, 3} => :D,
+      {4, 3} => :B,
+      {6, 3} => :A,
+      {8, 3} => :C
+    })
+    |> part_all(true)
   end
 
   defp reduce([best | worlds], seen, large?) do
     {best_nrj, best_world} = best
     if is_win(best_world, large?), do: throw({:win, best_nrj})
     best_nrj |> IO.inspect(label: "best_nrj")
-    (length(worlds) + 1) |> IO.inspect(label: "size")
+    # (length(worlds) + 1) |> IO.inspect(label: "size")
     # Process.sleep(100)
     nexts = possible_nexts(best, large?)
 
@@ -116,7 +147,7 @@ defmodule Aoe.Y21.Day23 do
     insert_world(worlds, nrj, world)
   end
 
-  def possible_nexts({nrj, world}, large? = false) do
+  def possible_nexts({nrj, world}, large?) do
     # possible destinations for a pod:
     # - if it is in the hallway it can only move to the lowest free place in its
     #   room if there is no other pod species inside
@@ -286,7 +317,31 @@ defmodule Aoe.Y21.Day23 do
     true
   end
 
-  defp is_win(_, false), do: false
+  defp is_win(
+         %{
+           {2, 1} => :A,
+           {2, 2} => :A,
+           {2, 3} => :A,
+           {2, 4} => :A,
+           {4, 1} => :B,
+           {4, 2} => :B,
+           {4, 3} => :B,
+           {4, 4} => :B,
+           {6, 1} => :C,
+           {6, 2} => :C,
+           {6, 3} => :C,
+           {6, 4} => :C,
+           {8, 1} => :D,
+           {8, 2} => :D,
+           {8, 3} => :D,
+           {8, 4} => :D
+         },
+         true
+       ) do
+    true
+  end
+
+  defp is_win(_, _), do: false
 
   defp cost(:A), do: 1
   defp cost(:B), do: 10
