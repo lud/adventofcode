@@ -44,7 +44,7 @@ defmodule Mix.Tasks.Aoe.Run do
       "#{part}: ",
       IO.ANSI.cyan(),
       IO.ANSI.bright(),
-      inspect(result),
+      inspect(result, charlists: :as_lists),
       IO.ANSI.normal(),
       IO.ANSI.default_color(),
       " in #{format_time(time)}"
