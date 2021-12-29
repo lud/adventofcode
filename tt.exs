@@ -1,14 +1,28 @@
 defmodule D24Compiler do
   def transpile do
-    "priv/input/2021/day-24.inp"
-    |> File.stream!()
-    |> Stream.map(&String.trim/1)
-    |> Stream.filter(&(&1 != ""))
-    |> Enum.map_reduce(0, &trans/2)
-    |> elem(0)
-    |> :lists.flatten()
-    |> then(&(&1 ++ ["  z\nend\n"]))
-    |> IO.puts()
+    code =
+      "priv/input/2021/day-24.inp"
+      |> File.stream!()
+      |> Stream.map(&String.trim/1)
+      |> Stream.filter(&(&1 != ""))
+      |> Enum.map_reduce(0, &trans/2)
+      |> elem(0)
+      |> :lists.flatten()
+      |> then(&(&1 ++ ["  z\nend\n"]))
+      |> Enum.map(&("  " <> &1))
+      |> Enum.join("")
+
+    code = """
+    defmodule Aoe.Y21.Day24.Program do
+      #{code}
+
+      defp eql(same, same), do: 1
+      defp eql(_, _), do: 0
+    end
+    """
+
+    File.write!("lib/solutions/2021/day_24_program.ex", code)
+    System.cmd("mix", ["format", "lib/solutions/2021/day_24_program.ex"])
 
     # |> Enum.join("\n")
   end
@@ -20,13 +34,19 @@ defmodule D24Compiler do
        else
          []
        end,
-       "def prog(#{n}, w, z) do\n"
+       "def run(#{n}, w, z) do\n"
      ], n + 1}
   end
 
   def trans(line, n) do
     {"  " <> trans(line) <> "\n", n}
   end
+
+  def trans("mul x 0"),
+    do: "x = 0"
+
+  def trans("mul y 0"),
+    do: "y = 0"
 
   def trans(<<"mul ", var, " ", value::binary>>) do
     var = <<var>>
@@ -55,4 +75,3 @@ defmodule D24Compiler do
 end
 
 D24Compiler.transpile()
-|> IO.puts()
