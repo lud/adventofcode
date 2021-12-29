@@ -131,22 +131,24 @@ defmodule Aoe.Y21.Day24 do
         throw({:win, digits})
       end
 
-      IO.puts("#{Integer.undigits(digits)} => #{z}")
-      {z, digits}
+      # IO.puts("#{Integer.undigits(digits)} => #{z}")
+      {z, d, digits}
     end)
     # |> IO.inspect(label: "got ")
-    |> Enum.filter(fn {z, _} ->
+    |> Enum.filter(fn {z, _, _} ->
       z <= best
     end)
     # |> IO.inspect(label: "kept")
-    |> Enum.sort()
+    |> Enum.sort_by(fn {z, d, digits} ->
+      {z, -1 * d}
+    end)
     # |> IO.inspect(label: "sorted")
     # |> Enum.map(&IO.inspect/1)
     |> case do
       [] ->
         :deadend
 
-      [{least_z, least_digits} | _] = possibles ->
+      [{least_z, _, least_digits} | _] = possibles ->
         least_z |> IO.inspect(label: "least_z     ")
 
         # least_digits |> IO.inspect(label: "least_digits")
@@ -158,7 +160,7 @@ defmodule Aoe.Y21.Day24 do
         #   :deadend
         # else
         possibles
-        |> Enum.map(fn {z, new_digits} ->
+        |> Enum.map(fn {z, _, new_digits} ->
           %{state | digits: new_digits, index: index - 1, best: z}
         end)
 
@@ -167,13 +169,13 @@ defmodule Aoe.Y21.Day24 do
   end
 
   defp all_same_z([], _), do: true
-  defp all_same_z([{least, _} | rest], least), do: all_same_z(rest, least)
-  defp all_same_z([{other, _} | _rest], least) when other != least, do: false
+  defp all_same_z([{least, _, _} | rest], least), do: all_same_z(rest, least)
+  defp all_same_z([{other, _, _} | _rest], least) when other != least, do: false
 
   defp digits_to_z(digits, program) do
     # %{z: z} = run(program, digits)
     # %{z: z} = run(program, digits)
-    z = pp(digits)
+    z = prog(digits)
     z
   end
 
@@ -238,7 +240,7 @@ defmodule Aoe.Y21.Day24 do
     {buf, putval(state, a, val)}
   end
 
-  def pp(buf) do
+  def prog(buf) do
     w = 0
     x = 0
     y = 0
@@ -247,262 +249,6 @@ defmodule Aoe.Y21.Day24 do
     x = x * 0
     x = x + z
     x = rem(x, 26)
-    z = div(z, 1)
-    x = x + 12
-    x = eql(x, w)
-    x = eql(x, 0)
-    y = y * 0
-    y = y + 25
-    y = y * x
-    y = y + 1
-    z = z * y
-    y = y * 0
-    y = y + w
-    y = y + 4
-    y = y * x
-    z = z + y
-    [w | buf] = buf
-    x = x * 0
-    x = x + z
-    x = rem(x, 26)
-    z = div(z, 1)
-    x = x + 11
-    x = eql(x, w)
-    x = eql(x, 0)
-    y = y * 0
-    y = y + 25
-    y = y * x
-    y = y + 1
-    z = z * y
-    y = y * 0
-    y = y + w
-    y = y + 10
-    y = y * x
-    z = z + y
-    [w | buf] = buf
-    x = x * 0
-    x = x + z
-    x = rem(x, 26)
-    z = div(z, 1)
-    x = x + 14
-    x = eql(x, w)
-    x = eql(x, 0)
-    y = y * 0
-    y = y + 25
-    y = y * x
-    y = y + 1
-    z = z * y
-    y = y * 0
-    y = y + w
-    y = y + 12
-    y = y * x
-    z = z + y
-    [w | buf] = buf
-    x = x * 0
-    x = x + z
-    x = rem(x, 26)
-    z = div(z, 26)
-    x = x + -6
-    x = eql(x, w)
-    x = eql(x, 0)
-    y = y * 0
-    y = y + 25
-    y = y * x
-    y = y + 1
-    z = z * y
-    y = y * 0
-    y = y + w
-    y = y + 14
-    y = y * x
-    z = z + y
-    [w | buf] = buf
-    x = x * 0
-    x = x + z
-    x = rem(x, 26)
-    z = div(z, 1)
-    x = x + 15
-    x = eql(x, w)
-    x = eql(x, 0)
-    y = y * 0
-    y = y + 25
-    y = y * x
-    y = y + 1
-    z = z * y
-    y = y * 0
-    y = y + w
-    y = y + 6
-    y = y * x
-    z = z + y
-    [w | buf] = buf
-    x = x * 0
-    x = x + z
-    x = rem(x, 26)
-    z = div(z, 1)
-    x = x + 12
-    x = eql(x, w)
-    x = eql(x, 0)
-    y = y * 0
-    y = y + 25
-    y = y * x
-    y = y + 1
-    z = z * y
-    y = y * 0
-    y = y + w
-    y = y + 16
-    y = y * x
-    z = z + y
-    [w | buf] = buf
-    x = x * 0
-    x = x + z
-    x = rem(x, 26)
-    z = div(z, 26)
-    x = x + -9
-    x = eql(x, w)
-    x = eql(x, 0)
-    y = y * 0
-    y = y + 25
-    y = y * x
-    y = y + 1
-    z = z * y
-    y = y * 0
-    y = y + w
-    y = y + 1
-    y = y * x
-    z = z + y
-    [w | buf] = buf
-    x = x * 0
-    x = x + z
-    x = rem(x, 26)
-    z = div(z, 1)
-    x = x + 14
-    x = eql(x, w)
-    x = eql(x, 0)
-    y = y * 0
-    y = y + 25
-    y = y * x
-    y = y + 1
-    z = z * y
-    y = y * 0
-    y = y + w
-    y = y + 7
-    y = y * x
-    z = z + y
-    [w | buf] = buf
-    x = x * 0
-    x = x + z
-    x = rem(x, 26)
-    z = div(z, 1)
-    x = x + 14
-    x = eql(x, w)
-    x = eql(x, 0)
-    y = y * 0
-    y = y + 25
-    y = y * x
-    y = y + 1
-    z = z * y
-    y = y * 0
-    y = y + w
-    y = y + 8
-    y = y * x
-    z = z + y
-    [w | buf] = buf
-    x = x * 0
-    x = x + z
-    x = rem(x, 26)
-    z = div(z, 26)
-    x = x + -5
-    x = eql(x, w)
-    x = eql(x, 0)
-    y = y * 0
-    y = y + 25
-    y = y * x
-    y = y + 1
-    z = z * y
-    y = y * 0
-    y = y + w
-    y = y + 11
-    y = y * x
-    z = z + y
-    [w | buf] = buf
-    x = x * 0
-    x = x + z
-    x = rem(x, 26)
-    z = div(z, 26)
-    x = x + -9
-    x = eql(x, w)
-    x = eql(x, 0)
-    y = y * 0
-    y = y + 25
-    y = y * x
-    y = y + 1
-    z = z * y
-    y = y * 0
-    y = y + w
-    y = y + 8
-    y = y * x
-    z = z + y
-    [w | buf] = buf
-    x = x * 0
-    x = x + z
-    x = rem(x, 26)
-    z = div(z, 26)
-    x = x + -5
-    x = eql(x, w)
-    x = eql(x, 0)
-    y = y * 0
-    y = y + 25
-    y = y * x
-    y = y + 1
-    z = z * y
-    y = y * 0
-    y = y + w
-    y = y + 3
-    y = y * x
-    z = z + y
-    [w | buf] = buf
-    x = x * 0
-    x = x + z
-    x = rem(x, 26)
-    z = div(z, 26)
-    x = x + -2
-    x = eql(x, w)
-    x = eql(x, 0)
-    y = y * 0
-    y = y + 25
-    y = y * x
-    y = y + 1
-    z = z * y
-    y = y * 0
-    y = y + w
-    y = y + 1
-    y = y * x
-    z = z + y
-    [w] = buf
-    x = x * 0
-    x = x + z
-    x = rem(x, 26)
-    z = div(z, 26)
-    x = x + -7
-    x = eql(x, w)
-    x = eql(x, 0)
-    y = y * 0
-    y = y + 25
-    y = y * x
-    y = y + 1
-    z = z * y
-    y = y * 0
-    y = y + w
-    y = y + 8
-    y = y * x
-    z = z + y
-    z
-  end
-
-  def pp1(buf) do
-    y = 0
-    z = 0
-    [w | buf] = buf
-    x = rem(z, 26)
     z = div(z, 1)
     x = x + 12
     x = eql(x, w)
