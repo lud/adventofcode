@@ -382,12 +382,6 @@ defmodule Aoe.Y21.Day23 do
   for start <- @poses, dest <- @poses, start != dest do
     path = Aoe.Y21.Day23.StepCompiler.calc_steps(start, dest)
 
-    IO.puts("""
-    FROM: #{inspect(start)}
-    TO:   #{inspect(dest)}
-    PATH: #{inspect(path)}
-    """)
-
     defp get_path(unquote(start), unquote(dest)), do: unquote(path)
   end
 end
