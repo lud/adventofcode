@@ -15,10 +15,8 @@ defmodule Aoe.Y21.Day25 do
   @spec parse_input!(input, part) :: problem
   def parse_input!(input, _part) do
     input = Enum.to_list(input)
-    input |> IO.inspect(label: "input")
-    length(input) |> IO.inspect(label: "length(input)")
     yo = length(input) - 1
-    xo = (hd(input) |> String.to_charlist() |> length()) - 1
+    xo = (hd(input) |> byte_size) - 1
     {xo, yo}
 
     grid =
@@ -50,36 +48,19 @@ defmodule Aoe.Y21.Day25 do
   def part_one({{xo, yo}, grid}) do
     turns = Stream.iterate(1, &(&1 + 1))
 
-    # print_grid(grid, xo, yo)
-
     Enum.reduce_while(turns, grid, fn turn, grid ->
-      IO.puts("turn #{turn}")
+      IO.write("turn #{turn}")
       {moved, grid} = move_cucumbers({xo, yo}, grid)
-      # print_grid(grid, xo, yo)
 
       case {moved, grid} do
         {0, _} ->
           {:halt, turn}
 
         {n, new_grid} ->
-          IO.puts(" => moved: #{n}")
+          IO.puts(" moved: #{n}")
           {:cont, new_grid}
       end
     end)
-  end
-
-  defp print_grid(grid, xo, yo) do
-    for y <- 0..yo do
-      for x <- 0..xo do
-        case Map.get(grid, {x, y}) do
-          nil -> IO.write(".")
-          :v -> IO.write("v")
-          :> -> IO.write(">")
-        end
-      end
-
-      IO.write("\n")
-    end
   end
 
   defp move_cucumbers({xo, yo}, grid) do
@@ -115,7 +96,7 @@ defmodule Aoe.Y21.Day25 do
     end)
   end
 
-  defp move({x, y}, :v, grid, {xo, yo}) do
+  defp move({x, y}, :v, grid, {_xo, yo}) do
     next_coords = {x, wrap(y + 1, yo)}
 
     if free?(grid, next_coords) do
@@ -125,7 +106,7 @@ defmodule Aoe.Y21.Day25 do
     end
   end
 
-  defp move({x, y}, :>, grid, {xo, yo}) do
+  defp move({x, y}, :>, grid, {xo, _yo}) do
     next_coords = {wrap(x + 1, xo), y}
 
     if free?(grid, next_coords) do
@@ -144,8 +125,4 @@ defmodule Aoe.Y21.Day25 do
 
   defp wrap(coord, max_coord) when coord == max_coord + 1,
     do: 0
-
-  def part_two(problem) do
-    problem
-  end
 end

@@ -21,5 +21,5 @@ defmodule Aoe.Utils do
     Module.concat([Aoe, "Y#{year - 2000}", "Day#{day}Test"])
   end
 
-  defguard is_valid_day(year, day) when year in 2015..2021 and day in 1..25
+  defguard is_valid_day(year, day) when year in 2015..2022 and day in 1..25
 end
