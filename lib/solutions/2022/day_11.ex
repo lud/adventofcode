@@ -46,7 +46,16 @@ defmodule Aoe.Y22.Day11 do
     mtrue = String.to_integer(raw_iftrue)
     mfalse = String.to_integer(raw_iffalse)
 
-    %{id: mid, items: items, op: op, test: test, mtrue: mtrue, mfalse: mfalse, inspects: 0}
+    %{
+      id: mid,
+      div_by: test_num,
+      items: items,
+      op: op,
+      test: test,
+      mtrue: mtrue,
+      mfalse: mfalse,
+      checked: 0
+    }
   end
 
   defp parse_op("old * old"), do: fn x -> x * x end
@@ -62,16 +71,25 @@ defmodule Aoe.Y22.Day11 do
   end
 
   def part_one(monkeys) do
+    run(monkeys, fn x -> div(x, 3) end, 20)
+  end
+
+  def part_two(monkeys) do
+    div_product = Enum.map(monkeys, & &1.div_by) |> Enum.product()
+
+    f = fn x -> rem(x, div_product) end
+    run(monkeys, f, 10000)
+  end
+
+  def run(monkeys, divide, rounds) do
     ids = Enum.map(monkeys, & &1.id)
     map = Enum.reduce(monkeys, %{}, fn monk, acc -> Map.put(acc, monk.id, monk) end)
-    ids |> IO.inspect(label: "ids")
-    map |> IO.inspect(label: "map")
 
-    monkeys = run_rounds(ids, map, 20)
+    monkeys = run_rounds(ids, map, divide, rounds)
 
     [besta, bestb] =
       monkeys
-      |> Enum.map(fn {_, monk} -> monk.inspects end)
+      |> Enum.map(fn {_, monk} -> monk.checked end)
       |> Enum.sort()
       |> Enum.reverse()
       |> Enum.take(2)
@@ -79,33 +97,33 @@ defmodule Aoe.Y22.Day11 do
     besta * bestb
   end
 
-  defp run_rounds(ids, map, 0) do
+  defp run_rounds(_ids, map, _divide, 0) do
     map
   end
 
-  defp run_rounds(ids, map, n) do
-    map = run_once(ids, map)
-    run_rounds(ids, map, n - 1)
+  defp run_rounds(ids, map, divide, n) do
+    map = run_once(ids, map, divide)
+    run_rounds(ids, map, divide, n - 1)
   end
 
-  defp run_once(ids, map) do
-    Enum.reduce(ids, map, &run_monk/2)
+  defp run_once(ids, map, divide) do
+    Enum.reduce(ids, map, &run_monk(&1, &2, divide))
   end
 
-  defp run_monk(id, all) do
+  defp run_monk(id, all, divide) do
     monk = Map.fetch!(all, id)
-    monk = Map.put(monk, :inspects, monk.inspects + length(monk.items))
+    monk = Map.put(monk, :checked, monk.checked + length(monk.items))
     items = monk.items
     monk = Map.put(monk, :items, [])
     all = Map.put(all, id, monk)
-    throws = run_queue(items, monk)
+    throws = run_queue(items, monk, divide)
     all = add_thrown(all, throws)
     all
   end
 
-  defp run_queue(items, monk) do
+  defp run_queue(items, monk, divide) do
     Enum.map(items, fn level ->
-      level = div(monk.op.(level), 3)
+      level = divide.(monk.op.(level))
 
       if monk.test.(level) do
         {level, monk.mtrue}
@@ -113,16 +131,11 @@ defmodule Aoe.Y22.Day11 do
         {level, monk.mfalse}
       end
     end)
-    |> IO.inspect(label: "throws")
   end
 
   defp add_thrown(all, throws) do
     Enum.reduce(throws, all, fn {level, mid}, all ->
       Map.update!(all, mid, fn monk -> Map.update!(monk, :items, &(&1 ++ [level])) end)
     end)
-  end
-
-  def part_two(problem) do
-    problem
   end
 end
