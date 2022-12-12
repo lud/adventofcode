@@ -8,7 +8,6 @@ defmodule Aoe.Y20.Day17 do
   @type input :: binary | File.Stream.t()
   @type problem :: any
 
-  @spec read_file!(file, part) :: input
   def read_file!(file, _part) do
     file
     |> Input.stream_file_lines(trim: true)
