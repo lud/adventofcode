@@ -67,7 +67,7 @@ defmodule Aoe.Y22.Day14 do
     map |> Map.values() |> Enum.filter(&(&1 == :sand)) |> Enum.count()
   end
 
-  def part_two(map) do
+  def part_two_alt(map) do
     yh = Map.keys(map) |> Enum.max_by(&elem(&1, 1)) |> elem(1)
     map = pour_sand_2(map, yh + 2)
     map |> Map.values() |> Enum.filter(&(&1 == :sand)) |> Enum.count()
@@ -131,5 +131,122 @@ defmodule Aoe.Y22.Day14 do
 
   defp right({x, y}) do
     {x + 1, y}
+  end
+
+  defp top_left({x, y}) do
+    {x - 1, y - 1}
+  end
+
+  defp top_right({x, y}) do
+    {x + 1, y - 1}
+  end
+
+  defp top({x, y}) do
+    {x, y - 1}
+  end
+
+  def part_two(map) do
+    yh = Map.keys(map) |> Enum.max_by(&elem(&1, 1)) |> elem(1)
+
+    bottom = yh + 1
+
+    points =
+      for y <- 0..bottom, x <- (500 - y)..(500 + y) do
+        {x, y}
+      end
+
+    places = length(points)
+
+    map =
+      Enum.reduce(points, map, fn xy, map ->
+        case Map.get(map, xy, :void) do
+          :rock ->
+            map
+
+          :void when xy == {500, 0} ->
+            map
+
+          :source ->
+            map
+
+          :void ->
+            parents = get_parents(xy)
+
+            if all_blocked?(parents, map) do
+              Map.put(map, xy, :shadow)
+            else
+              map
+            end
+        end
+      end)
+
+    blocked =
+      Enum.reduce(map, 0, fn {_, kind}, acc ->
+        case kind do
+          :rock -> acc + 1
+          :shadow -> acc + 1
+          _ -> acc
+        end
+      end)
+
+    places - blocked
+  end
+
+  defp get_parents({_, 0}) do
+    []
+  end
+
+  defp get_parents({x, y} = xy) do
+    cond do
+      x == 500 - y -> [top_right(xy)]
+      x == 500 + y -> [top_left(xy)]
+      true -> [top_left(xy), top(xy), top_right(xy)]
+    end
+  end
+
+  defp all_blocked?([], _map) do
+    true
+  end
+
+  defp all_blocked?(parents, map) do
+    Enum.all?(parents, fn p -> blocked?(map, p) end)
+  end
+
+  defp blocked?(map, {x, y} = xy) do
+    v = Map.get(map, xy)
+
+    cond do
+      v == :rock -> true
+      v == :shadow -> true
+      x < 500 - y -> true
+      x > 500 + y -> true
+      true -> false
+    end
+  end
+
+  defp print_map(map) do
+    xl = Map.keys(map) |> Enum.min_by(&elem(&1, 0)) |> elem(0)
+    xh = Map.keys(map) |> Enum.max_by(&elem(&1, 0)) |> elem(0)
+
+    yl = Map.keys(map) |> Enum.min_by(&elem(&1, 1)) |> elem(1)
+    yh = Map.keys(map) |> Enum.max_by(&elem(&1, 1)) |> elem(1)
+
+    for y <- yl..yh do
+      [
+        for x <- xl..xh do
+          case Map.get(map, {x, y}) do
+            :rock -> ?#
+            :shadow -> ?x
+            :sand -> ?o
+            :source -> ?+
+            nil -> ?.
+          end
+        end,
+        "\n"
+      ]
+    end
+    |> IO.puts()
+
+    map
   end
 end

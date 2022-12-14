@@ -44,6 +44,17 @@ defmodule Aoe.Y22.Day14Test do
     assert expected == Solution.part_two(problem)
   end
 
+  test "verify 2022/14 part_two - alternative" do
+    problem =
+      @sample_1
+      |> Input.as_file()
+      |> Solution.read_file!(:part_two)
+      |> Solution.parse_input!(:part_two)
+
+    expected = 93
+    assert expected == Solution.part_two_alt(problem)
+  end
+
   # Once your part one was successfully sumbitted, you may uncomment this test
   # to ensure your implementation was not altered when you implement part two.
 
