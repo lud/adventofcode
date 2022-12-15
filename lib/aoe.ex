@@ -38,8 +38,10 @@ defmodule Aoe do
   end
 
   defp do_run_part(module, part, input_path) do
-    input = module.read_file!(input_path, part)
-    problem = module.parse_input!(input, part)
-    :timer.tc(module, part, [problem])
+    :timer.tc(fn ->
+      input = module.read_file!(input_path, part)
+      problem = module.parse_input!(input, part)
+      apply(module, part, [problem])
+    end)
   end
 end
