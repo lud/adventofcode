@@ -22,7 +22,8 @@ defmodule Aoe.MixProject do
   defp deps do
     [
       {:httpoison, "~> 1.7"},
-      {:jason, "~> 1.4"}
+      {:jason, "~> 1.4"},
+      {:credo, "~> 1.6"}
     ]
   end
 end

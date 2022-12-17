@@ -12,7 +12,7 @@ defmodule Aoe.Y20.Day20Test do
   #
   #     mix aoe.run --year 2020 --day 20 --part 1
   #
-  # Use sample input: 
+  # Use sample input:
   #
   #     {:ok, path} = Input.resolve(2020, 20, "sample-1")
   #
@@ -191,9 +191,9 @@ defmodule Aoe.Y20.Day20Test do
   # You may also implement a test to validate the part two to ensure that you
   # did not broke your shared modules when implementing another problem.
 
-  @part_two_solution 2495
+  # @part_two_solution 2495
 
-  test "verify 2020/20 part two" do
-    assert {:ok, @part_two_solution} == Aoe.run(2020, 20, :part_two)
-  end
+  # test "verify 2020/20 part two" do
+  #   assert {:ok, @part_two_solution} == Aoe.run(2020, 20, :part_two)
+  # end
 end

@@ -23,16 +23,16 @@ defmodule Aoe.Y21.Day24Test do
   Data file
   """
 
-  test "verify 2021/24 part_one - samples" do
-    problem =
-      @sample_1
-      |> Input.as_file()
-      |> Solution.read_file!(:part_one)
-      |> Solution.parse_input!(:part_one)
+  # test "verify 2021/24 part_one - samples" do
+  #   problem =
+  #     @sample_1
+  #     |> Input.as_file()
+  #     |> Solution.read_file!(:part_one)
+  #     |> Solution.parse_input!(:part_one)
 
-    expected = CHANGE_ME
-    assert expected == Solution.part_one(problem)
-  end
+  #   expected = CHANGE_ME
+  #   assert expected == Solution.part_one(problem)
+  # end
 
   # test "verify 2021/24 part_two - samples" do
   #   problem =

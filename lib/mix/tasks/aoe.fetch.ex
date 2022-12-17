@@ -7,7 +7,7 @@ defmodule Mix.Tasks.Aoe.Fetch do
     %{year: year, day: day} = Aoe.Mix.Helpers.parse_year_day(argv)
 
     case Aoe.Input.ensure_local(year, day) do
-      {:ok, _} -> IO.puts("Done.")
+      {:ok, path} -> IO.puts("Input #{year}--#{day} saved: #{path}")
       err -> IO.puts("Error: #{inspect(err)}")
     end
   end
