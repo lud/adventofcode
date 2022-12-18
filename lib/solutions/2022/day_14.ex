@@ -223,30 +223,4 @@ defmodule Aoe.Y22.Day14 do
       true -> false
     end
   end
-
-  defp print_map(map) do
-    xl = Map.keys(map) |> Enum.min_by(&elem(&1, 0)) |> elem(0)
-    xh = Map.keys(map) |> Enum.max_by(&elem(&1, 0)) |> elem(0)
-
-    yl = Map.keys(map) |> Enum.min_by(&elem(&1, 1)) |> elem(1)
-    yh = Map.keys(map) |> Enum.max_by(&elem(&1, 1)) |> elem(1)
-
-    for y <- yl..yh do
-      [
-        for x <- xl..xh do
-          case Map.get(map, {x, y}) do
-            :rock -> ?#
-            :shadow -> ?x
-            :sand -> ?o
-            :source -> ?+
-            nil -> ?.
-          end
-        end,
-        "\n"
-      ]
-    end
-    |> IO.puts()
-
-    map
-  end
 end
