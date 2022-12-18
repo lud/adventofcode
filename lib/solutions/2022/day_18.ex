@@ -1,18 +1,10 @@
 defmodule Aoe.Y22.Day18 do
   alias Aoe.Input, warn: false
 
-  @type input_path :: binary
-  @type file :: input_path | %Aoe.Input.FakeFile{}
-  @type part :: :part_one | :part_two
-  @type input :: binary | File.Stream.t()
-  @type problem :: any
-
-  @spec read_file!(file, part) :: input
   def read_file!(file, _part) do
     Input.stream_file_lines(file, trim: true)
   end
 
-  @spec parse_input!(input, part) :: problem
   def parse_input!(input, _part) do
     input |> Enum.map(&parse_line/1)
   end
@@ -30,11 +22,12 @@ defmodule Aoe.Y22.Day18 do
         Map.put(surf_map, cube, n_uncovered(cube, lookup_map))
       end)
 
-    Enum.sum(Map.values(surf_map))
+    surf_map |> Map.values() |> Enum.sum()
   end
 
   def part_two(cube_list) do
     lookup_map = Map.new(cube_list, &{&1, true})
+
     xl = Enum.reduce(cube_list, &min_x/2) - 1
     yl = Enum.reduce(cube_list, &min_y/2) - 1
     zl = Enum.reduce(cube_list, &min_z/2) - 1
