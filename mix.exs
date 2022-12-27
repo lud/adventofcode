@@ -7,7 +7,8 @@ defmodule Aoe.MixProject do
       version: "0.1.0",
       elixir: "~> 1.11",
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      modkit: modkit()
     ]
   end
 
@@ -21,9 +22,21 @@ defmodule Aoe.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:httpoison, "~> 1.7"},
+      {:req, "~> 0.3.3"},
       {:jason, "~> 1.4"},
-      {:credo, "~> 1.6"}
+      {:credo, "~> 1.6", only: [:dev], runtime: false},
+      {:cli_mate, "~> 0.1", runtime: false}
+    ]
+  end
+
+  defp modkit do
+    [
+      mount: [
+        {Aoe, "lib/aoe"},
+        {Aoe.Y20, "lib/solutions/2020"},
+        {Aoe.Y21, "lib/solutions/2021"},
+        {Aoe.Y22, "lib/solutions/2022"}
+      ]
     ]
   end
 end

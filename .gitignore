@@ -31,3 +31,4 @@ aoe-*.tar
 /t.exs
 
 config/secret.exs
+.aoc.defaults

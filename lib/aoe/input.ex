@@ -1,6 +1,4 @@
 defmodule Aoe.Input do
-  require Aoe.Utils
-
   defmodule FakeFile do
     defstruct content: ""
   end
@@ -94,7 +92,7 @@ defmodule Aoe.Input do
     end
   end
 
-  def ensure_local(year, day, suffix \\ nil) when Aoe.Utils.is_valid_day(year, day) do
+  def ensure_local(year, day, suffix \\ nil) do
     _path = input_path(year, day, suffix)
 
     case resolve(year, day, suffix) do
@@ -118,15 +116,17 @@ defmodule Aoe.Input do
   def input_path(year, day, suffix \\ nil)
 
   def input_path(year, day, nil) do
-    year_dir = Path.join(Aoe.Utils.conf_dir!(:input_dir), to_string(year))
-    File.mkdir_p!(year_dir)
-    Path.join(year_dir, "day-#{day}.inp")
+    Path.join(year_dir(year), "day-#{day}.inp")
   end
 
   def input_path(year, day, suffix) when is_binary(suffix) do
-    year_dir = Path.join(Aoe.Utils.conf_dir!(:input_dir), to_string(year))
+    Path.join(year_dir(year), "day-#{day}-#{suffix}.inp")
+  end
+
+  defp year_dir(year) when is_integer(year) do
+    year_dir = Path.join([File.cwd!(), "priv", "input", Integer.to_string(year)])
     File.mkdir_p!(year_dir)
-    Path.join(year_dir, "day-#{day}-#{suffix}.inp")
+    year_dir
   end
 
   defp write_input(year, day, content) do

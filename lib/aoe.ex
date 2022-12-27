@@ -1,9 +1,15 @@
 defmodule Aoe do
-  alias Aoe.Utils
+  alias Aoe.Mod
   alias Aoe.Input
 
+  @type input_path :: binary
+  @type file :: input_path | %Aoe.Input.FakeFile{}
+  @type part :: :part_one | :part_two
+  @type input :: binary | File.Stream.t()
+  @type problem :: any
+
   def run(year, day, part, timer? \\ false) when part in [:part_one, :part_two] do
-    module = Utils.module_name(year, day)
+    module = Mod.module_name(year, day)
 
     case do_run(year, day, module, part) do
       {:ok, {_time, result}} = final ->

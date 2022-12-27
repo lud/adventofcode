@@ -1,9 +1,11 @@
 defmodule Mix.Tasks.Aoe.Run do
+  alias Aoe.CliTool
   use Mix.Task
 
   def run(argv) do
     Application.ensure_all_started(:aoe)
-    opts = %{year: year, day: day} = Aoe.Mix.Helpers.parse_year_day(argv)
+    %{options: options} = CliTool.parse_or_halt!(argv, CliTool.part_command(__MODULE__))
+    %{year: year, day: day, part: part} = CliTool.validate_options!(options)
 
     case Aoe.Input.ensure_local(year, day) do
       {:ok, _} ->
@@ -14,10 +16,7 @@ defmodule Mix.Tasks.Aoe.Run do
           [IO.ANSI.yellow(), to_string(day), IO.ANSI.default_color()]
         ])
 
-        run(year, day, opts.part)
-
-      # {:error, :enoent} ->
-      #   Mix.Shell.IO.error("Error: Could not resolve input #{Aoe.Input.input_path(year, day)}")
+        run(year, day, part)
 
       {:error, reason} ->
         Mix.Shell.IO.error("Error: #{inspect(reason)}")
