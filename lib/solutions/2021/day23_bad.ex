@@ -103,7 +103,7 @@ defmodule Aoe.Y21.Day23_Bad do
           case Map.get(seen, world.grid) do
             nil -> {[{nrj, world} | acc], seen}
             cj when cj <= nrj -> {acc, seen}
-            cj when cj > nrj -> TODO.remove_grid()
+            cj when cj > nrj -> raise "TODO remove_grid"
           end
         end)
 

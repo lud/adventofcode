@@ -211,7 +211,6 @@ defmodule Aoe.Y22.Day22 do
 
     init_pos = @face_names |> Enum.map(&{&1, 1, 1}) |> Enum.find(&Map.has_key?(map, &1))
     initial = %{facing: :east, pos: init_pos}
-    initial |> IO.inspect(label: "initial")
 
     state =
       Enum.reduce(moves, initial, fn move, state ->

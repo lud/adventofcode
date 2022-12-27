@@ -8,9 +8,10 @@ defmodule Mix.Tasks.Aoe.Set do
 
     command = [
       module: __MODULE__,
-      doc: "Sets the default year when not provided on other commands",
+      doc: "Sets the default year / day when not provided on other commands",
       options: [
-        year: [type: :integer, short: :y, doc: "Year to force"]
+        year: [type: :integer, short: :y, doc: "Year to force"],
+        day: [type: :integer, short: :d, doc: "Day to force"]
       ]
     ]
 

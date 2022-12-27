@@ -76,7 +76,6 @@ defmodule Aoe.Y22.Day11 do
 
   def part_two(monkeys) do
     div_product = Enum.map(monkeys, & &1.div_by) |> Enum.product()
-    div_product |> IO.inspect(label: "div_product")
 
     # f = fn x -> rem(x, div_product) end
     f = fn x -> rem(x, div_product) end

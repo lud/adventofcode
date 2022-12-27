@@ -53,7 +53,7 @@ defmodule Mix.Tasks.Aoe.Run do
   defp print_result({:error, :not_implemented}, year, day, part) do
     Mix.Shell.IO.info([
       IO.ANSI.yellow(),
-      "#{part}: #{inspect(Aoe.Utils.module_name(year, day))}.#{part}/1 is not implemented",
+      "#{part}: #{inspect(Aoe.Mod.module_name(year, day))}.#{part}/1 is not implemented",
       IO.ANSI.default_color()
     ])
   end

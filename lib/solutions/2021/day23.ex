@@ -104,8 +104,6 @@ defmodule Aoe.Y21.Day23 do
   defp reduce([best | worlds], seen, large?) do
     {best_nrj, best_world} = best
     if is_win(best_world, large?), do: throw({:win, best_nrj})
-    best_nrj |> IO.inspect(label: "best_nrj")
-    # (length(worlds) + 1) |> IO.inspect(label: "size")
     # Process.sleep(100)
     nexts = possible_nexts(best, large?)
 

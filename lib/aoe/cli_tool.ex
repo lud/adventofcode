@@ -7,7 +7,7 @@ defmodule Aoe.CliTool do
       module: module,
       options: [
         year: [type: :integer, short: :y, doc: "Year of the puzzle", default: default_year()],
-        day: [type: :integer, short: :d, doc: "Day of the puzzle"] ++ [default_day_opt()]
+        day: [type: :integer, short: :d, doc: "Day of the puzzle"] ++ default_day_optlist()
       ]
     ]
   end
@@ -44,6 +44,7 @@ defmodule Aoe.CliTool do
     end
 
     case Map.fetch(options, :part) do
+      {:ok, nil} -> :ok
       {:ok, part} when not is_valid_part(part) -> raise "Invalid part: #{part}"
       _ -> :ok
     end
@@ -64,10 +65,17 @@ defmodule Aoe.CliTool do
     end
   end
 
-  defp default_day_opt do
-    case Date.utc_today().day do
-      n when is_valid_day(n) -> [default: n]
-      _ -> []
+  defp default_day_optlist do
+    case read_defaults() do
+      %{day: day} when is_valid_day(day) ->
+        CliTool.writeln(CliTool.color(:yellow, "Using forced default day #{day}"))
+        [default: day]
+
+      _ ->
+        case Date.utc_today().day do
+          day when is_valid_day(day) -> [default: day]
+          _ -> []
+        end
     end
   end
 
@@ -78,7 +86,7 @@ defmodule Aoe.CliTool do
   def write_defaults(defaults) do
     data =
       defaults
-      |> Map.take([:year])
+      |> Map.take([:year, :day])
       |> IO.inspect(label: "New default options")
       |> :erlang.term_to_binary()
 
