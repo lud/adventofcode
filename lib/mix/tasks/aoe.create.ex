@@ -107,7 +107,7 @@ defmodule Mix.Tasks.Aoe.Create do
 
       # To run the test, run the following command:
       #
-      #     mix test test/#{year}/day_#{day}_test.exs
+      #     mix test test/#{year}/day#{day}_test.exs
       #
       # To run the solution
       #

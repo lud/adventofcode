@@ -6,7 +6,7 @@ defmodule Aoe.Y19.Day22Test do
 
   # To run the test, run the following command:
   #
-  #     mix test test/2019/day_22_test.exs
+  #     mix test test/2019/day22_test.exs
   #
   # To run the solution
   #
