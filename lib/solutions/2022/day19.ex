@@ -56,7 +56,6 @@ defmodule Aoe.Y22.Day19 do
   end
 
   defp best_sim(states, bp, minutes) when minutes > 0 do
-    Process.put(:minute, 24 - minutes + 1)
     new_states = Enum.flat_map(states, &drop_minute(&1, bp))
 
     bests =

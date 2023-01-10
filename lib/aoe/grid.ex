@@ -1,4 +1,29 @@
 defmodule Aoe.Grid do
+  def parse_stream(string, char_parser) when is_function(char_parser, 1) do
+    string
+    |> Enum.with_index()
+    |> Enum.flat_map(&parse_line(&1, char_parser))
+    |> Map.new()
+  end
+
+  defp parse_line({string, y}, char_parser) do
+    string
+    |> String.graphemes()
+    |> Enum.with_index()
+    |> Enum.flat_map(&parse_cell(&1, y, char_parser))
+  end
+
+  defp parse_cell({"\n", x}, y, char_parser) do
+    []
+  end
+
+  defp parse_cell({cell, x}, y, char_parser) do
+    case char_parser.(cell) do
+      :ignore -> []
+      {:ok, value} -> [{{x, y}, value}]
+    end
+  end
+
   def min_x(list) when is_list(list), do: Enum.reduce(list, &min_x/2)
   def min_x(map) when is_map(map), do: map |> Map.keys() |> min_x()
 
