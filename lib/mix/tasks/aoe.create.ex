@@ -92,8 +92,8 @@ defmodule Mix.Tasks.Aoe.Create do
   defp test_code(test_module, module, _test_path, year, day) do
     ~s[
     defmodule #{inspect(test_module)} do
-      alias #{inspect(module)}, as: Solution, warn: false
       alias Aoe.Input, warn: false
+      alias #{inspect(module)}, as: Solution, warn: false
       use ExUnit.Case, async: true
 
       # To run the test, run one of the following commands:

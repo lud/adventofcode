@@ -1,8 +1,7 @@
 defmodule Aoe.Y23.Day1Test do
-  use ExUnit.Case, async: true
-
-  alias Aoe.Y23.Day1, as: Solution, warn: false
   alias Aoe.Input, warn: false
+  alias Aoe.Y23.Day1, as: Solution, warn: false
+  use ExUnit.Case, async: true
 
   # To run the test, run the following command:
   #
