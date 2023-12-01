@@ -1,8 +1,8 @@
-defmodule Aoe.Y22.Day16 do
-  alias Aoe.Input, warn: false
+defmodule AdventOfCode.Y22.Day16 do
+  alias AoC.Input, warn: false
 
   @type input_path :: binary
-  @type file :: input_path | %Aoe.Input.FakeFile{}
+  @type file :: input_path | %AoC.Input.FakeFile{}
   @type part :: :part_one | :part_two
   @type input :: binary | File.Stream.t()
   @type problem :: any
@@ -17,14 +17,12 @@ defmodule Aoe.Y22.Day16 do
     defstruct @enforce_keys
   end
 
-  @spec read_file(Aoe.file(), Aoe.part()) :: Aoe.input()
   def read_file(file, _part) do
     # Input.read!(file)
     # Input.stream!(file)
     Input.stream_file_lines(file, trim: true)
   end
 
-  @spec parse_input(Aoe.input(), Aoe.part()) :: Aoe.problem()
   def parse_input(input, _part) do
     input
     |> Enum.map(&parse_line/1)

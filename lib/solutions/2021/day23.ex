@@ -1,4 +1,4 @@
-defmodule Aoe.Y21.Day23.StepCompiler do
+defmodule AdventOfCode.Y21.Day23.StepCompiler do
   def calc_steps({same_x, same_y}, {same_x, same_y}) do
     []
   end
@@ -28,21 +28,19 @@ defmodule Aoe.Y21.Day23.StepCompiler do
   defp next_coord(a, b) when a > b, do: a - 1
 end
 
-defmodule Aoe.Y21.Day23 do
-  alias Aoe.Input, warn: false
+defmodule AdventOfCode.Y21.Day23 do
+  alias AoC.Input, warn: false
 
   @type input_path :: binary
-  @type file :: input_path | %Aoe.Input.FakeFile{}
+  @type file :: input_path | %AoC.Input.FakeFile{}
   @type part :: :part_one | :part_two
   @type input :: binary | File.Stream.t()
   @type problem :: any
 
-  @spec read_file(Aoe.file(), Aoe.part()) :: Aoe.input()
   def read_file(file, _part) do
     Input.read!(file)
   end
 
-  @spec parse_input(Aoe.input(), Aoe.part()) :: Aoe.problem()
   def parse_input(input, _part) do
     "#############\n" <> input = input
     "#...........#\n" <> input = input
@@ -378,7 +376,7 @@ defmodule Aoe.Y21.Day23 do
   ]
 
   for start <- @poses, dest <- @poses, start != dest do
-    path = Aoe.Y21.Day23.StepCompiler.calc_steps(start, dest)
+    path = AdventOfCode.Y21.Day23.StepCompiler.calc_steps(start, dest)
 
     defp get_path(unquote(start), unquote(dest)), do: unquote(path)
   end

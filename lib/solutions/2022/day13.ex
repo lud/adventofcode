@@ -1,5 +1,5 @@
-defmodule Aoe.Y22.Day13 do
-  alias Aoe.Input
+defmodule AdventOfCode.Y22.Day13 do
+  alias AoC.Input
 
   def read_file(file, _part) do
     Input.read!(file)

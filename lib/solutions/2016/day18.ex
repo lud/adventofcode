@@ -1,13 +1,11 @@
-defmodule Aoe.Y16.Day18 do
-  alias Aoe.Grid
-  alias Aoe.Input, warn: false
+defmodule AdventOfCode.Y16.Day18 do
+  alias AoC.Grid
+  alias AoC.Input, warn: false
 
-  @spec read_file(Aoe.file(), Aoe.part()) :: Aoe.input()
   def read_file(file, _part) do
     Input.stream_file_lines(file)
   end
 
-  @spec parse_input(Aoe.input(), Aoe.part()) :: Aoe.problem()
   def parse_input(input, _part) do
     Grid.parse_stream(input, &parse_char/1)
   end

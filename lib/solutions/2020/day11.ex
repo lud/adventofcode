@@ -1,9 +1,9 @@
-defmodule Aoe.Y20.Day11 do
-  alias Aoe.Input, warn: false
+defmodule AdventOfCode.Y20.Day11 do
+  alias AoC.Input, warn: false
   import Enum, only: [with_index: 1]
 
   @type input_path :: binary
-  @type file :: input_path | %Aoe.Input.FakeFile{}
+  @type file :: input_path | %AoC.Input.FakeFile{}
   @type part :: :part_one | :part_two
   @type input :: binary | File.Stream.t()
   @type problem :: any

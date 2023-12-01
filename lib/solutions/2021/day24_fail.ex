@@ -1,18 +1,16 @@
-defmodule Aoe.Y21.Day24Fail do
-  alias Aoe.Input, warn: false
+defmodule AdventOfCode.Y21.Day24Fail do
+  alias AoC.Input, warn: false
 
   @type input_path :: binary
-  @type file :: input_path | %Aoe.Input.FakeFile{}
+  @type file :: input_path | %AoC.Input.FakeFile{}
   @type part :: :part_one | :part_two
   @type input :: binary | File.Stream.t()
   @type problem :: any
 
-  @spec read_file(Aoe.file(), Aoe.part()) :: Aoe.input()
   def read_file(file, _part) do
     Input.stream_file_lines(file, trim: true)
   end
 
-  @spec parse_input(Aoe.input(), Aoe.part()) :: Aoe.problem()
   def parse_input(input, _part) do
     Enum.map(input, &parse_statement/1)
   end

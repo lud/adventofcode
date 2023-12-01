@@ -1,8 +1,8 @@
-defmodule Aoe.Y21.Day16Test do
+defmodule AdventOfCode.Y21.Day16Test do
   use ExUnit.Case, async: true
 
-  alias Aoe.Y21.Day16, as: Solution, warn: false
-  alias Aoe.Input, warn: false
+  alias AdventOfCode.Y21.Day16, as: Solution, warn: false
+  alias AoC.Input, warn: false
   import Solution
 
   # To run the test, run the following command:
@@ -75,7 +75,7 @@ defmodule Aoe.Y21.Day16Test do
 
   @part_one_solution 877
   test "verify 2021/16 part one" do
-    assert {:ok, @part_one_solution} == Aoe.run(2021, 16, :part_one)
+    assert {:ok, @part_one_solution} == AoC.run(2021, 16, :part_one)
   end
 
   # You may also implement a test to validate the part two to ensure that you
@@ -84,6 +84,6 @@ defmodule Aoe.Y21.Day16Test do
   @part_two_solution 194_435_634_456
 
   test "verify 2021/16 part two" do
-    assert {:ok, @part_two_solution} == Aoe.run(2021, 16, :part_two)
+    assert {:ok, @part_two_solution} == AoC.run(2021, 16, :part_two)
   end
 end

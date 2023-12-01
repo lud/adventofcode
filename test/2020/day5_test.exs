@@ -1,8 +1,8 @@
-defmodule Aoe.Y20.Day5Test do
+defmodule AdventOfCode.Y20.Day5Test do
   use ExUnit.Case, async: true
 
-  alias Aoe.Y20.Day5, as: Solution, warn: false
-  alias Aoe.Input, warn: false
+  alias AdventOfCode.Y20.Day5, as: Solution, warn: false
+  alias AoC.Input, warn: false
 
   # To run the test, run the following command:
   #
@@ -12,7 +12,7 @@ defmodule Aoe.Y20.Day5Test do
   #
   #     mix aoe.run --year 2020 --day 5 --part 1
   #
-  # Use sample input: 
+  # Use sample input:
   #
   #     {:ok, path} = Input.resolve(2020, 5, "sample-1")
   #
@@ -27,7 +27,7 @@ defmodule Aoe.Y20.Day5Test do
   @part_one_solution 978
 
   test "verify 2020/5 part one" do
-    assert {:ok, @part_one_solution} == Aoe.run(2020, 5, :part_one)
+    assert {:ok, @part_one_solution} == AoC.run(2020, 5, :part_one)
   end
 
   # You may also implement a test to validate the part two to ensure that you
@@ -36,6 +36,6 @@ defmodule Aoe.Y20.Day5Test do
   @part_two_solution 727
 
   test "verify 2020/5 part two" do
-    assert {:ok, @part_two_solution} == Aoe.run(2020, 5, :part_two)
+    assert {:ok, @part_two_solution} == AoC.run(2020, 5, :part_two)
   end
 end

@@ -1,5 +1,5 @@
-defmodule Aoe.Y23.Day1 do
-  alias Aoe.Input, warn: false
+defmodule AdventOfCode.Y23.Day1 do
+  alias AoC.Input, warn: false
 
   def read_file(file, _part) do
     Input.stream!(file, trim: true)

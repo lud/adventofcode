@@ -1,14 +1,13 @@
-defmodule Aoe.Y21.Day24 do
-  alias Aoe.Input, warn: false
-  alias Aoe.Y21.Day24.Program
+defmodule AdventOfCode.Y21.Day24 do
+  alias AoC.Input, warn: false
+  alias AdventOfCode.Y21.Day24.Program
 
   @type input_path :: binary
-  @type file :: input_path | %Aoe.Input.FakeFile{}
+  @type file :: input_path | %AoC.Input.FakeFile{}
   @type part :: :part_one | :part_two
   @type input :: binary | File.Stream.t()
   @type problem :: any
 
-  @spec read_file(Aoe.file(), Aoe.part()) :: Aoe.input()
   def read_file(_file, _part) do
     # Input.read!(file)
     # Input.stream!(file)
@@ -16,7 +15,6 @@ defmodule Aoe.Y21.Day24 do
     "nope"
   end
 
-  @spec parse_input(Aoe.input(), Aoe.part()) :: Aoe.problem()
   def parse_input(_input, _part) do
     nil
   end

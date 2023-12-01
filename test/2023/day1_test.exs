@@ -1,6 +1,6 @@
-defmodule Aoe.Y23.Day1Test do
-  alias Aoe.Input, warn: false
-  alias Aoe.Y23.Day1, as: Solution, warn: false
+defmodule AdventOfCode.Y23.Day1Test do
+  alias AoC.Input, warn: false
+  alias AdventOfCode.Y23.Day1, as: Solution, warn: false
   use ExUnit.Case, async: true
 
   # To run the test, run the following command:
@@ -58,12 +58,12 @@ defmodule Aoe.Y23.Day1Test do
   @part_one_solution 56042
 
   test "verify 2023/1 part one" do
-    assert {:ok, @part_one_solution} == Aoe.run(2023, 1, :part_one)
+    assert {:ok, @part_one_solution} == AoC.run(2023, 1, :part_one)
   end
 
   @part_two_solution 55358
 
   test "verify 2023/1 part two" do
-    assert {:ok, @part_two_solution} == Aoe.run(2023, 1, :part_two)
+    assert {:ok, @part_two_solution} == AoC.run(2023, 1, :part_two)
   end
 end

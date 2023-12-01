@@ -1,9 +1,9 @@
-defmodule Aoe.MixProject do
+defmodule AdventOfCode.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :aoe,
+      app: :advent_of_code,
       version: "0.1.0",
       elixir: "~> 1.11",
       start_permanent: Mix.env() == :prod,
@@ -23,10 +23,9 @@ defmodule Aoe.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:req, "~> 0.3.3"},
-      {:jason, "~> 1.4"},
-      {:credo, "~> 1.6", only: [:dev], runtime: false},
-      {:cli_mate, "~> 0.1", runtime: false}
+      {:aoc, "~> 0.4"},
+      # {:aoc, path: "../aoc"},
+      {:credo, "~> 1.7", only: [:dev], runtime: false}
     ]
   end
 
@@ -34,21 +33,17 @@ defmodule Aoe.MixProject do
     solutions_mounts =
       for year <- 2015..DateTime.utc_now().year do
         short = year - 2000
-        {:"Elixir.Aoe.Y#{short}", "lib/solutions/#{year}"}
+        {:"Elixir.AdventOfCode.Y#{short}", "lib/solutions/#{year}"}
       end
 
     [
-      mount: [
-        {Aoe, "lib/aoe"},
-        {Mix.Tasks, "lib/mix/tasks", flavor: :mix_task}
-        | solutions_mounts
-      ]
+      mount: [{AdventOfCode, "lib/advent_of_code"} | solutions_mounts]
     ]
   end
 
   def cli do
     [
-      preferred_envs: ["aoe.test": :test]
+      preferred_envs: ["aoc.test": :test]
     ]
   end
 end

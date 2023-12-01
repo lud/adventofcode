@@ -1,18 +1,16 @@
-defmodule Aoe.Y21.Day25 do
-  alias Aoe.Input, warn: false
+defmodule AdventOfCode.Y21.Day25 do
+  alias AoC.Input, warn: false
 
   @type input_path :: binary
-  @type file :: input_path | %Aoe.Input.FakeFile{}
+  @type file :: input_path | %AoC.Input.FakeFile{}
   @type part :: :part_one | :part_two
   @type input :: binary | File.Stream.t()
   @type problem :: any
 
-  @spec read_file(Aoe.file(), Aoe.part()) :: Aoe.input()
   def read_file(file, _part) do
     Input.stream_file_lines(file, trim: true)
   end
 
-  @spec parse_input(Aoe.input(), Aoe.part()) :: Aoe.problem()
   def parse_input(input, _part) do
     input = Enum.to_list(input)
     yo = length(input) - 1
@@ -49,16 +47,11 @@ defmodule Aoe.Y21.Day25 do
     turns = Stream.iterate(1, &(&1 + 1))
 
     Enum.reduce_while(turns, grid, fn turn, grid ->
-      IO.write("turn #{turn}")
       {moved, grid} = move_cucumbers({xo, yo}, grid)
 
       case {moved, grid} do
-        {0, _} ->
-          {:halt, turn}
-
-        {n, new_grid} ->
-          IO.puts(" moved: #{n}")
-          {:cont, new_grid}
+        {0, _} -> {:halt, turn}
+        {_n, new_grid} -> {:cont, new_grid}
       end
     end)
   end

@@ -1,4 +1,4 @@
-defmodule Aoe.Y21.Day24.Program do
+defmodule AdventOfCode.Y21.Day24.Program do
   def run(0, w, z) do
     x = 0
     x = x + z

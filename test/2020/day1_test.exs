@@ -1,8 +1,8 @@
-defmodule Aoe.Y20.Day1Test do
+defmodule AdventOfCode.Y20.Day1Test do
   use ExUnit.Case, async: true
 
-  alias Aoe.Y20.Day1, as: Solution, warn: false
-  alias Aoe.Input, warn: false
+  alias AdventOfCode.Y20.Day1, as: Solution, warn: false
+  alias AoC.Input, warn: false
 
   test "verify 2020/1 - sample 1" do
     problem =
@@ -28,12 +28,12 @@ defmodule Aoe.Y20.Day1Test do
   @part_one_solution 1_014_171
 
   test "verify 2020/1 part one" do
-    assert {:ok, @part_one_solution} == Aoe.run(2020, 1, :part_one)
+    assert {:ok, @part_one_solution} == AoC.run(2020, 1, :part_one)
   end
 
   @part_two_solution 46_584_630
 
   test "verify 2020/1 part two" do
-    assert {:ok, @part_two_solution} == Aoe.run(2020, 1, :part_two)
+    assert {:ok, @part_two_solution} == AoC.run(2020, 1, :part_two)
   end
 end
