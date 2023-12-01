@@ -51,7 +51,7 @@ defmodule Aoe.Y20.Day25 do
   end
 
   def guess_loopsize(expected) do
-    guess_loopsize(1, expected, magic_n, 0)
+    guess_loopsize(1, expected, magic_n(), 0)
   end
 
   def guess_loopsize(expected, subject) do

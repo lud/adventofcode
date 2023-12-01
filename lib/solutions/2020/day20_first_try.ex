@@ -109,7 +109,7 @@ defmodule Aoe.Y20.Day20FirstTry do
   defp signature(chars) do
     rev = :lists.reverse(chars)
     [a, b] = :lists.sort([chars, rev])
-    :lists.flatten([a, '|', b])
+    :lists.flatten([a, ~c"|", b])
   end
 
   def part_two(map) do

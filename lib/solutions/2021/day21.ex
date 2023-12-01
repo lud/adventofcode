@@ -89,7 +89,7 @@ defmodule Aoe.Y21.Day21 do
   end
 
   defp play_turn({pos, score}, other_player, univs) do
-    for {moves, freq} <- outcomes do
+    for {moves, freq} <- outcomes() do
       new_pos = add_pos(pos, moves)
       score = score + new_pos
 

@@ -151,29 +151,29 @@ defmodule Aoe.Y20.Day20Test do
 
   test "verify 2020/20 apply_transform" do
     input = [
-      'ABCD',
-      'EFGH'
+      ~c"ABCD",
+      ~c"EFGH"
     ]
 
     expected = [
-      'DH',
-      'CG',
-      'BF',
-      'AE'
+      ~c"DH",
+      ~c"CG",
+      ~c"BF",
+      ~c"AE"
     ]
 
     assert expected == Solution.apply_transform(input, {:rotate, -90})
 
     input = [
-      'ABCD',
-      'EFGH'
+      ~c"ABCD",
+      ~c"EFGH"
     ]
 
     expected = [
-      'EA',
-      'FB',
-      'GC',
-      'HD'
+      ~c"EA",
+      ~c"FB",
+      ~c"GC",
+      ~c"HD"
     ]
 
     assert expected == Solution.apply_transform(input, {:rotate, 90})
