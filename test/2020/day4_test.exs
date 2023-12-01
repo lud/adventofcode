@@ -12,7 +12,7 @@ defmodule Aoe.Y20.Day4Test do
   #
   #     mix aoe.run --year 2020 --day 4 --part 1
   #
-  # Use sample input: 
+  # Use sample input:
   #
   #     {:ok, path} = Input.resolve(2020, 4, "sample-1")
   #
@@ -35,8 +35,8 @@ defmodule Aoe.Y20.Day4Test do
       iyr:2011 ecl:brn hgt:59in
       """
       |> Input.as_file()
-      |> Solution.read_file!(:part_one)
-      |> Solution.parse_input!(:part_one)
+      |> Solution.read_file(:part_one)
+      |> Solution.parse_input(:part_one)
 
     expected = 2
     assert expected == Solution.part_one(problem)
@@ -60,8 +60,8 @@ defmodule Aoe.Y20.Day4Test do
       pid:3556412378 byr:2007
       """
       |> Input.as_file()
-      |> Solution.read_file!(:part_two)
-      |> Solution.parse_input!(:part_two)
+      |> Solution.read_file(:part_two)
+      |> Solution.parse_input(:part_two)
 
     expected = 0
     assert expected == Solution.part_two(problem)
@@ -84,8 +84,8 @@ defmodule Aoe.Y20.Day4Test do
       iyr:2010 hgt:158cm hcl:#b6652a ecl:blu byr:1944 eyr:2021 pid:093154719
       """
       |> Input.as_file()
-      |> Solution.read_file!(:part_two)
-      |> Solution.parse_input!(:part_two)
+      |> Solution.read_file(:part_two)
+      |> Solution.parse_input(:part_two)
 
     expected = 4
     assert expected == Solution.part_two(problem)

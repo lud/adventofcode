@@ -12,11 +12,11 @@ defmodule Aoe do
     module = Mod.module_name(year, day)
 
     case do_run(year, day, module, part) do
-      {:ok, {_time, result}} = final ->
+      {:ok, {_time, solution}} = result ->
         if timer? do
-          final
+          result
         else
-          {:ok, result}
+          {:ok, solution}
         end
 
       other ->
@@ -45,8 +45,8 @@ defmodule Aoe do
 
   defp do_run_part(module, part, input_path) do
     :timer.tc(fn ->
-      input = module.read_file!(input_path, part)
-      problem = module.parse_input!(input, part)
+      input = module.read_file(input_path, part)
+      problem = module.parse_input(input, part)
       apply(module, part, [problem])
     end)
   end

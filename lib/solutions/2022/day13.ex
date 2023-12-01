@@ -1,11 +1,11 @@
 defmodule Aoe.Y22.Day13 do
   alias Aoe.Input
 
-  def read_file!(file, _part) do
+  def read_file(file, _part) do
     Input.read!(file)
   end
 
-  def parse_input!(input, _part) do
+  def parse_input(input, _part) do
     input
     |> String.trim()
     |> String.split("\n")

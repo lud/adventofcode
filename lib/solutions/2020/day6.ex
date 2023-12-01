@@ -7,21 +7,21 @@ defmodule Aoe.Y20.Day6 do
   @type input :: binary | File.Stream.t()
   @type problem :: any
 
-  @spec read_file!(Aoe.file(), Aoe.part()) :: Aoe.input()
-  def read_file!(file, _part) do
+  @spec read_file(Aoe.file(), Aoe.part()) :: Aoe.input()
+  def read_file(file, _part) do
     Input.read!(file)
     # Input.stream!(file)
     # Input.stream_file_lines(file, trim: true)
   end
 
-  @spec parse_input!(Aoe.input(), Aoe.part()) :: Aoe.problem()
-  def parse_input!(input, :part_one) do
+  @spec parse_input(Aoe.input(), Aoe.part()) :: Aoe.problem()
+  def parse_input(input, :part_one) do
     input
     |> String.split("\n\n", trim: true)
     |> Enum.map(&String.replace(&1, "\n", ""))
   end
 
-  def parse_input!(input, :part_two) do
+  def parse_input(input, :part_two) do
     input
     |> String.split("\n\n")
     |> Enum.map(fn group ->

@@ -15,8 +15,8 @@ defmodule Aoe.Y20.Day1Test do
       1456
       """
       |> Input.as_file()
-      |> Solution.read_file!(:part_one)
-      |> Solution.parse_input!(:part_one)
+      |> Solution.read_file(:part_one)
+      |> Solution.parse_input(:part_one)
 
     expected_one = 514_579
     assert expected_one == Solution.part_one(problem)

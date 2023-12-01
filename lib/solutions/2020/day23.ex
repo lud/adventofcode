@@ -7,13 +7,13 @@ defmodule Aoe.Y20.Day23 do
   @type input :: binary | File.Stream.t()
   @type problem :: any
 
-  @spec read_file!(Aoe.file(), Aoe.part()) :: Aoe.input()
-  def read_file!(file, _part) do
+  @spec read_file(Aoe.file(), Aoe.part()) :: Aoe.input()
+  def read_file(file, _part) do
     Input.read!(file)
   end
 
-  @spec parse_input!(Aoe.input(), Aoe.part()) :: Aoe.problem()
-  def parse_input!(input, _part) do
+  @spec parse_input(Aoe.input(), Aoe.part()) :: Aoe.problem()
+  def parse_input(input, _part) do
     input
     |> String.trim()
     |> String.to_integer()

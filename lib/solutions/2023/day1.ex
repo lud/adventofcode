@@ -1,11 +1,11 @@
 defmodule Aoe.Y23.Day1 do
   alias Aoe.Input, warn: false
 
-  def read_file!(file, _part) do
+  def read_file(file, _part) do
     Input.stream!(file, trim: true)
   end
 
-  def parse_input!(input, _part) do
+  def parse_input(input, _part) do
     input
   end
 

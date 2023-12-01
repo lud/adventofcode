@@ -52,8 +52,8 @@ defmodule Aoe.Y21.Day16Test do
     # problem =
     #   @sample_1
     #   |> Input.as_file()
-    #   |> Solution.read_file!(:part_one)
-    #   |> Solution.parse_input!(:part_one)
+    #   |> Solution.read_file(:part_one)
+    #   |> Solution.parse_input(:part_one)
 
     # expected = CHANGE_ME
     # assert expected == Solution.part_one(problem)
@@ -63,8 +63,8 @@ defmodule Aoe.Y21.Day16Test do
   #   problem =
   #     @sample_1
   #     |> Input.as_file()
-  #     |> Solution.read_file!(:part_two)
-  #     |> Solution.parse_input!(:part_two)
+  #     |> Solution.read_file(:part_two)
+  #     |> Solution.parse_input(:part_two)
   #
   #   expected = CHANGE_ME
   #   assert expected == Solution.part_two(problem)

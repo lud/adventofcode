@@ -26,7 +26,7 @@ defmodule Mix.Tasks.Aoe.Create do
         Mix.Shell.IO.info("Warning: Could not download input: #{inspect(reason)}")
     end
 
-    Mix.Shell.IO.info("Done.")
+    Mix.Shell.IO.info("ok")
   end
 
   defp ensure_solution_module(year, day) do
@@ -35,11 +35,11 @@ defmodule Mix.Tasks.Aoe.Create do
     module_path = Path.join(module_dir, "day#{day}.ex")
 
     if File.exists?(module_path) do
-      Mix.Shell.IO.info("module exists in #{module_path}")
+      Mix.Shell.IO.info("Module exists in #{module_path}")
     else
       module = Aoe.Mod.module_name(year, day)
       code = module_code(module)
-      Mix.Shell.IO.info("creating module #{inspect(module)} in #{module_path}")
+      Mix.Shell.IO.info("Creating module #{inspect(module)} in #{module_path}")
       File.write!(module_path, code)
     end
 
@@ -52,12 +52,12 @@ defmodule Mix.Tasks.Aoe.Create do
     test_path = Path.join(test_dir, "day#{day}_test.exs")
 
     if File.exists?(test_path) do
-      Mix.Shell.IO.info("test exists in #{test_path}")
+      Mix.Shell.IO.info("Test module exists in #{test_path}")
     else
       test_module = Aoe.Mod.test_module_name(year, day)
       module = Aoe.Mod.module_name(year, day)
       code = test_code(test_module, module, test_path, year, day)
-      Mix.Shell.IO.info("creating test #{inspect(test_module)} in #{test_path}")
+      Mix.Shell.IO.info("Creating test module #{inspect(test_module)} in #{test_path}")
       File.write!(test_path, code)
     end
 
@@ -69,12 +69,12 @@ defmodule Mix.Tasks.Aoe.Create do
     defmodule #{inspect(module)} do
       alias Aoe.Input, warn: false
 
-      def read_file!(file, _part) do
+      def read_file(file, _part) do
         # Input.read!(file)
         # Input.stream!(file, trim: true)
       end
 
-      def parse_input!(input, _part) do
+      def parse_input(input, _part) do
         input
       end
 
@@ -120,8 +120,8 @@ defmodule Mix.Tasks.Aoe.Create do
         problem =
           @sample_1
           |> Input.as_file()
-          |> Solution.read_file!(:part_one)
-          |> Solution.parse_input!(:part_one)
+          |> Solution.read_file(:part_one)
+          |> Solution.parse_input(:part_one)
 
         expected = CHANGE_ME
         assert expected == Solution.part_one(problem)
@@ -131,8 +131,8 @@ defmodule Mix.Tasks.Aoe.Create do
       #   problem =
       #     @sample_1
       #     |> Input.as_file()
-      #     |> Solution.read_file!(:part_two)
-      #     |> Solution.parse_input!(:part_two)
+      #     |> Solution.read_file(:part_two)
+      #     |> Solution.parse_input(:part_two)
       #
       #   expected = CHANGE_ME
       #   assert expected == Solution.part_two(problem)

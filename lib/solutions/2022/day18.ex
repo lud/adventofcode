@@ -1,11 +1,11 @@
 defmodule Aoe.Y22.Day18 do
   alias Aoe.Input, warn: false
 
-  def read_file!(file, _part) do
+  def read_file(file, _part) do
     Input.stream_file_lines(file, trim: true)
   end
 
-  def parse_input!(input, _part) do
+  def parse_input(input, _part) do
     input |> Enum.map(&parse_line/1)
   end
 

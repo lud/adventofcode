@@ -1,7 +1,8 @@
 defmodule Mix.Tasks.Aoe.Set do
   alias Aoe.CliTool
-
   use Mix.Task
+
+  @shortdoc "Sets or reset default year and day options for other commands"
 
   def run(argv) do
     Application.ensure_all_started(:aoe)

@@ -10,13 +10,13 @@ defmodule Aoe.Y21.Day16 do
   require Record
   Record.defrecord(:pkt, vsn: nil, type: nil, subs: [], value: nil)
 
-  @spec read_file!(Aoe.file(), Aoe.part()) :: Aoe.input()
-  def read_file!(file, _part) do
+  @spec read_file(Aoe.file(), Aoe.part()) :: Aoe.input()
+  def read_file(file, _part) do
     Input.read!(file) |> String.trim()
   end
 
-  @spec parse_input!(Aoe.input(), Aoe.part()) :: Aoe.problem()
-  def parse_input!(input, _part) do
+  @spec parse_input(Aoe.input(), Aoe.part()) :: Aoe.problem()
+  def parse_input(input, _part) do
     decode_hex(input)
   end
 

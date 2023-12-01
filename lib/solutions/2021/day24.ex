@@ -8,16 +8,16 @@ defmodule Aoe.Y21.Day24 do
   @type input :: binary | File.Stream.t()
   @type problem :: any
 
-  @spec read_file!(Aoe.file(), Aoe.part()) :: Aoe.input()
-  def read_file!(_file, _part) do
+  @spec read_file(Aoe.file(), Aoe.part()) :: Aoe.input()
+  def read_file(_file, _part) do
     # Input.read!(file)
     # Input.stream!(file)
     # Input.stream_file_lines(file, trim: true)
     "nope"
   end
 
-  @spec parse_input!(Aoe.input(), Aoe.part()) :: Aoe.problem()
-  def parse_input!(_input, _part) do
+  @spec parse_input(Aoe.input(), Aoe.part()) :: Aoe.problem()
+  def parse_input(_input, _part) do
     nil
   end
 

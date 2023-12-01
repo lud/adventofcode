@@ -7,13 +7,13 @@ defmodule Aoe.Y19.Day22 do
   # https://github.com/sasa1977/aoc/blob/master/lib/2019/201922.ex )
   #
 
-  @spec read_file!(Aoe.file(), Aoe.part()) :: Aoe.input()
-  def read_file!(file, _part) do
+  @spec read_file(Aoe.file(), Aoe.part()) :: Aoe.input()
+  def read_file(file, _part) do
     Input.stream_file_lines(file, trim: true)
   end
 
-  @spec parse_input!(Aoe.input(), Aoe.part()) :: Aoe.problem()
-  def parse_input!(input, _part) do
+  @spec parse_input(Aoe.input(), Aoe.part()) :: Aoe.problem()
+  def parse_input(input, _part) do
     input
     |> Enum.map(&parse_line/1)
   end

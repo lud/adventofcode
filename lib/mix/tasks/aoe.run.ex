@@ -2,6 +2,8 @@ defmodule Mix.Tasks.Aoe.Run do
   alias Aoe.CliTool
   use Mix.Task
 
+  @shortdoc "Run the solution for a given year and day"
+
   def run(argv) do
     Application.ensure_all_started(:aoe)
     %{options: options} = CliTool.parse_or_halt!(argv, CliTool.part_command(__MODULE__))

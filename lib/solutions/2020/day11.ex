@@ -8,13 +8,13 @@ defmodule Aoe.Y20.Day11 do
   @type input :: binary | File.Stream.t()
   @type problem :: any
 
-  def read_file!(file, _part) do
+  def read_file(file, _part) do
     file
     |> Input.stream_file_lines(trim: true)
     |> Enum.to_list()
   end
 
-  def parse_input!(input, _part) do
+  def parse_input(input, _part) do
     height = length(input)
     width = String.length(hd(input))
 

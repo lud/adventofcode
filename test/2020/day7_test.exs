@@ -12,7 +12,7 @@ defmodule Aoe.Y20.Day7Test do
   #
   #     mix aoe.run --year 2020 --day 7 --part 1
   #
-  # Use sample input: 
+  # Use sample input:
   #
   #     {:ok, path} = Input.resolve(2020, 7, "sample-1")
   #
@@ -31,8 +31,8 @@ defmodule Aoe.Y20.Day7Test do
       dotted black bags contain no other bags.
       """
       |> Input.as_file()
-      |> Solution.read_file!(:part_one)
-      |> Solution.parse_input!(:part_one)
+      |> Solution.read_file(:part_one)
+      |> Solution.parse_input(:part_one)
 
     expected = 4
     assert expected == Solution.part_one(problem)
@@ -50,8 +50,8 @@ defmodule Aoe.Y20.Day7Test do
       dark violet bags contain no other bags.
       """
       |> Input.as_file()
-      |> Solution.read_file!(:part_two)
-      |> Solution.parse_input!(:part_two)
+      |> Solution.read_file(:part_two)
+      |> Solution.parse_input(:part_two)
 
     expected = 126
     assert expected == Solution.part_two(problem)

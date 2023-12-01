@@ -8,14 +8,14 @@ defmodule Aoe.Y20.Day17 do
   @type input :: binary | File.Stream.t()
   @type problem :: any
 
-  def read_file!(file, _part) do
+  def read_file(file, _part) do
     file
     |> Input.stream_file_lines(trim: true)
     |> Enum.to_list()
   end
 
-  @spec parse_input!(Aoe.input(), Aoe.part()) :: Aoe.problem()
-  def parse_input!(input, :part_one) do
+  @spec parse_input(Aoe.input(), Aoe.part()) :: Aoe.problem()
+  def parse_input(input, :part_one) do
     z = 0
 
     map =
@@ -32,7 +32,7 @@ defmodule Aoe.Y20.Day17 do
     Map.put(map, :domain, {min_x, max_x, min_y, max_y, 0, 0})
   end
 
-  def parse_input!(input, :part_two) do
+  def parse_input(input, :part_two) do
     z = 0
     w = 0
 

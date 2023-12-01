@@ -7,12 +7,12 @@ defmodule Aoe.Y22.Day20 do
   @type input :: binary | File.Stream.t()
   @type problem :: any
 
-  def read_file!(file, _part) do
+  def read_file(file, _part) do
     Input.stream_file_lines(file, trim: true)
   end
 
-  @spec parse_input!(Aoe.input(), Aoe.part()) :: Aoe.problem()
-  def parse_input!(input, _part) do
+  @spec parse_input(Aoe.input(), Aoe.part()) :: Aoe.problem()
+  def parse_input(input, _part) do
     input |> Enum.map(&String.to_integer/1)
   end
 

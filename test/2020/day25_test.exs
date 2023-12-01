@@ -12,7 +12,7 @@ defmodule Aoe.Y20.Day25Test do
   #
   #     mix aoe.run --year 2020 --day 25 --part 1
   #
-  # Use sample input: 
+  # Use sample input:
   #
   #     {:ok, path} = Input.resolve(2020, 25, "sample-1")
   #
@@ -33,19 +33,19 @@ defmodule Aoe.Y20.Day25Test do
     problem =
       @sample_1
       |> Input.as_file()
-      |> Solution.read_file!(:part_one)
-      |> Solution.parse_input!(:part_one)
+      |> Solution.read_file(:part_one)
+      |> Solution.parse_input(:part_one)
 
     expected = 14_897_079
     assert expected == Solution.part_one(problem)
   end
 
   # test "verify 2020/25 part_two - samples" do
-  #   problem = 
+  #   problem =
   #     @sample_1
   #     |> Input.as_file()
-  #     |> Solution.read_file!(:part_two)
-  #     |> Solution.parse_input!(:part_two)
+  #     |> Solution.read_file(:part_two)
+  #     |> Solution.parse_input(:part_two)
   #
   #   expected = CHANGE_ME
   #   assert expected == Solution.part_two(problem)
