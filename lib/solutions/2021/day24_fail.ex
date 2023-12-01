@@ -56,18 +56,18 @@ defmodule Aoe.Y21.Day24Fail do
   defp parse_letter(?y), do: :y
   defp parse_letter(?z), do: :z
 
-  defp monads do
-    99_999_999_999_999
-    |> Stream.iterate(fn num ->
-      num - 1
-    end)
-    |> Stream.map(&Integer.digits/1)
-    |> Stream.reject(&contains_0/1)
-  end
+  # defp monads do
+  #   99_999_999_999_999
+  #   |> Stream.iterate(fn num ->
+  #     num - 1
+  #   end)
+  #   |> Stream.map(&Integer.digits/1)
+  #   |> Stream.reject(&contains_0/1)
+  # end
 
-  defp contains_0([0 | _]), do: true
-  defp contains_0([_ | rest]), do: contains_0(rest)
-  defp contains_0([]), do: false
+  # defp contains_0([0 | _]), do: true
+  # defp contains_0([_ | rest]), do: contains_0(rest)
+  # defp contains_0([]), do: false
 
   defp initial_state do
     %{
@@ -113,7 +113,7 @@ defmodule Aoe.Y21.Day24Fail do
     end
   end
 
-  defp expand(%{index: -1} = state, program) do
+  defp expand(%{index: -1} = _state, _program) do
     :deadend
   end
 
@@ -139,7 +139,7 @@ defmodule Aoe.Y21.Day24Fail do
       z <= best
     end)
     # |> IO.inspect(label: "kept")
-    |> Enum.sort_by(fn {z, d, digits} ->
+    |> Enum.sort_by(fn {z, d, _digits} ->
       {z, -1 * d}
     end)
     # |> IO.inspect(label: "sorted")
@@ -148,7 +148,7 @@ defmodule Aoe.Y21.Day24Fail do
       [] ->
         :deadend
 
-      [{least_z, _, least_digits} | _] = possibles ->
+      [{least_z, _, _least_digits} | _] = possibles ->
         least_z |> IO.inspect(label: "least_z     ")
 
         # least_digits |> IO.inspect(label: "least_digits")
@@ -168,11 +168,11 @@ defmodule Aoe.Y21.Day24Fail do
     end
   end
 
-  defp all_same_z([], _), do: true
-  defp all_same_z([{least, _, _} | rest], least), do: all_same_z(rest, least)
-  defp all_same_z([{other, _, _} | _rest], least) when other != least, do: false
+  # defp all_same_z([], _), do: true
+  # defp all_same_z([{least, _, _} | rest], least), do: all_same_z(rest, least)
+  # defp all_same_z([{other, _, _} | _rest], least) when other != least, do: false
 
-  defp digits_to_z(digits, program) do
+  defp digits_to_z(digits, _program) do
     # %{z: z} = run(program, digits)
     # %{z: z} = run(program, digits)
     z = prog(digits)
@@ -241,7 +241,7 @@ defmodule Aoe.Y21.Day24Fail do
   end
 
   def prog(buf) do
-    w = 0
+    _w = 0
     x = 0
     y = 0
     z = 0

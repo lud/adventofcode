@@ -27,7 +27,7 @@ defmodule D24Compiler do
     # |> Enum.join("\n")
   end
 
-  def trans("inp " <> var = line, n) do
+  def trans("inp " <> _var, n) do
     {[
        if n > 0 do
          "  z\nend\n"

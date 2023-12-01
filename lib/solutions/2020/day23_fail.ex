@@ -43,7 +43,7 @@ defmodule Aoe.Y20.Day23Fail do
 
     IO.puts("---------------------------------")
 
-    [1, a, b | firsts] = Enum.drop_while(cups, &(&1 != 1))
+    [1, a, b | _firsts] = Enum.drop_while(cups, &(&1 != 1))
     result = to_string(a * b)
 
     result
@@ -74,7 +74,7 @@ defmodule Aoe.Y20.Day23Fail do
     |> moves(n + 1, max_move, max_cup)
   end
 
-  def print_move([h | _] = cups, n) do
+  def print_move([_h | _] = cups, n) do
     IO.puts("move #{n}: #{inspect(cups)}")
 
     # if is_integer(n) do
@@ -84,14 +84,14 @@ defmodule Aoe.Y20.Day23Fail do
     cups
   end
 
-  defp print_position_of(cups, n) do
-    cups
-    |> Enum.with_index()
-    |> List.keyfind(n, 0)
-    |> IO.inspect()
+  # defp print_position_of(cups, n) do
+  #   cups
+  #   |> Enum.with_index()
+  #   |> List.keyfind(n, 0)
+  #   |> IO.inspect()
 
-    cups
-  end
+  #   cups
+  # end
 
   defp move(cups, max_cup) do
     [cur, a, b, c | cups] = unpack(cups, 4)
@@ -99,7 +99,7 @@ defmodule Aoe.Y20.Day23Fail do
     # dest = find_destination(cur, cups, cups)
     cur |> IO.inspect(label: "cur")
     dest |> IO.inspect(label: "dest")
-    cups = rearrange(cups, dest, {a, b, c}, cur)
+    _cups = rearrange(cups, dest, {a, b, c}, cur)
   end
 
   def to_dest(0, ignore, max_cup), do: to_dest(max_cup, ignore, max_cup)
@@ -107,7 +107,7 @@ defmodule Aoe.Y20.Day23Fail do
   def to_dest(cur, [a, b, c] = ignore, max_cup) when cur in [a, b, c],
     do: to_dest(cur - 1, ignore, max_cup)
 
-  def to_dest(cur, [a, b, c], max_cup), do: cur
+  def to_dest(cur, [_a, _b, _c], _max_cup), do: cur
 
   defp unpack(cups, 0) do
     cups
@@ -125,14 +125,14 @@ defmodule Aoe.Y20.Day23Fail do
     [cur | unpack(cups, amount - 1)]
   end
 
-  defp find_destination(0, _, pool), do: Enum.max(pool)
+  # defp find_destination(0, _, pool), do: Enum.max(pool)
 
-  defp find_destination(cur, [rbeg..rend | cups], pool) when cur - 1 >= rbeg and cur - 1 <= rend,
-    do: cur - 1
+  # defp find_destination(cur, [rbeg..rend | cups], pool) when cur - 1 >= rbeg and cur - 1 <= rend,
+  #   do: cur - 1
 
-  defp find_destination(cur, [c | cups], pool) when c == cur - 1, do: c
-  defp find_destination(cur, [_ | cups], pool), do: find_destination(cur, cups, pool)
-  defp find_destination(cur, [], pool), do: find_destination(cur - 1, pool, pool)
+  # defp find_destination(cur, [c | cups], pool) when c == cur - 1, do: c
+  # defp find_destination(cur, [_ | cups], pool), do: find_destination(cur, cups, pool)
+  # defp find_destination(cur, [], pool), do: find_destination(cur - 1, pool, pool)
 
   defp rearrange([rbeg..rend | cups], dest, {a, b, c}, last) when dest >= rbeg and dest <= rend do
     insert_in_range(rbeg, rend, dest, [a, b, c]) ++ put_last(cups, last)

@@ -21,7 +21,7 @@ defmodule Aoe.Y21.Day23_Bad do
     <<"###", t1, "#", t2, "#", t3, "#", t4, "###\n", input::binary>> = input
     <<"  #", l1, "#", l2, "#", l3, "#", l4, _::binary>> = input
 
-    world = %{
+    %{
       grid: %{
         {2, 1} => c2b(t1),
         {2, 2} => c2b(l1),
@@ -77,10 +77,10 @@ defmodule Aoe.Y21.Day23_Bad do
     end
   end
 
-  defp reduce_map(map) do
-    min_nrj = Enum.min(Map.keys(map))
-    min_nrj |> IO.inspect(label: "min_nrj")
-  end
+  # defp reduce_map(map) do
+  #   min_nrj = Enum.min(Map.keys(map))
+  #   min_nrj |> IO.inspect(label: "min_nrj")
+  # end
 
   defp reduce([{nrj, best} | rest] = all, seen) do
     length(all) |> IO.inspect(label: "length(all)")
@@ -118,13 +118,13 @@ defmodule Aoe.Y21.Day23_Bad do
     if is_win(world), do: world.nrj, else: possible_nexts_rec(world, depth + 1)
   end
 
-  defp recurse(%{nrj: nrj} = world, _) do
+  defp recurse(%{nrj: _nrj} = world, _) do
     if is_win(world),
       do: world.nrj,
       else: []
   end
 
-  def possible_nexts_rec(%{nrj: nrj, grid: grid, large: false = large?} = w, depth) do
+  def possible_nexts_rec(%{nrj: _nrj, grid: grid, large: false = large?} = w, depth) do
     poses = Map.keys(grid)
 
     moves =
@@ -147,7 +147,7 @@ defmodule Aoe.Y21.Day23_Bad do
         end
       end
       |> filter_invalid()
-      |> Enum.sort_by(fn {w, pos, dest, steps, energy} -> energy end)
+      |> Enum.sort_by(fn {_w, _pos, _dest, _steps, energy} -> energy end)
 
     Enum.map(moves, fn
       :invalid -> []
@@ -155,7 +155,7 @@ defmodule Aoe.Y21.Day23_Bad do
     end)
   end
 
-  def possible_nexts(%{nrj: nrj, grid: grid, large: false = large?} = w) do
+  def possible_nexts(%{nrj: _nrj, grid: grid, large: false = large?} = w) do
     poses = Map.keys(grid)
 
     # grid |> IO.inspect(label: "grid")
@@ -201,11 +201,11 @@ defmodule Aoe.Y21.Day23_Bad do
   defp filter_invalid([w | rest]), do: [w | filter_invalid(rest)]
   defp filter_invalid([]), do: []
 
-  defp filter_moves(moves, poses) do
-    Enum.filter(moves, &valid_move?(&1, poses))
-  end
+  # defp filter_moves(moves, poses) do
+  #   Enum.filter(moves, &valid_move?(&1, poses))
+  # end
 
-  defp can_move?(move, poses, letter, {_, y} = dest, grid, large?) do
+  defp can_move?(move, poses, letter, {_, y} = _dest, grid, _large?) do
     # move |> IO.inspect(label: "valid?")
 
     if valid_move?(move, poses) do
@@ -235,7 +235,7 @@ defmodule Aoe.Y21.Day23_Bad do
     end
   end
 
-  defp valid_move?(move, []), do: true
+  defp valid_move?(_move, []), do: true
 
   defp is_win(%{
          :large => false,
@@ -342,14 +342,14 @@ defmodule Aoe.Y21.Day23_Bad do
     []
   end
 
-  def calc_steps({from_x, from_y}, {to_x, to_y} = to) when from_y == 0 and from_x != to_x do
+  def calc_steps({from_x, from_y}, {to_x, _to_y} = to) when from_y == 0 and from_x != to_x do
     # moving the x
     next = {next_coord(from_x, to_x), from_y}
     # next |> IO.inspect(label: "next")
     [next | calc_steps(next, to)]
   end
 
-  def calc_steps({from_x, from_y}, {to_x, to_y} = to) when from_y > 0 and from_x != to_x do
+  def calc_steps({from_x, from_y}, {to_x, _to_y} = to) when from_y > 0 and from_x != to_x do
     # moving the y UP
     next = {from_x, from_y - 1}
     # next |> IO.inspect(label: "next")
@@ -366,24 +366,24 @@ defmodule Aoe.Y21.Day23_Bad do
   defp next_coord(a, b) when a < b, do: a + 1
   defp next_coord(a, b) when a > b, do: a - 1
 
-  defp check_move(pod, to_x, 0) when to_x in [2, 4, 6, 8] do
-    raise "Bad move: cannot stop outside room"
-  end
+  # defp check_move(pod, to_x, 0) when to_x in [2, 4, 6, 8] do
+  #   raise "Bad move: cannot stop outside room"
+  # end
 
-  defp check_move(pod, to_x, to_y) do
-    if to_y > 0 do
-      case {pod, to_x} do
-        {"A", 2} -> :ok
-        {"B", 4} -> :ok
-        {"C", 6} -> :ok
-        {"D", 8} -> :ok
-        other -> raise "Bad move: cannot enter other room"
-      end
-    else
-      0 = to_y
-      :ok
-    end
-  end
+  # defp check_move(pod, to_x, to_y) do
+  #   if to_y > 0 do
+  #     case {pod, to_x} do
+  #       {"A", 2} -> :ok
+  #       {"B", 4} -> :ok
+  #       {"C", 6} -> :ok
+  #       {"D", 8} -> :ok
+  #       other -> raise "Bad move: cannot enter other room"
+  #     end
+  #   else
+  #     0 = to_y
+  #     :ok
+  #   end
+  # end
 
   def print_world({_, w}) do
     print_world(w)

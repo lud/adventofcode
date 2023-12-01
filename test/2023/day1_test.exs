@@ -44,6 +44,7 @@ defmodule Aoe.Y23.Day1Test do
   zoneight234
   7pqrstsixteen
   """
+
   test "verify 2023/1 part_two - samples" do
     problem =
       @sample_2

@@ -69,14 +69,11 @@ defmodule Mix.Tasks.Aoe.Create do
     defmodule #{inspect(module)} do
       alias Aoe.Input, warn: false
 
-      @spec read_file!(Aoe.file, Aoe.part) :: Aoe.input
       def read_file!(file, _part) do
         # Input.read!(file)
-        # Input.stream!(file)
-        # Input.stream_file_lines(file, trim: true)
+        # Input.stream!(file, trim: true)
       end
 
-      @spec parse_input!(Aoe.input, Aoe.part) :: Aoe.problem
       def parse_input!(input, _part) do
         input
       end
@@ -88,34 +85,29 @@ defmodule Mix.Tasks.Aoe.Create do
       def part_two(problem) do
         problem
       end
-
     end
     """
   end
 
   defp test_code(test_module, module, _test_path, year, day) do
-    sample_suffix = "sample-1"
-    _sample_path = Aoe.Input.input_path(year, day, sample_suffix)
-    # test_path = Path.relative_to(test_path, @app_dir)
-
     ~s[
     defmodule #{inspect(test_module)} do
-      use ExUnit.Case, async: true
-
       alias #{inspect(module)}, as: Solution, warn: false
       alias Aoe.Input, warn: false
+      use ExUnit.Case, async: true
 
-      # To run the test, run the following command:
+      # To run the test, run one of the following commands:
       #
       #     mix test test/#{year}/day#{day}_test.exs
+      #     mix aoe.test --year #{year} --day #{day}
       #
       # To run the solution
       #
       #     mix aoe.run --year #{year} --day #{day} --part 1
       #
-      # Use sample input:
+      # Use sample input file, for instance in priv/input/#{year}/"day-#{day}-sample.inp"
       #
-      #     {:ok, path} = Input.resolve(#{year}, #{day}, "sample-1")
+      #     {:ok, path} = Input.resolve(#{year}, #{day}, "sample")
       #
 
       @sample_1 """

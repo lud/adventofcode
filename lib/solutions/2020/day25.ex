@@ -58,7 +58,7 @@ defmodule Aoe.Y20.Day25 do
     guess_loopsize(1, expected, subject, 0)
   end
 
-  defp guess_loopsize(expected, expected, subject, loop_size) do
+  defp guess_loopsize(expected, expected, _subject, loop_size) do
     loop_size
   end
 

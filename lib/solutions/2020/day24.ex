@@ -92,8 +92,8 @@ defmodule Aoe.Y20.Day24 do
 
   defp black?({_, :black}), do: true
   defp black?({_, :white}), do: false
-  defp white?({_, :white}), do: true
-  defp white?({_, :black}), do: false
+  # defp white?({_, :white}), do: true
+  # defp white?({_, :black}), do: false
 
   defp flip_tile({q, r}, qrmap) do
     Map.update(qrmap, {q, r}, :black, &switch/1)

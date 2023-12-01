@@ -9,7 +9,7 @@ defmodule Aoe.Y21.Day24 do
   @type problem :: any
 
   @spec read_file!(Aoe.file(), Aoe.part()) :: Aoe.input()
-  def read_file!(file, _part) do
+  def read_file!(_file, _part) do
     # Input.read!(file)
     # Input.stream!(file)
     # Input.stream_file_lines(file, trim: true)
@@ -17,7 +17,7 @@ defmodule Aoe.Y21.Day24 do
   end
 
   @spec parse_input!(Aoe.input(), Aoe.part()) :: Aoe.problem()
-  def parse_input!(input, _part) do
+  def parse_input!(_input, _part) do
     nil
   end
 
@@ -29,14 +29,14 @@ defmodule Aoe.Y21.Day24 do
     dmax
   end
 
-  def part_two(problem) do
+  def part_two(_problem) do
     {dmin, _} = part_all(:lower)
     dmin
   end
 
   def part_all(bester) do
-    z = 0
-    index = 0
+    _z = 0
+    _index = 0
     seen = %{}
     states = [{_z = 0, _digits = @td}]
     states = run_index(0, states, seen, bester)
@@ -77,7 +77,7 @@ defmodule Aoe.Y21.Day24 do
     {dmin, dmax}
   end
 
-  defp run_index(index, states, seen, bester) do
+  defp run_index(index, states, _seen, bester) do
     IO.puts("-------- index #{index}")
     IO.puts("before: #{length(states)}")
 

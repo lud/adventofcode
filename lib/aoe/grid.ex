@@ -13,7 +13,7 @@ defmodule Aoe.Grid do
     |> Enum.flat_map(&parse_cell(&1, y, char_parser))
   end
 
-  defp parse_cell({"\n", x}, y, char_parser) do
+  defp parse_cell({"\n", _x}, _y, _char_parser) do
     []
   end
 

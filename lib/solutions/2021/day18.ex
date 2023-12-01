@@ -66,22 +66,22 @@ defmodule Aoe.Y21.Day18 do
   def to_list({a, b}), do: [to_list(a), to_list(b)]
   def to_list({:num, v, _}), do: v
 
-  defp format({a, b}) do
-    [?[, format(a), ?,, format(b), ?]]
-  end
+  # defp format({a, b}) do
+  #   [?[, format(a), ?,, format(b), ?]]
+  # end
 
-  defp format({:num, n, i}) do
-    # "#{i}: #{n}"
-    Integer.to_string(n)
-  end
+  # defp format({:num, n, i}) do
+  #   # "#{i}: #{n}"
+  #   Integer.to_string(n)
+  # end
 
-  defp format_indices({a, b}) do
-    [" ", format_indices(a), " ", format_indices(b), " "]
-  end
+  # defp format_indices({a, b}) do
+  #   [" ", format_indices(a), " ", format_indices(b), " "]
+  # end
 
-  defp format_indices({:num, _, i}) do
-    Integer.to_string(i)
-  end
+  # defp format_indices({:num, _, i}) do
+  #   Integer.to_string(i)
+  # end
 
   defp redux(num) do
     # IO.puts("redux: #{format(num)}")
@@ -123,7 +123,7 @@ defmodule Aoe.Y21.Day18 do
     end)
   end
 
-  defp max_index({a, b}), do: max_index(b)
+  defp max_index({_a, b}), do: max_index(b)
   defp max_index({:num, _, i}), do: i
 
   defp offset_index(num, offset) do
@@ -133,7 +133,7 @@ defmodule Aoe.Y21.Day18 do
   defp offset_gte(num, min_index, offset) do
     fmap(num, fn
       {:num, v, i} when i >= min_index -> {:num, v, i + offset}
-      {:num, v, i} = n -> n
+      {:num, _v, _i} = n -> n
     end)
   end
 
@@ -183,6 +183,10 @@ defmodule Aoe.Y21.Day18 do
     find_too_deep(b, dep + 1)
   end
 
+  defp find_too_deep({:num, _a, _b}, _) do
+    nil
+  end
+
   defp find_split(num) do
     fmap(num, fn {:num, v, i} ->
       if v >= 10 do
@@ -195,10 +199,6 @@ defmodule Aoe.Y21.Day18 do
     {:splittable, v, i} -> {:ok, i, v}
   end
 
-  defp find_too_deep({:num, a, b}, _) do
-    nil
-  end
-
-  defp index_of({:num, _, i}), do: i
-  defp index_of({a, _b}), do: index_of(a)
+  # defp index_of({:num, _, i}), do: i
+  # defp index_of({a, _b}), do: index_of(a)
 end

@@ -8,6 +8,7 @@ defmodule Aoe.MixProject do
       elixir: "~> 1.11",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
+      cli: cli(),
       modkit: modkit()
     ]
   end
@@ -30,13 +31,24 @@ defmodule Aoe.MixProject do
   end
 
   defp modkit do
+    solutions_mounts =
+      for year <- 2015..DateTime.utc_now().year do
+        short = year - 2000
+        {:"Elixir.Aoe.Y#{short}", "lib/solutions/#{year}"}
+      end
+
     [
       mount: [
         {Aoe, "lib/aoe"},
-        {Aoe.Y20, "lib/solutions/2020"},
-        {Aoe.Y21, "lib/solutions/2021"},
-        {Aoe.Y22, "lib/solutions/2022"}
+        {Mix.Tasks, "lib/mix/tasks", flavor: :mix_task}
+        | solutions_mounts
       ]
+    ]
+  end
+
+  def cli do
+    [
+      preferred_envs: ["aoe.test": :test]
     ]
   end
 end
