@@ -44,32 +44,13 @@ defmodule Aoe.Y23.Day1 do
   defp collect_digits(<<c, rest::binary>>, acc) when c in ?0..?9,
     do: collect_digits(rest, [c - ?0 | acc])
 
-  defp collect_digits(<<"one", rest::binary>>, acc),
-    do: collect_digits(<<"ne", rest::binary>>, [1 | acc])
-
-  defp collect_digits(<<"two", rest::binary>>, acc),
-    do: collect_digits(<<"wo", rest::binary>>, [2 | acc])
-
-  defp collect_digits(<<"three", rest::binary>>, acc),
-    do: collect_digits(<<"hree", rest::binary>>, [3 | acc])
-
-  defp collect_digits(<<"four", rest::binary>>, acc),
-    do: collect_digits(<<"our", rest::binary>>, [4 | acc])
-
-  defp collect_digits(<<"five", rest::binary>>, acc),
-    do: collect_digits(<<"ive", rest::binary>>, [5 | acc])
-
-  defp collect_digits(<<"six", rest::binary>>, acc),
-    do: collect_digits(<<"ix", rest::binary>>, [6 | acc])
-
-  defp collect_digits(<<"seven", rest::binary>>, acc),
-    do: collect_digits(<<"even", rest::binary>>, [7 | acc])
-
-  defp collect_digits(<<"eight", rest::binary>>, acc),
-    do: collect_digits(<<"ight", rest::binary>>, [8 | acc])
-
-  defp collect_digits(<<"nine", rest::binary>>, acc),
-    do: collect_digits(<<"ine", rest::binary>>, [9 | acc])
+  ~w(one two three four five six seven eight nine)
+  |> Enum.with_index(1)
+  |> Enum.each(fn {<<c, keep::binary>>, digit} ->
+    defp collect_digits(<<unquote(c), unquote(keep)::binary, rest::binary>>, acc) do
+      collect_digits(<<unquote(keep)::binary, rest::binary>>, [unquote(digit) | acc])
+    end
+  end)
 
   defp collect_digits(<<_, rest::binary>>, acc), do: collect_digits(rest, acc)
   defp collect_digits(<<>>, acc), do: :lists.reverse(acc)
