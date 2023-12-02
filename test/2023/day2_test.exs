@@ -23,8 +23,8 @@ defmodule AdventOfCode.Y23.Day2Test do
     problem =
       input
       |> Input.as_file()
-      |> Solution.read_file(:part_one)
-      |> Solution.parse_input(:part_one)
+      |> Solution.read_file(part)
+      |> Solution.parse_input(part)
 
     apply(Solution, part, [problem])
   end
@@ -41,26 +41,26 @@ defmodule AdventOfCode.Y23.Day2Test do
     assert 8 == solve(input, :part_one)
   end
 
-  # test "part two example" do
-  #   input = """
-  #   This is an
-  #   example input.
-  #   replace with
-  #   an example from
-  #   the AoC website.
-  #   """
-  #
-  #   assert CHANGE_ME == solve(input, :part_two)
-  # end
+  test "part two example" do
+    input = """
+    Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
+    Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue
+    Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red
+    Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red
+    Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green
+    """
+
+    assert 2286 == solve(input, :part_two)
+  end
 
   # Once your part-one was successfully sumbitted, you may uncomment this test
   # to ensure your implementation was not altered when you implement part two.
 
-  # @part_one_solution CHANGE_ME
-  #
-  # test "part one solution" do
-  #   assert {:ok, @part_one_solution} == AoC.run(2023, 2, :part_one)
-  # end
+  @part_one_solution 2683
+
+  test "part one solution" do
+    assert {:ok, @part_one_solution} == AoC.run(2023, 2, :part_one)
+  end
 
   # You may also implement a test to validate the part two to ensure that you
   # did not broke your shared modules when implementing another problem.

@@ -5,22 +5,21 @@ defmodule AdventOfCode.Y23.Day2 do
     Input.stream!(file, trim: true)
   end
 
-  def parse_input(input, _part) do
-    input
-    |> Enum.map(&parse_game/1)
+  def parse_input(input, _) do
+    Enum.map(input, &parse_game(&1, {0, 0, 0}))
   end
 
-  defp parse_game("Game " <> game) do
+  defp parse_game("Game " <> game, base) do
     {id, ": " <> rest} = Integer.parse(game)
-    hands = rest |> String.split("; ") |> Enum.map(&parse_hand/1)
+    hands = rest |> String.split("; ") |> Enum.map(&parse_hand(&1, base))
     {id, hands}
   end
 
-  defp parse_hand(txt) do
+  defp parse_hand(txt, base) do
     txt
     |> String.split(", ")
     |> Enum.map(&Integer.parse/1)
-    |> Enum.reduce({0, 0, 0}, fn
+    |> Enum.reduce(base |> dbg(), fn
       {n, " red"}, {r, g, b} -> {r + n, g, b}
       {n, " green"}, {r, g, b} -> {r, g + n, b}
       {n, " blue"}, {r, g, b} -> {r, g, b + n}
@@ -39,5 +38,18 @@ defmodule AdventOfCode.Y23.Day2 do
 
   def part_two(problem) do
     problem
+    |> Enum.map(&power/1)
+    |> Enum.reduce(&(&1 + &2))
+  end
+
+  defp power({_id, hands}) do
+    hands
+    |> Enum.reduce(fn {r, g, b}, {min_r, min_g, min_b} ->
+      {max(min_r, r), max(min_g, g), max(min_b, b)}
+    end)
+    |> case do
+      {r, g, b} -> r * g * b
+    end
+    |> dbg()
   end
 end
