@@ -23,9 +23,7 @@ defmodule AdventOfCode.Y23.Day1 do
   end
 
   defp first_last(items) do
-    [h | _] = items
-    [g | _] = :lists.reverse(items)
-    {h, g}
+    {hd(items), List.last(items)}
   end
 
   def part_two(problem) do
