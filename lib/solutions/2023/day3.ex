@@ -49,6 +49,8 @@ defmodule AdventOfCode.Y23.Day3 do
     end
   end
 
+  # -- Part 2 -----------------------------------------------------------------
+
   def part_two(grid) do
     grid
     # For each digit in the grid, associate the digit XY with the neighbouring
@@ -57,30 +59,28 @@ defmodule AdventOfCode.Y23.Day3 do
       {xy, val} when is_integer(val) ->
         case gear_neighbour(grid, xy) do
           nil -> []
-          gear_xy -> [{xy, gear_xy}]
+          gear_xy -> [{gear_xy, xy}]
         end
 
       _ ->
         []
     end)
     # Group those digits XY by their neighbouring gear XY.
-    |> Enum.group_by(&elem(&1, 1), &elem(&1, 0))
+    |> Enum.group_by(&elem(&1, 0), &elem(&1, 1))
     # Transform the digits XY into the first digit XY of their number
-    |> Enum.map(fn {gear_xy, digits_xys} ->
-      {gear_xy, digits_xys |> Enum.map(&first_digit(grid, &1)) |> Enum.uniq()}
-    end)
+    |> Enum.flat_map(fn {_gear_xy, digits_xys} ->
+      first_digits = digits_xys |> Enum.map(&first_digit(grid, &1)) |> Enum.uniq()
+      # Keep only the gear groups with exactly two numbers. Collect the actual
+      # numbers and compute the product.
+      case first_digits do
+        [digit_a_xy, digit_b_xy] ->
+          num_a = collect_number(grid, digit_a_xy)
+          num_b = collect_number(grid, digit_b_xy)
+          [num_a * num_b]
 
-    # Keep only the gear groups with exactly two number
-    |> Enum.map(fn {gear_xy, digits_xys} ->
-      {gear_xy, digits_xys |> Enum.map(&first_digit(grid, &1)) |> Enum.uniq()}
-    end)
-    # Transform each digit into an actual number, then multiply
-    |> Enum.map(fn
-      {_gear_xy, [_, _] = first_digits} ->
-        Enum.map(first_digits, &collect_number(grid, &1)) |> Enum.product()
-
-      _ ->
-        0
+        _ ->
+          []
+      end
     end)
     |> Enum.reduce(&Kernel.+/2)
   end
