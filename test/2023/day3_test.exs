@@ -46,33 +46,32 @@ defmodule AdventOfCode.Y23.Day3Test do
     assert 4361 == solve(input, :part_one)
   end
 
-  # test "part two example" do
-  #   input = """
-  #   This is an
-  #   example input.
-  #   replace with
-  #   an example from
-  #   the AoC website.
-  #   """
-  #
-  #   assert CHANGE_ME == solve(input, :part_two)
-  # end
-
-  # Once your part-one was successfully sumbitted, you may uncomment this test
-  # to ensure your implementation was not altered when you implement part two.
-
   @part_one_solution 532_331
 
   test "part one solution" do
     assert {:ok, @part_one_solution} == AoC.run(2023, 3, :part_one)
   end
 
-  # You may also implement a test to validate the part two to ensure that you
-  # did not broke your shared modules when implementing another problem.
+  test "part two example" do
+    input = """
+    467..114..
+    ...*......
+    ..35..633.
+    ......#...
+    617*......
+    .....+.58.
+    ..592.....
+    ......755.
+    ...$.*....
+    .664.598..
+    """
 
-  # @part_two_solution CHANGE_ME
-  #
-  # test "part two solution" do
-  #   assert {:ok, @part_two_solution} == AoC.run(2023, 3, :part_two)
-  # end
+    assert 467_835 == solve(input, :part_two)
+  end
+
+  @part_two_solution 82_301_120
+
+  test "part two solution" do
+    assert {:ok, @part_two_solution} == AoC.run(2023, 3, :part_two)
+  end
 end
