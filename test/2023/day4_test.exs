@@ -42,33 +42,28 @@ defmodule AdventOfCode.Y23.Day4Test do
     assert 13 == solve(input, :part_one)
   end
 
-  # test "part two example" do
-  #   input = """
-  #   This is an
-  #   example input.
-  #   replace with
-  #   an example from
-  #   the AoC website.
-  #   """
-  #
-  #   assert CHANGE_ME == solve(input, :part_two)
-  # end
+  test "part two example" do
+    input = """
+    Card 1: 41 48 83 86 17 | 83 86  6 31 17  9 48 53
+    Card 2: 13 32 20 16 61 | 61 30 68 82 17 32 24 19
+    Card 3:  1 21 53 59 44 | 69 82 63 72 16 21 14  1
+    Card 4: 41 92 73 84 69 | 59 84 76 51 58  5 54 83
+    Card 5: 87 83 26 28 32 | 88 30 70 12 93 22 82 36
+    Card 6: 31 18 13 56 72 | 74 77 10 23 35 67 36 11
+    """
 
-  # Once your part-one was successfully sumbitted, you may uncomment this test
-  # to ensure your implementation was not altered when you implement part two.
+    assert 30 == solve(input, :part_two)
+  end
 
-  # @part_one_solution CHANGE_ME
-  #
-  # test "part one solution" do
-  #   assert {:ok, @part_one_solution} == AoC.run(2023, 4, :part_one)
-  # end
+  @part_one_solution 19855
 
-  # You may also implement a test to validate the part two to ensure that you
-  # did not broke your shared modules when implementing another problem.
+  test "part one solution" do
+    assert {:ok, @part_one_solution} == AoC.run(2023, 4, :part_one)
+  end
 
-  # @part_two_solution CHANGE_ME
-  #
-  # test "part two solution" do
-  #   assert {:ok, @part_two_solution} == AoC.run(2023, 4, :part_two)
-  # end
+  @part_two_solution 10_378_710
+
+  test "part two solution" do
+    assert {:ok, @part_two_solution} == AoC.run(2023, 4, :part_two)
+  end
 end
