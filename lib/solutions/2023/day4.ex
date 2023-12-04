@@ -47,8 +47,8 @@ defmodule AdventOfCode.Y23.Day4 do
           n_wins ->
             adds = (card_id + 1)..(card_id + n_wins)
 
-            Enum.reduce(adds, acc, fn later_card_id, acc ->
-              Map.update(acc, later_card_id, n_cards, &(&1 + n_cards))
+            Enum.reduce(adds, acc, fn next_card_id, acc ->
+              Map.update(acc, next_card_id, n_cards, &(&1 + n_cards))
             end)
         end
 
