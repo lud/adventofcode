@@ -58,32 +58,104 @@ defmodule AdventOfCode.Y23.Day5 do
     Enum.min(locations)
   end
 
-  defp find_location(seed, data) do
-    path = [
-      :seed_to_soil,
-      :soil_to_fertilizer,
-      :fertilizer_to_water,
-      :water_to_light,
-      :light_to_temperature,
-      :temperature_to_humidity,
-      :humidity_to_location
-    ]
+  @path [
+    :seed_to_soil,
+    :soil_to_fertilizer,
+    :fertilizer_to_water,
+    :water_to_light,
+    :light_to_temperature,
+    :temperature_to_humidity,
+    :humidity_to_location
+  ]
 
-    Enum.reduce(path, seed, fn tl_key, id -> translate(Map.fetch!(data, tl_key), id) end)
+  defp find_location(seed, data) do
+    Enum.reduce(@path, seed, fn tl_key, id -> translate(Map.fetch!(data, tl_key), id) end)
   end
 
   defp translate(ranges, id) do
     case Enum.find(ranges, fn {source_range, _dest_range} -> id in source_range end) do
       {source_range, dest_range} ->
         diff = id - source_range.first
-        dest = dest_range.first + diff
+        dest_range.first + diff
 
       nil ->
         id
     end
   end
 
-  # def part_two(problem) do
-  #   problem
-  # end
+  def part_two(problem) do
+    ranges =
+      problem.seeds
+      |> Enum.chunk_every(2)
+      |> Enum.map(fn [first, last] -> first..(first + last - 1) end)
+
+    final_ranges = Enum.reduce(@path, ranges, &translate_ranges(Map.fetch!(problem, &1), &2))
+    Enum.min_by(final_ranges, & &1.first).first
+  end
+
+  defp translate_ranges(mappers, ranges) do
+    # For each mapper, consume from each ranges, returning a new range and a
+    # rest that can be divided by further mappers
+    binding() |> IO.inspect(label: ~S/xxxbinding()/)
+
+    Enum.flat_map_reduce(mappers, ranges, fn {source, _} = mapper, rest_ranges ->
+      source |> IO.inspect(label: ~S/---------- source/)
+      rest_ranges |> IO.inspect(label: ~S/rest_ranges/)
+      true = is_list(rest_ranges)
+      {covered_ranges, rest_ranges} = split_ranges(rest_ranges, source)
+      covered_ranges |> IO.inspect(label: ~S/covered_ranges/)
+      rest_ranges |> IO.inspect(label: ~S/rest_ranges/)
+      {covered_ranges, rest_ranges}
+    end)
+    |> case do
+      {translated, as_is} -> translated ++ as_is
+    end
+  end
+
+  defp split_ranges(ranges, source) do
+    split_ranges(ranges, source, {[], []})
+  end
+
+  defp split_ranges([r | ranges], source, {translated_ranges, rest_ranges}) do
+    case split_range(r, source) do
+      {nil, rest} ->
+        split_ranges(ranges, source, {translated_ranges, rest ++ rest_ranges})
+
+      {translated, nil} ->
+        split_ranges(ranges, source, {translated ++ translated_ranges, rest_ranges})
+
+      {translated, rest} ->
+        split_ranges(ranges, source, {translated ++ translated_ranges, rest ++ rest_ranges})
+    end
+  end
+
+  defp split_ranges([], _source, acc) do
+    acc
+  end
+
+  def split_range(range, source)
+
+  def split_range(ra..rz = range, sa..sz) when sz < ra do
+    {nil, [range]}
+  end
+
+  def split_range(ra..rz = range, sa..sz) when sa > rz do
+    {nil, [range]}
+  end
+
+  def split_range(ra..rz = range, sa..sz) when sa <= ra and sz >= rz do
+    {[range], nil}
+  end
+
+  def split_range(ra..rz = range, sa..sz) when sa >= ra and sz >= rz do
+    {[sa..rz], [ra..(sa - 1)]}
+  end
+
+  def split_range(ra..rz = range, sa..sz) when sa <= ra and sz <= rz do
+    {[ra..sz], [(sz + 1)..rz]}
+  end
+
+  def split_range(ra..rz = range, sa..sz) when sa >= ra and sz <= rz do
+    {[sa..sz], [ra..(sa - 1), (sz + 1)..rz]}
+  end
 end

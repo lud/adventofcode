@@ -69,26 +69,98 @@ defmodule AdventOfCode.Y23.Day5Test do
     assert 35 == solve(input, :part_one)
   end
 
-  # test "part two example" do
-  #   input = """
-  #   This is an
-  #   example input.
-  #   replace with
-  #   an example from
-  #   the AoC website.
-  #   """
-  #
-  #   assert CHANGE_ME == solve(input, :part_two)
-  # end
+  test "part two example" do
+    input = """
+    seeds: 79 14 55 13
+
+    seed-to-soil map:
+    50 98 2
+    52 50 48
+
+    soil-to-fertilizer map:
+    0 15 37
+    37 52 2
+    39 0 15
+
+    fertilizer-to-water map:
+    49 53 8
+    0 11 42
+    42 0 7
+    57 7 4
+
+    water-to-light map:
+    88 18 7
+    18 25 70
+
+    light-to-temperature map:
+    45 77 23
+    81 45 19
+    68 64 13
+
+    temperature-to-humidity map:
+    0 69 1
+    1 0 69
+
+    humidity-to-location map:
+    60 56 37
+    56 93 4
+    """
+
+    assert 46 == solve(input, :part_two)
+  end
+
+  test "split_range" do
+    import Solution
+
+    # no coverage
+    assert {nil, [20..100]} = split_range(20..100, 0..10)
+    assert {nil, [20..100]} = split_range(20..100, 999..1000)
+
+    # source wraps the range
+    assert {[20..100], nil} = split_range(20..100, 10..200)
+
+    # source is exactly the range
+    assert {[20..100], nil} = split_range(20..100, 20..100)
+
+    # source wraps the range, with same first
+    assert {[20..30], nil} = split_range(20..30, 20..999)
+
+    # source wraps the range, with same last
+    assert {[20..30], nil} = split_range(20..30, 0..30)
+
+    # source overlaps the last boundary
+    assert {[20..30], [10..19]} = split_range(10..30, 20..40)
+
+    # source overlaps the last boundary with same first boundary
+    assert {[10..30], nil} = split_range(10..30, 10..40)
+
+    # source overlaps the first boundary
+    assert {[10..20], [21..30]} = split_range(10..30, 0..20)
+
+    # source overlaps the first boundary with same last boundary
+    assert {[10..30], nil} = split_range(10..30, 0..30)
+
+    # source is in the range
+    assert {[20..30], [10..19, 31..40]} = split_range(10..40, 20..30)
+
+    # source is in the range with same first boundary
+    assert {[10..30], [31..40]} = split_range(10..40, 10..30)
+
+    # source is in the range with same last boundary
+    assert {[20..40], [10..19]} = split_range(10..40, 20..40)
+
+    # source and range are length 1
+    assert {[10..10], nil} = split_range(10..10, 10..10)
+  end
 
   # Once your part-one was successfully sumbitted, you may uncomment this test
   # to ensure your implementation was not altered when you implement part two.
 
-  # @part_one_solution CHANGE_ME
-  #
-  # test "part one solution" do
-  #   assert {:ok, @part_one_solution} == AoC.run(2023, 5, :part_one)
-  # end
+  @part_one_solution 174_137_457
+
+  test "part one solution" do
+    assert {:ok, @part_one_solution} == AoC.run(2023, 5, :part_one)
+  end
 
   # You may also implement a test to validate the part two to ensure that you
   # did not broke your shared modules when implementing another problem.
