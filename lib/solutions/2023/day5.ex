@@ -17,9 +17,7 @@ defmodule AdventOfCode.Y23.Day5 do
       "light-to-temperature map:\n" <> light_to_temperature_raw,
       "temperature-to-humidity map:\n" <> temperature_to_humidity_raw,
       "humidity-to-location map:\n" <> humidity_to_location_raw
-    ] =
-      blocks
-      |> dbg()
+    ] = blocks
 
     %{
       seeds: int_list(seeds_raw),
@@ -41,11 +39,9 @@ defmodule AdventOfCode.Y23.Day5 do
     lines
     |> String.split("\n")
     |> Enum.map(&parse_range/1)
-    |> dbg(charlists: :as_lists)
   end
 
   defp parse_range(line) do
-    line |> dbg()
     [dest_0, source_0, len] = int_list(line)
 
     source_range = source_0..(source_0 + len - 1)//1
@@ -90,21 +86,20 @@ defmodule AdventOfCode.Y23.Day5 do
       |> Enum.map(fn [first, last] -> first..(first + last - 1) end)
 
     final_ranges = Enum.reduce(@path, ranges, &translate_ranges(Map.fetch!(problem, &1), &2))
+
     Enum.min_by(final_ranges, & &1.first).first
   end
 
   defp translate_ranges(mappers, ranges) do
-    # For each mapper, consume from each ranges, returning a new range and a
-    # rest that can be divided by further mappers
-    binding() |> IO.inspect(label: ~S/xxxbinding()/)
+    # For each mapper, split all the ranges into those that are covered by the
+    # mapper source and those that are not. The latter can be consumed by the
+    # next mapper and so on.
+    #
+    # Finally return the covered ranges translated by the mapper and the
+    # leftover as-is, as they are valid ranges but map 1:1.
 
     Enum.flat_map_reduce(mappers, ranges, fn {source, _} = mapper, rest_ranges ->
-      source |> IO.inspect(label: ~S/---------- source/)
-      rest_ranges |> IO.inspect(label: ~S/rest_ranges/)
-      true = is_list(rest_ranges)
       {covered_ranges, rest_ranges} = split_ranges(rest_ranges, source)
-      covered_ranges |> IO.inspect(label: ~S/covered_ranges/)
-      rest_ranges |> IO.inspect(label: ~S/rest_ranges/)
       {Enum.map(covered_ranges, &translate_range(&1, mapper)), rest_ranges}
     end)
     |> case do
@@ -140,11 +135,11 @@ defmodule AdventOfCode.Y23.Day5 do
 
   def split_range(range, source)
 
-  def split_range(ra..rz = range, sa..sz) when sz < ra do
+  def split_range(ra.._rz = range, _sa..sz) when sz < ra do
     {nil, [range]}
   end
 
-  def split_range(ra..rz = range, sa..sz) when sa > rz do
+  def split_range(_ra..rz = range, sa.._sz) when sa > rz do
     {nil, [range]}
   end
 
@@ -152,15 +147,15 @@ defmodule AdventOfCode.Y23.Day5 do
     {[range], nil}
   end
 
-  def split_range(ra..rz = range, sa..sz) when sa >= ra and sz >= rz do
+  def split_range(ra..rz, sa..sz) when sa >= ra and sz >= rz do
     {[sa..rz], [ra..(sa - 1)]}
   end
 
-  def split_range(ra..rz = range, sa..sz) when sa <= ra and sz <= rz do
+  def split_range(ra..rz, sa..sz) when sa <= ra and sz <= rz do
     {[ra..sz], [(sz + 1)..rz]}
   end
 
-  def split_range(ra..rz = range, sa..sz) when sa >= ra and sz <= rz do
+  def split_range(ra..rz, sa..sz) when sa >= ra and sz <= rz do
     {[sa..sz], [ra..(sa - 1), (sz + 1)..rz]}
   end
 end
