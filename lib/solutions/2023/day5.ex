@@ -116,16 +116,16 @@ defmodule AdventOfCode.Y23.Day5 do
     split_ranges(ranges, source, {[], []})
   end
 
-  defp split_ranges([r | ranges], source, {translated_ranges, rest_ranges}) do
+  defp split_ranges([r | ranges], source, {covered_ranges, rest_ranges}) do
     case split_range(r, source) do
       {nil, rest} ->
-        split_ranges(ranges, source, {translated_ranges, rest ++ rest_ranges})
+        split_ranges(ranges, source, {covered_ranges, rest ++ rest_ranges})
 
-      {translated, nil} ->
-        split_ranges(ranges, source, {translated ++ translated_ranges, rest_ranges})
+      {covered, nil} ->
+        split_ranges(ranges, source, {covered ++ covered_ranges, rest_ranges})
 
-      {translated, rest} ->
-        split_ranges(ranges, source, {translated ++ translated_ranges, rest ++ rest_ranges})
+      {covered, rest} ->
+        split_ranges(ranges, source, {covered ++ covered_ranges, rest ++ rest_ranges})
     end
   end
 
