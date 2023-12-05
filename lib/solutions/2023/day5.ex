@@ -105,11 +105,16 @@ defmodule AdventOfCode.Y23.Day5 do
       {covered_ranges, rest_ranges} = split_ranges(rest_ranges, source)
       covered_ranges |> IO.inspect(label: ~S/covered_ranges/)
       rest_ranges |> IO.inspect(label: ~S/rest_ranges/)
-      {covered_ranges, rest_ranges}
+      {Enum.map(covered_ranges, &translate_range(&1, mapper)), rest_ranges}
     end)
     |> case do
       {translated, as_is} -> translated ++ as_is
     end
+  end
+
+  defp translate_range(range, {source, dest}) do
+    diff = dest.first - source.first
+    Range.shift(range, diff)
   end
 
   defp split_ranges(ranges, source) do
