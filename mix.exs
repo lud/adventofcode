@@ -23,7 +23,7 @@ defmodule AdventOfCode.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:aoc, "~> 0.6"},
+      {:aoc, "~> 0.7"},
       # {:aoc, path: "../aoc"},
       {:credo, "~> 1.7", only: [:dev], runtime: false}
     ]
