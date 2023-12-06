@@ -49,7 +49,6 @@ defmodule AdventOfCode.Y23.Day6 do
 
   def part_two({time, distance_record}) do
     half = trunc(time / 2)
-
     left = binary_search(&find_left_bound(&1, time, distance_record), 1, half)
     right = binary_search(&find_right_bound(&1, time, distance_record), half, time)
     right - left + 1
