@@ -5,17 +5,28 @@ defmodule AdventOfCode.Y23.Day6 do
     file |> Input.stream!(trim: true) |> Enum.take(2)
   end
 
-  def parse_input([times, distances], _part) do
-    times = int_list(times)
-    distances = int_list(distances)
+  def parse_input([times, distances], :part_one) do
+    times = int_list_no_header(times)
+    distances = int_list_no_header(distances)
     Enum.zip(times, distances)
   end
 
-  defp int_list(string) do
+  def parse_input(["Time: " <> times, "Distance: " <> distances], :part_two) do
+    {single_int(times), single_int(distances)}
+  end
+
+  defp int_list_no_header(string) do
     string
     |> String.split(" ", trim: true)
     |> Enum.drop(1)
     |> Enum.map(&String.to_integer/1)
+  end
+
+  defp single_int(string) do
+    string
+    |> String.split(" ", trim: true)
+    |> Enum.join()
+    |> String.to_integer()
   end
 
   def part_one(problem) do
@@ -35,7 +46,7 @@ defmodule AdventOfCode.Y23.Day6 do
     |> length()
   end
 
-  # def part_two(problem) do
-  #   problem
-  # end
+  def part_two(problem) do
+    count_wins(problem)
+  end
 end
