@@ -45,29 +45,24 @@ defmodule AdventOfCode.Y23.Day7Test do
   # to ensure your implementation was not altered when you implement part two.
 
   @part_one_solution 253_603_890
-  @part_one_bad [253_594_182, 253_603_689]
 
   test "part one solution" do
     assert {:ok, result} = AoC.run(2023, 7, :part_one)
 
-    Enum.each(@part_one_bad, fn bad ->
-      assert result != bad
-    end)
-
     assert @part_one_solution == result
   end
 
-  # test "part two example" do
-  #   input = """
-  #   This is an
-  #   example input.
-  #   replace with
-  #   an example from
-  #   the AoC website.
-  #   """
-  #
-  #   assert CHANGE_ME == solve(input, :part_two)
-  # end
+  test "part two example" do
+    input = """
+    32T3K 765
+    T55J5 684
+    KK677 28
+    KTJJT 220
+    QQQJA 483
+    """
+
+    assert 5905 == solve(input, :part_two)
+  end
 
   # You may also implement a test to validate the part two to ensure that you
   # did not broke your shared modules when implementing another problem.
