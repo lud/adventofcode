@@ -31,17 +31,12 @@ defmodule AdventOfCode.Y23.Day7 do
   defp parse_card(?K, _), do: 1013
   defp parse_card(?A, _), do: 1014
 
-  def part_one(problem) do
-    problem
-    |> Enum.map(fn {cards, bid} -> {htype(cards, :part_one), cards, bid} end)
-    |> Enum.sort_by(fn {htype, cards, _} -> {htype, cards} end)
-    |> Enum.with_index(1)
-    |> Enum.reduce(0, fn {{_, _, bid}, rank}, acc -> acc + bid * rank end)
-  end
+  def part_one(problem), do: solve(problem, :part_one)
+  def part_two(problem), do: solve(problem, :part_two)
 
-  def part_two(problem) do
+  defp solve(problem, part) do
     problem
-    |> Enum.map(fn {cards, bid} -> {htype(cards, :part_two), cards, bid} end)
+    |> Enum.map(fn {cards, bid} -> {htype(cards, part), cards, bid} end)
     |> Enum.sort_by(fn {htype, cards, _} -> {htype, cards} end)
     |> Enum.with_index(1)
     |> Enum.reduce(0, fn {{_, _, bid}, rank}, acc -> acc + bid * rank end)
@@ -56,54 +51,60 @@ defmodule AdventOfCode.Y23.Day7 do
     |> classed_htype(part)
   end
 
+  @five_of 9999
+  @four_of 8888
+  @full_house 7777
+  @three_of 6666
+  @two_pairs 5555
+  @one_pair 4444
+  @nothing 3333
+
   defp classed_htype(cards, :part_one) do
     case cards do
-      [[_, _, _, _, _]] -> {9999, :cheater}
-      [[a, _, _, _], [b]] -> {8888, :four_of}
-      [[a, _, _], [b, _]] -> {7777, :full_house}
-      [[a, _, _], [b], [c]] -> {6666, :three_of}
-      [[a, _], [b, _], [c]] -> {5555, :two_pairs}
-      [[a, _], [b], [c], [d]] -> {4444, :one_pair}
-      [[a], [b], [c], [d], [e]] -> {3333, :nothing}
+      [[_, _, _, _, _]] -> @five_of
+      [[_, _, _, _], [_]] -> @four_of
+      [[_, _, _], [_, _]] -> @full_house
+      [[_, _, _], [_], [_]] -> @three_of
+      [[_, _], [_, _], [_]] -> @two_pairs
+      [[_, _], [_], [_], [_]] -> @one_pair
+      _ -> @nothing
     end
   end
 
   defp classed_htype(cards, :part_two) do
-    cards |> dbg()
-
     case cards do
-      [[_, _, _, _, _]] -> {9999, :cheater}
+      [[_, _, _, _, _]] -> @five_of
       #
-      [[@joker, _, _, _], [b]] -> {9999, :cheater}
-      [[a, _, _, _], [@joker]] -> {9999, :cheater}
-      [[a, _, _, _], [b]] -> {8888, :four_of}
+      [[@joker, _, _, _], [_]] -> @five_of
+      [[_, _, _, _], [@joker]] -> @five_of
+      [[_, _, _, _], [_]] -> @four_of
       #
-      [[@joker, _, _], [b, _]] -> {9999, :cheater}
-      [[a, _, _], [@joker, _]] -> {9999, :cheater}
-      [[a, _, _], [b, _]] -> {7777, :full_house}
+      [[@joker, _, _], [_, _]] -> @five_of
+      [[_, _, _], [@joker, _]] -> @five_of
+      [[_, _, _], [_, _]] -> @full_house
       #
-      [[@joker, _, _], [b], [c]] -> {8888, :four_of}
-      [[a, _, _], [@joker], [c]] -> {8888, :four_of}
-      [[a, _, _], [b], [@joker]] -> {8888, :four_of}
-      [[a, _, _], [b], [c]] -> {6666, :three_of}
+      [[@joker, _, _], [_], [_]] -> @four_of
+      [[_, _, _], [@joker], [_]] -> @four_of
+      [[_, _, _], [_], [@joker]] -> @four_of
+      [[_, _, _], [_], [_]] -> @three_of
       #
-      [[@joker, _], [b, _], [c]] -> {8888, :four_of}
-      [[a, _], [@joker, _], [c]] -> {8888, :four_of}
-      [[a, _], [b, _], [@joker]] -> {7777, :full_house}
-      [[a, _], [b, _], [c]] -> {5555, :two_pairs}
+      [[@joker, _], [_, _], [_]] -> @four_of
+      [[_, _], [@joker, _], [_]] -> @four_of
+      [[_, _], [_, _], [@joker]] -> @full_house
+      [[_, _], [_, _], [_]] -> @two_pairs
       #
-      [[@joker, _], [b], [c], [d]] -> {6666, :three_of}
-      [[a, _], [@joker], [c], [d]] -> {6666, :three_of}
-      [[a, _], [b], [@joker], [d]] -> {6666, :three_of}
-      [[a, _], [b], [c], [@joker]] -> {6666, :three_of}
-      [[a, _], [b], [c], [d]] -> {4444, :one_pair}
+      [[@joker, _], [_], [_], [_]] -> @three_of
+      [[_, _], [@joker], [_], [_]] -> @three_of
+      [[_, _], [_], [@joker], [_]] -> @three_of
+      [[_, _], [_], [_], [@joker]] -> @three_of
+      [[_, _], [_], [_], [_]] -> @one_pair
       #
-      [[@joker], [b], [c], [d], [e]] -> {4444, :one_pair}
-      [[a], [@joker], [c], [d], [e]] -> {4444, :one_pair}
-      [[a], [b], [@joker], [d], [e]] -> {4444, :one_pair}
-      [[a], [b], [c], [@joker], [e]] -> {4444, :one_pair}
-      [[a], [b], [c], [d], [@joker]] -> {4444, :one_pair}
-      [[a], [b], [c], [d], [e]] -> {3333, :nothing}
+      [[@joker], [_], [_], [_], [_]] -> @one_pair
+      [[_], [@joker], [_], [_], [_]] -> @one_pair
+      [[_], [_], [@joker], [_], [_]] -> @one_pair
+      [[_], [_], [_], [@joker], [_]] -> @one_pair
+      [[_], [_], [_], [_], [@joker]] -> @one_pair
+      [[_], [_], [_], [_], [_]] -> @nothing
     end
   end
 end
