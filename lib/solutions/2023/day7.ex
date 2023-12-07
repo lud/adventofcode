@@ -15,21 +15,21 @@ defmodule AdventOfCode.Y23.Day7 do
     {cards, bid}
   end
 
-  @joker 1000
-  defp parse_card(?2, _), do: 1002
-  defp parse_card(?3, _), do: 1003
-  defp parse_card(?4, _), do: 1004
-  defp parse_card(?5, _), do: 1005
-  defp parse_card(?6, _), do: 1006
-  defp parse_card(?7, _), do: 1007
-  defp parse_card(?8, _), do: 1008
-  defp parse_card(?9, _), do: 1009
-  defp parse_card(?T, _), do: 1010
-  defp parse_card(?J, :part_one), do: 1011
+  @joker 0
+  defp parse_card(?2, _), do: 2
+  defp parse_card(?3, _), do: 3
+  defp parse_card(?4, _), do: 4
+  defp parse_card(?5, _), do: 5
+  defp parse_card(?6, _), do: 6
+  defp parse_card(?7, _), do: 7
+  defp parse_card(?8, _), do: 8
+  defp parse_card(?9, _), do: 9
+  defp parse_card(?T, _), do: 10
+  defp parse_card(?J, :part_one), do: 11
   defp parse_card(?J, :part_two), do: @joker
-  defp parse_card(?Q, _), do: 1012
-  defp parse_card(?K, _), do: 1013
-  defp parse_card(?A, _), do: 1014
+  defp parse_card(?Q, _), do: 12
+  defp parse_card(?K, _), do: 13
+  defp parse_card(?A, _), do: 14
 
   def part_one(problem), do: solve(problem, :part_one)
   def part_two(problem), do: solve(problem, :part_two)
