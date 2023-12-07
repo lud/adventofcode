@@ -133,8 +133,8 @@ defmodule AdventOfCode.Y20.Day17 do
   end
 
   defp expand_domain({min_x, max_x, min_y, max_y, min_z, max_z, min_w, max_w}, {x, y, z, w}) do
-    {min(min_x, x), max(max_x, x), min(min_y, y), max(max_y, y), min(min_z, z), max(max_z, z),
-     min(min_w, w), max(max_w, w)}
+    {min(min_x, x), max(max_x, x), min(min_y, y), max(max_y, y), min(min_z, z), max(max_z, z), min(min_w, w),
+     max(max_w, w)}
   end
 
   defp expand_domain_from_changes(domain, changes) do

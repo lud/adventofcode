@@ -95,8 +95,7 @@ defmodule AdventOfCode.Y22.Day17 do
       {stable_rocks, stable_yh} ->
         true = {remain_moves, x_moves} == move_tap
 
-        {:stable, stable_rocks, stable_yh, move_tap, :repeat, still_rocks - stable_rocks,
-         yh - stable_yh}
+        {:stable, stable_rocks, stable_yh, move_tap, :repeat, still_rocks - stable_rocks, yh - stable_yh}
     end
   end
 
