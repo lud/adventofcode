@@ -41,9 +41,6 @@ defmodule AdventOfCode.Y23.Day7Test do
     assert 6440 == solve(input, :part_one)
   end
 
-  # Once your part one was successfully sumbitted, you may uncomment this test
-  # to ensure your implementation was not altered when you implement part two.
-
   @part_one_solution 253_603_890
 
   test "part one solution" do
@@ -63,9 +60,6 @@ defmodule AdventOfCode.Y23.Day7Test do
 
     assert 5905 == solve(input, :part_two)
   end
-
-  # You may also implement a test to validate the part two to ensure that you
-  # did not broke your shared modules when implementing another problem.
 
   @part_two_solution 253_630_098
 
