@@ -3,10 +3,10 @@ defmodule AdventOfCode.Y23.Day8 do
 
   # @aaa 4276545
   # @zzz 5921370
-  @aa "AA"
+  @aa 16705
 
-  @end_a "A"
-  @end_z "Z"
+  @end_a ?A
+  @end_z ?Z
 
   def read_file(file, _part) do
     Input.stream!(file, trim: true)
@@ -25,8 +25,7 @@ defmodule AdventOfCode.Y23.Day8 do
   end
 
   defp parse_nav(raw) do
-    <<tag::binary-size(2), tag_end::binary-size(1), " = (", left::binary-size(2), left_end::binary-size(1), ", ",
-      right::binary-size(2), right_end::binary-size(1), ")">> = raw
+    <<tag::16, tag_end, " = (", left::16, left_end, ", ", right::16, right_end, ")">> = raw
 
     {{tag, tag_end}, {{left, left_end}, {right, right_end}}}
   end
