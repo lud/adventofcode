@@ -19,11 +19,11 @@ defmodule AdventOfCode.Y23.Day9 do
     |> Enum.sum()
   end
 
-  def next_num([h | t] = list) do
+  def next_num(list) do
     List.last(list) + _next_num(list)
   end
 
-  defp _next_num([h | t] = list) do
+  defp _next_num(list) do
     case diffs(list) do
       {_, true} ->
         0
@@ -45,11 +45,11 @@ defmodule AdventOfCode.Y23.Day9 do
     {diffs, all_zero?}
   end
 
-  def prev_num([h | t] = list) do
+  def prev_num([h | _] = list) do
     h - _prev_num(list)
   end
 
-  defp _prev_num([h | t] = list) do
+  defp _prev_num(list) do
     case diffs(list) do
       {_, true} ->
         0
