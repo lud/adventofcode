@@ -40,36 +40,22 @@ defmodule AdventOfCode.Y23.Day9Test do
   end
 
   test "can find next number" do
-    assert 18 = Solution.next_num([0, 3, 6, 9, 12, 15])
+    assert 18 == Solution.next_num([0, 3, 6, 9, 12, 15])
   end
 
-  # Once your part one was successfully sumbitted, you may uncomment this test
-  # to ensure your implementation was not altered when you implement part two.
+  @part_one_solution 1_731_106_378
 
-  # @part_one_solution CHANGE_ME
-  #
-  # test "part one solution" do
-  #   assert {:ok, @part_one_solution} == AoC.run(2023, 9, :part_one)
-  # end
+  test "part one solution" do
+    assert {:ok, @part_one_solution} == AoC.run(2023, 9, :part_one)
+  end
 
-  # test "part two example" do
-  #   input = """
-  #   This is an
-  #   example input.
-  #   replace with
-  #   an example from
-  #   the AoC website.
-  #   """
-  #
-  #   assert CHANGE_ME == solve(input, :part_two)
-  # end
+  test "can find prev number" do
+    assert 5 == Solution.prev_num([10, 13, 16, 21, 30, 45])
+  end
 
-  # You may also implement a test to validate the part two to ensure that you
-  # did not broke your shared modules when implementing another problem.
+  @part_two_solution 1087
 
-  # @part_two_solution CHANGE_ME
-  #
-  # test "part two solution" do
-  #   assert {:ok, @part_two_solution} == AoC.run(2023, 9, :part_two)
-  # end
+  test "part two solution" do
+    assert {:ok, @part_two_solution} == AoC.run(2023, 9, :part_two)
+  end
 end

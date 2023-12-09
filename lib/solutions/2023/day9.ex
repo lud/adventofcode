@@ -20,29 +20,22 @@ defmodule AdventOfCode.Y23.Day9 do
   end
 
   def next_num([h | t] = list) do
-    Process.sleep(100)
-    IO.puts("\n===================")
-    List.last(list) + next_num2(list)
+    List.last(list) + _next_num(list)
   end
 
-  def next_num2([h | t] = list) do
-    list |> IO.inspect(label: ~S/list/)
-
-    case next_diff(list) do
+  defp _next_num([h | t] = list) do
+    case diffs(list) do
       {_, true} ->
         0
 
       {diffs, _} ->
         last = List.last(diffs)
-        sub = next_num2(diffs)
-        last |> IO.inspect(label: ~S/last/)
-        sub |> IO.inspect(label: ~S/sub/)
-        new = last + sub
-        new |> IO.inspect(label: ~S/new/)
+        sub = _next_num(diffs)
+        last + sub
     end
   end
 
-  defp next_diff([h | t]) do
+  defp diffs([h | t]) do
     {diffs, {_, all_zero?}} =
       Enum.map_reduce(t, {h, _all_zero? = true}, fn next, {prev, all_zero?} ->
         new = next - prev
@@ -52,7 +45,24 @@ defmodule AdventOfCode.Y23.Day9 do
     {diffs, all_zero?}
   end
 
-  # def part_two(problem) do
-  #   problem
-  # end
+  def prev_num([h | t] = list) do
+    h - _prev_num(list)
+  end
+
+  defp _prev_num([h | t] = list) do
+    case diffs(list) do
+      {_, true} ->
+        0
+
+      {[dh | _] = diffs, _} ->
+        sub = _prev_num(diffs)
+        dh - sub
+    end
+  end
+
+  def part_two(problem) do
+    problem
+    |> Enum.map(&prev_num/1)
+    |> Enum.sum()
+  end
 end
