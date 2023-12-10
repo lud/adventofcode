@@ -23,14 +23,8 @@ defmodule AdventOfCode.Y23.Day10 do
 
   def part_one(grid) do
     {start_xy, :S} = Enum.find(grid, fn {_, v} -> v == :S end)
-
-    {dir, next_node} =
-      start_xy
-      |> starting_neighbours(grid)
-      |> hd()
-
+    {dir, next_node} = starting_neighbour(start_xy, grid)
     {count, _path} = follow_path_to(dir, next_node, 1, start_xy, [next_node], grid)
-
     div(count, 2)
   end
 
@@ -49,18 +43,15 @@ defmodule AdventOfCode.Y23.Day10 do
   def part_two(grid) do
     {start_xy, :S} = Enum.find(grid, fn {_, v} -> v == :S end)
 
-    {dir, {next_xy, _} = next_node} =
-      start_xy
-      |> starting_neighbours(grid)
-      |> hd()
-
+    {dir, {next_xy, _} = next_node} = starting_neighbour(start_xy, grid)
     {_, path} = follow_path_to(dir, next_node, 1, start_xy, [next_node], grid)
-
     [{^start_xy, :S}, {prev_xy, _} = _prev_node | _] = path
 
     # From start, what are the directions leading to our two loop starts
     prev_xy_direction = [:n, :s, :w, :e] |> Enum.find(&(move(start_xy, &1) == prev_xy))
     next_xy_direction = [:n, :s, :w, :e] |> Enum.find(&(move(start_xy, &1) == next_xy))
+
+    # And so we can find the type of the start node
     start_type = Enum.find(@pipes, fn t -> links_to?(t, prev_xy_direction) and links_to?(t, next_xy_direction) end)
 
     # Replace the grid with the loop nodes only
@@ -75,55 +66,55 @@ defmodule AdventOfCode.Y23.Day10 do
     ya = 0
     xo = Grid.max_x(grid)
     yo = Grid.max_y(grid)
-    {xo, yo}
 
-    count =
-      Enum.reduce(ya..yo, 0, fn y, ext_cout ->
-        {_, count, _} =
-          Enum.reduce(xa..xo, {:out, ext_cout, nil}, fn x, {side, count, cut} ->
-            pos = {x, y}
+    Enum.reduce(ya..yo, 0, fn y, ext_cout ->
+      {_, count, _} =
+        Enum.reduce(xa..xo, {_in? = false, ext_cout, nil}, fn x, {in?, count, cut} ->
+          pos = {x, y}
 
-            case {cut, Map.get(grid, pos, nil), side} do
-              # Keeping same side over dead ends or horizontal pipes
-              {:F, :J, side} -> {side, count, nil}
-              {:L, :"7", side} -> {side, count, nil}
-              {cut, :-, side} -> {side, count, cut}
-              # crossing pipes
-              {:F, :"7", side} -> {otherside(side), count, nil}
-              {:L, :J, side} -> {otherside(side), count, nil}
-              {nil, :|, side} -> {otherside(side), count, nil}
-              {nil, :F, side} -> {otherside(side), count, :F}
-              {nil, :L, side} -> {otherside(side), count, :L}
-              # counting inside positions, ignoring outside positions
-              {_, nil, :in} -> {:in, count + 1, nil}
-              {_, nil, :out} -> {:out, count, nil}
-            end
-          end)
+          case {cut, Map.get(grid, pos, nil), in?} do
+            # Keeping same in? over dead ends or horizontal pipes
+            {:F, :J, in?} -> {in?, count, nil}
+            {:L, :"7", in?} -> {in?, count, nil}
+            {cut, :-, in?} -> {in?, count, cut}
+            # crossing pipes
+            {:F, :"7", in?} -> {not in?, count, nil}
+            {:L, :J, in?} -> {not in?, count, nil}
+            {nil, :|, in?} -> {not in?, count, nil}
+            {nil, :F, in?} -> {not in?, count, :F}
+            {nil, :L, in?} -> {not in?, count, :L}
+            # counting inside positions, ignoring outside positions
+            {_, nil, true} -> {true, count + 1, nil}
+            {_, nil, false} -> {false, count, nil}
+          end
+        end)
 
-        count
-      end)
-
-    count
+      count
+    end)
   end
 
-  defp starting_neighbours(xy, grid) do
-    Enum.flat_map([:n, :e, :s, :w], fn dir -> starting_neighbour_with_direction(xy, dir, grid) end)
+  defp starting_neighbour(xy, grid) do
+    Enum.find_value([:n, :e, :s, :w], fn dir -> starting_neighbour_with_direction(xy, dir, grid) end)
   end
 
   defp starting_neighbour_with_direction(xy, direction, grid) do
     next_xy = move(xy, direction)
 
     case {direction, Map.get(grid, next_xy)} do
-      {:w, valid} when valid in [:-, :F, :L] -> [{:w, {next_xy, valid}}]
-      {:e, valid} when valid in [:-, :J, :"7"] -> [{:e, {next_xy, valid}}]
-      {:s, valid} when valid in [:|, :J, :L] -> [{:s, {next_xy, valid}}]
-      {:n, valid} when valid in [:|, :F, :"7"] -> [{:n, {next_xy, valid}}]
-      _ -> []
+      {:w, valid} when valid in [:-, :F, :L] -> {:w, {next_xy, valid}}
+      {:e, valid} when valid in [:-, :J, :"7"] -> {:e, {next_xy, valid}}
+      {:s, valid} when valid in [:|, :J, :L] -> {:s, {next_xy, valid}}
+      {:n, valid} when valid in [:|, :F, :"7"] -> {:n, {next_xy, valid}}
+      _ -> nil
     end
   end
 
-  # follow_pipe(:e, :-, xy) means "coming from the east, arriving at "-", where
-  # to go next? we contiue east in this example.
+  # Example
+  #
+  #     follow_pipe(:s, :L), do: :e
+  #
+  # This means "I am travelling towards south, I find a "L", then I should go
+  # towards east"
 
   defp follow_pipe(:e, :"7"), do: :s
   defp follow_pipe(:e, :J), do: :n
@@ -136,10 +127,10 @@ defmodule AdventOfCode.Y23.Day10 do
   defp follow_pipe(d, :-), do: d
   defp follow_pipe(d, :|), do: d
 
-  def move({x, y}, :n), do: {x, y - 1}
-  def move({x, y}, :s), do: {x, y + 1}
-  def move({x, y}, :w), do: {x - 1, y}
-  def move({x, y}, :e), do: {x + 1, y}
+  defp move({x, y}, :n), do: {x, y - 1}
+  defp move({x, y}, :s), do: {x, y + 1}
+  defp move({x, y}, :w), do: {x - 1, y}
+  defp move({x, y}, :e), do: {x + 1, y}
 
   links = [
     {:F, [:s, :e]},
@@ -155,7 +146,4 @@ defmodule AdventOfCode.Y23.Day10 do
   end
 
   defp links_to?(_, _), do: false
-
-  defp otherside(:out), do: :in
-  defp otherside(:in), do: :out
 end
