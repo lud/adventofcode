@@ -50,23 +50,80 @@ defmodule AdventOfCode.Y23.Day10 do
         [{n, _}, {n, _} | _] -> div(n, 2) + 1
       end
 
-    searched = search_loop(Enum.map(neighs, &{&1, Map.fetch!(grid, &1)}), MapSet.new([start_xy]), 0, grid)
-    result |> IO.inspect(label: ~S/result/)
-    searched |> IO.inspect(label: ~S/searched/)
-
     result
   end
 
-  defp search_loop(open, closed, count, grid) do
-    discovered = Enum.flat_map(open, fn {xy, pipe} -> connected_neighbours(xy, pipe, grid) end)
-    discovered = Enum.reject(discovered, fn {xy, _} -> MapSet.member?(closed, xy) end)
-    open_xys = Enum.map(open, fn {xy, _} -> xy end)
-    closed = MapSet.union(closed, MapSet.new(open_xys))
+  def part_two(grid) do
+    {start_xy, :S} = Enum.find(grid, fn {_, v} -> v == :S end)
 
-    case discovered do
-      [] -> count
-      _list -> search_loop(discovered, closed, count + 1, grid)
-    end
+    neighs = carndinal_neighbours(start_xy, :S, grid)
+
+    {loop_first, loop_last, seen} =
+      for xy_from <- neighs, xy_to <- neighs, xy_from != xy_to do
+        try do
+          {len, seen} =
+            bfs_path(grid, xy_from, xy_to, fn pos, grid ->
+              pipe = Map.fetch!(grid, pos)
+              carndinal_neighbours(pos, pipe, grid)
+            end)
+
+          {len, xy_from, xy_to, seen}
+        catch
+          :not_found -> {0, xy_from, xy_to, nil}
+        end
+      end
+      |> Enum.sort_by(&elem(&1, 0), :desc)
+      |> case do
+        [{n, from, to, seen}, {n, _, _, _} | _] -> {from, to, seen}
+      end
+
+    loop_first_direction = [:n, :s, :w, :e] |> Enum.find(&(move(start_xy, &1) == loop_first))
+    loop_last_direction = [:n, :s, :w, :e] |> Enum.find(&(move(start_xy, &1) == loop_last))
+    start_type = Enum.find(@pipes, fn t -> links_to?(t, loop_first_direction) and links_to?(t, loop_last_direction) end)
+
+    # !! Replacing the grid with loop only
+
+    path = compute_full_path(seen, loop_last, [start_xy])
+    grid = Map.new(path, fn xy -> {xy, Map.fetch!(grid, xy)} end)
+    grid = Map.put(grid, start_xy, start_type)
+
+    # Going over the map line by line.  For each line start at west and go over
+    # positions, changing the side beween :in and :out if we cross a pipe, and
+    # counting the empty positions when we are on the :in side.
+
+    xa = 0
+    ya = 0
+    xo = Grid.max_x(grid)
+    yo = Grid.max_y(grid)
+    {xo, yo}
+
+    count =
+      Enum.reduce(ya..yo, 0, fn y, ext_cout ->
+        {_, count, _} =
+          Enum.reduce(xa..xo, {:out, ext_cout, nil}, fn x, {side, count, cut} ->
+            pos = {x, y}
+
+            case {cut, Map.get(grid, pos, nil), side} do
+              # Keeping same side over dead ends or horizontal pipes
+              {:F, :J, side} -> {side, count, nil}
+              {:L, :"7", side} -> {side, count, nil}
+              {cut, :-, side} -> {side, count, cut}
+              # crossing pipes
+              {:F, :"7", side} -> {otherside(side), count, nil}
+              {:L, :J, side} -> {otherside(side), count, nil}
+              {nil, :|, side} -> {otherside(side), count, nil}
+              {nil, :F, side} -> {otherside(side), count, :F}
+              {nil, :L, side} -> {otherside(side), count, :L}
+              # counting inside positions, ignoring outside positions
+              {_, nil, :in} -> {:in, count + 1, nil}
+              {_, nil, :out} -> {:out, count, nil}
+            end
+          end)
+
+        count
+      end)
+
+    count
   end
 
   def bfs_path(map, start_pos, end_pos, get_neighs) do
@@ -121,27 +178,6 @@ defmodule AdventOfCode.Y23.Day10 do
     cardinal_valid(xy, pipe) |> Enum.filter(fn xy -> Map.get(grid, xy) not in [nil, :S] end)
   end
 
-  defp connected_neighbours(xy, pipe, grid) do
-    cardinal_valid(xy, pipe)
-    |> Enum.flat_map(fn xy ->
-      case Map.fetch(grid, xy) do
-        {:ok, pipe} -> [{xy, pipe}]
-        :error -> []
-      end
-    end)
-
-    # cardinal_valid(xy, pipe) |>
-
-    # Enum.filter(fn xy -> Map.get(grid, xy) not in [nil, :S] end)
-
-    # find_neighbours(xy, pipe, grid)
-    # |> Enum.filter(fn
-    #   nil -> false
-    #   :S -> false
-    #   _ -> true
-    # end)
-  end
-
   links = [
     {:F, [:s, :e]},
     {:"7", [:w, :s]},
@@ -156,86 +192,6 @@ defmodule AdventOfCode.Y23.Day10 do
   end
 
   defp links_to?(_, _), do: false
-
-  def part_two(grid) do
-    {start_xy, :S} = Enum.find(grid, fn {_, v} -> v == :S end)
-
-    neighs = carndinal_neighbours(start_xy, :S, grid)
-
-    {loop_first, loop_last, seen} =
-      for xy_from <- neighs, xy_to <- neighs do
-        try do
-          {len, seen} =
-            bfs_path(grid, xy_from, xy_to, fn pos, grid ->
-              pipe = Map.fetch!(grid, pos)
-              carndinal_neighbours(pos, pipe, grid)
-            end)
-
-          {len, xy_from, xy_to, seen}
-        catch
-          :not_found -> {0, xy_from, xy_to, nil}
-        end
-      end
-      |> Enum.sort_by(&elem(&1, 0), :desc)
-      |> case do
-        [{n, from, to, seen}, {n, _, _, _} | _] -> {from, to, seen}
-      end
-
-    loop_first_direction = [:n, :s, :w, :e] |> Enum.find(&(Grid.translate(start_xy, &1) == loop_first))
-
-    loop_last_direction = [:n, :s, :w, :e] |> Enum.find(&(Grid.translate(start_xy, &1) == loop_last))
-
-    start_type = Enum.find(@pipes, fn t -> links_to?(t, loop_first_direction) and links_to?(t, loop_last_direction) end)
-
-    true = Map.fetch!(seen, loop_first)
-
-    path = compute_full_path(seen, loop_last, [start_xy])
-
-    # !! Replacing the grid with loop only
-
-    grid = Map.new(path, fn xy -> {xy, Map.fetch!(grid, xy)} end)
-    grid = Map.put(grid, start_xy, start_type)
-
-    # Going over the map line by line.  For each line start at west and go over
-    # positions, changing the side beween :in and :out if we cross a pipe, and
-    # counting the empty positions when we are on the :in side.
-
-    xa = 0
-    ya = 0
-    xo = Grid.max_x(grid)
-    yo = Grid.max_y(grid)
-    {xo, yo}
-
-    count =
-      Enum.reduce(ya..yo, 0, fn y, ext_cout ->
-        {_, count, _} =
-          Enum.reduce(xa..xo, {:out, ext_cout, nil}, fn x, {side, count, cut} ->
-            pos = {x, y}
-
-            case {cut, Map.get(grid, pos, nil), side} do
-              # Keeping same side over dead ends or horizontal pipes
-              {:F, :J, side} -> {side, count, nil}
-              {:L, :"7", side} -> {side, count, nil}
-              {cut, :-, side} -> {side, count, cut}
-              # crossing pipes
-              {:F, :"7", side} -> {otherside(side), count, nil}
-              {:L, :J, side} -> {otherside(side), count, nil}
-              {nil, :|, side} -> {otherside(side), count, nil}
-              {nil, :F, side} -> {otherside(side), count, :F}
-              {nil, :L, side} -> {otherside(side), count, :L}
-              # counting inside positions, ignoring outside positions
-              {_, nil, :in} -> {:in, count + 1, nil}
-              {_, nil, :out} -> {:out, count, nil}
-            end
-          end)
-
-        count
-      end)
-
-    count
-
-    # "failed"
-  end
 
   defp otherside(:out), do: :in
   defp otherside(:in), do: :out
