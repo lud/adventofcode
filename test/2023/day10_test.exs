@@ -67,9 +67,9 @@ defmodule AdventOfCode.Y23.Day10Test do
 
   @part_one_solution 6682
 
-  # test "part one solution" do
-  #   assert {:ok, @part_one_solution} == AoC.run(2023, 10, :part_one)
-  # end
+  test "part one solution" do
+    assert {:ok, @part_one_solution} == AoC.run(2023, 10, :part_one)
+  end
 
   test "part two example" do
     input = """
