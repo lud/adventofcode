@@ -10,15 +10,7 @@ defmodule AdventOfCode.Y23.Day10 do
     Grid.parse_stream(lines, &parse_char/1)
   end
 
-  @pipes [
-    :S,
-    :F,
-    :"7",
-    :J,
-    :|,
-    :L,
-    :-
-  ]
+  @pipes [:S, :F, :"7", :J, :|, :L, :-]
 
   defp parse_char("."), do: :ignore
   defp parse_char("S"), do: {:ok, :S}
@@ -32,31 +24,46 @@ defmodule AdventOfCode.Y23.Day10 do
   def part_one(grid) do
     {start_xy, :S} = Enum.find(grid, fn {_, v} -> v == :S end)
 
-    neighs = carndinal_neighbours(start_xy, :S, grid)
-
-    result =
-      for xy_from <- neighs, xy_to <- neighs, xy_from != xy_to do
-        try do
-          bfs_path(grid, xy_from, xy_to, fn pos, grid ->
-            pipe = Map.fetch!(grid, pos)
-            carndinal_neighbours(pos, pipe, grid)
-          end)
-        catch
-          :not_found -> 0
-        end
-      end
-      |> Enum.sort(:desc)
+    neighs =
+      start_xy
+      |> starting_neighbours(grid)
+      |> hd()
       |> case do
-        [{n, _}, {n, _} | _] -> div(n, 2) + 1
+        {dir, node} ->
+          count = follow_path_to(dir, node, 1, start_xy, grid)
+          div(count, 2)
       end
-
-    result
   end
+
+  defp follow_path_to(last_direction, {target, pipe}, count, target, grid) do
+    count
+  end
+
+  defp follow_path_to(last_direction, {xy, pipe}, count, target, grid) do
+    next_dir = follow_pipe(last_direction, pipe)
+    next_xy = move(xy, next_dir)
+    next_pipe = Map.fetch!(grid, next_xy)
+    follow_path_to(next_dir, {next_xy, next_pipe}, count + 1, target, grid)
+  end
+
+  # follow_pipe(:e, :-, xy) means "coming from the east, arriving at "-", where
+  # to go next? we contiue east in this example.
+
+  defp follow_pipe(:e, :"7"), do: :s
+  defp follow_pipe(:e, :J), do: :n
+  defp follow_pipe(:n, :"7"), do: :w
+  defp follow_pipe(:n, :F), do: :e
+  defp follow_pipe(:s, :J), do: :w
+  defp follow_pipe(:s, :L), do: :e
+  defp follow_pipe(:w, :F), do: :s
+  defp follow_pipe(:w, :L), do: :n
+  defp follow_pipe(d, :-), do: d
+  defp follow_pipe(d, :|), do: d
 
   def part_two(grid) do
     {start_xy, :S} = Enum.find(grid, fn {_, v} -> v == :S end)
 
-    neighs = carndinal_neighbours(start_xy, :S, grid)
+    neighs = cardinal_neighbours(start_xy, :S, grid)
 
     {loop_first, loop_last, seen} =
       for xy_from <- neighs, xy_to <- neighs, xy_from != xy_to do
@@ -64,7 +71,7 @@ defmodule AdventOfCode.Y23.Day10 do
           {len, seen} =
             bfs_path(grid, xy_from, xy_to, fn pos, grid ->
               pipe = Map.fetch!(grid, pos)
-              carndinal_neighbours(pos, pipe, grid)
+              cardinal_neighbours(pos, pipe, grid)
             end)
 
           {len, xy_from, xy_to, seen}
@@ -161,6 +168,22 @@ defmodule AdventOfCode.Y23.Day10 do
     throw(:not_found)
   end
 
+  defp starting_neighbours(xy, grid) do
+    Enum.flat_map([:n, :e, :s, :w], fn dir -> starting_neighbour_with_direction(xy, dir, grid) end)
+  end
+
+  defp starting_neighbour_with_direction(xy, direction, grid) do
+    next_xy = move(xy, direction)
+
+    case {direction, Map.get(grid, next_xy)} do
+      {:w, valid} when valid in [:-, :F, :L] -> [{:w, {next_xy, valid}}]
+      {:e, valid} when valid in [:-, :J, :"7"] -> [{:e, {next_xy, valid}}]
+      {:s, valid} when valid in [:|, :J, :L] -> [{:s, {next_xy, valid}}]
+      {:n, valid} when valid in [:|, :F, :"7"] -> [{:n, {next_xy, valid}}]
+      _ -> []
+    end
+  end
+
   defp cardinal_valid(xy, :L), do: [move(xy, :n), move(xy, :e)]
   defp cardinal_valid(xy, :-), do: [move(xy, :w), move(xy, :e)]
   defp cardinal_valid(xy, :J), do: [move(xy, :w), move(xy, :n)]
@@ -169,12 +192,22 @@ defmodule AdventOfCode.Y23.Day10 do
   defp cardinal_valid(xy, :|), do: [move(xy, :n), move(xy, :s)]
   defp cardinal_valid(xy, :S), do: [move(xy, :n), move(xy, :e), move(xy, :w), move(xy, :s)]
 
+  defp directions(xy) do
+    [
+      #
+      {:n, move(xy, :n)},
+      {:e, move(xy, :e)},
+      {:w, move(xy, :w)},
+      {:s, move(xy, :s)}
+    ]
+  end
+
   def move({x, y}, :n), do: {x, y - 1}
   def move({x, y}, :s), do: {x, y + 1}
   def move({x, y}, :w), do: {x - 1, y}
   def move({x, y}, :e), do: {x + 1, y}
 
-  defp carndinal_neighbours(xy, pipe, grid) do
+  defp cardinal_neighbours(xy, pipe, grid) do
     cardinal_valid(xy, pipe) |> Enum.filter(fn xy -> Map.get(grid, xy) not in [nil, :S] end)
   end
 
