@@ -29,19 +29,21 @@ defmodule AdventOfCode.Y23.Day10 do
       |> starting_neighbours(grid)
       |> hd()
 
-    count = follow_path_to(dir, next_node, 1, start_xy, grid)
+    {count, path} = follow_path_to(dir, next_node, 1, start_xy, [next_node], grid)
+
     div(count, 2)
   end
 
-  defp follow_path_to(last_direction, {target, pipe}, count, target, grid) do
-    count
+  defp follow_path_to(last_direction, {target, pipe}, count, target, collected, grid) do
+    {count, collected}
   end
 
-  defp follow_path_to(last_direction, {xy, pipe}, count, target, grid) do
+  defp follow_path_to(last_direction, {xy, pipe} = node, count, target, collected, grid) do
     next_dir = follow_pipe(last_direction, pipe)
     next_xy = move(xy, next_dir)
     next_pipe = Map.fetch!(grid, next_xy)
-    follow_path_to(next_dir, {next_xy, next_pipe}, count + 1, target, grid)
+    next_node = {next_xy, next_pipe}
+    follow_path_to(next_dir, next_node, count + 1, target, [next_node | collected], grid)
   end
 
   # follow_pipe(:e, :-, xy) means "coming from the east, arriving at "-", where
@@ -59,6 +61,66 @@ defmodule AdventOfCode.Y23.Day10 do
   defp follow_pipe(d, :|), do: d
 
   def part_two(grid) do
+    {start_xy, :S} = Enum.find(grid, fn {_, v} -> v == :S end)
+
+    {dir, {next_xy, _} = next_node} =
+      start_xy
+      |> starting_neighbours(grid)
+      |> hd()
+
+    {_, path} = follow_path_to(dir, next_node, 1, start_xy, [next_node], grid)
+
+    [{^start_xy, :S}, {prev_xy, _} = prev_node | _] = path
+
+    # From start, what are the directions leading to our two loop starts
+    prev_xy_direction = [:n, :s, :w, :e] |> Enum.find(&(move(start_xy, &1) == prev_xy))
+    next_xy_direction = [:n, :s, :w, :e] |> Enum.find(&(move(start_xy, &1) == next_xy))
+    start_type = Enum.find(@pipes, fn t -> links_to?(t, prev_xy_direction) and links_to?(t, next_xy_direction) end)
+
+    # Replace the grid with the loop nodes only
+    grid = Map.new(path)
+    grid = Map.put(grid, start_xy, start_type)
+
+    # Going over the map line by line.  For each line start at west and go over
+    # positions, changing the side beween :in and :out if we cross a pipe, and
+    # counting the empty positions when we are on the :in side.
+
+    xa = 0
+    ya = 0
+    xo = Grid.max_x(grid)
+    yo = Grid.max_y(grid)
+    {xo, yo}
+
+    count =
+      Enum.reduce(ya..yo, 0, fn y, ext_cout ->
+        {_, count, _} =
+          Enum.reduce(xa..xo, {:out, ext_cout, nil}, fn x, {side, count, cut} ->
+            pos = {x, y}
+
+            case {cut, Map.get(grid, pos, nil), side} do
+              # Keeping same side over dead ends or horizontal pipes
+              {:F, :J, side} -> {side, count, nil}
+              {:L, :"7", side} -> {side, count, nil}
+              {cut, :-, side} -> {side, count, cut}
+              # crossing pipes
+              {:F, :"7", side} -> {otherside(side), count, nil}
+              {:L, :J, side} -> {otherside(side), count, nil}
+              {nil, :|, side} -> {otherside(side), count, nil}
+              {nil, :F, side} -> {otherside(side), count, :F}
+              {nil, :L, side} -> {otherside(side), count, :L}
+              # counting inside positions, ignoring outside positions
+              {_, nil, :in} -> {:in, count + 1, nil}
+              {_, nil, :out} -> {:out, count, nil}
+            end
+          end)
+
+        count
+      end)
+
+    count
+  end
+
+  def old_part_two(grid) do
     {start_xy, :S} = Enum.find(grid, fn {_, v} -> v == :S end)
 
     neighs = cardinal_neighbours(start_xy, :S, grid)
