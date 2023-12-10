@@ -37,11 +37,10 @@ defmodule AdventOfCode.Y23.Day10 do
   end
 
   defp search_loop(open, closed, count, grid) do
-    discovered = Enum.flat_map(open, fn {xy, pipe} -> connected_neighbours(xy, pipe, closed, grid) end)
+    discovered = Enum.flat_map(open, fn {xy, pipe} -> connected_neighbours(xy, pipe, grid) end)
 
-    discovered =
-      Enum.uniq(discovered)
-      |> dbg()
+    discovered = Enum.uniq(discovered) |> dbg()
+    discovered = Enum.reject(discovered, fn {xy, _} -> MapSet.member?(closed, xy) end) |> dbg()
 
     count |> IO.inspect(label: ~S/count/)
     open_xys = Enum.map(discovered, fn {xy, _} -> xy end)
@@ -53,7 +52,7 @@ defmodule AdventOfCode.Y23.Day10 do
     end
   end
 
-  defp connected_neighbours(xy, pipe, closed, grid) do
+  defp connected_neighbours(xy, pipe, grid) do
     north = Grid.translate(xy, :n)
     south = Grid.translate(xy, :s)
     west = Grid.translate(xy, :w)
@@ -62,8 +61,7 @@ defmodule AdventOfCode.Y23.Day10 do
     selected = []
 
     selected =
-      with false <- MapSet.member?(closed, north),
-           {:ok, north_pipe} <- Map.fetch(grid, north),
+      with {:ok, north_pipe} <- Map.fetch(grid, north),
            true <- connects_from?(:north, pipe, north_pipe) do
         [{north, north_pipe} | selected]
       else
@@ -71,8 +69,7 @@ defmodule AdventOfCode.Y23.Day10 do
       end
 
     selected =
-      with false <- MapSet.member?(closed, south),
-           {:ok, south_pipe} <- Map.fetch(grid, south),
+      with {:ok, south_pipe} <- Map.fetch(grid, south),
            true <- connects_from?(:south, pipe, south_pipe) do
         [{south, south_pipe} | selected]
       else
@@ -80,8 +77,7 @@ defmodule AdventOfCode.Y23.Day10 do
       end
 
     selected =
-      with false <- MapSet.member?(closed, west),
-           {:ok, west_pipe} <- Map.fetch(grid, west),
+      with {:ok, west_pipe} <- Map.fetch(grid, west),
            true <- connects_from?(:west, pipe, west_pipe) do
         [{west, west_pipe} | selected]
       else
@@ -89,8 +85,7 @@ defmodule AdventOfCode.Y23.Day10 do
       end
 
     selected =
-      with false <- MapSet.member?(closed, east),
-           {:ok, east_pipe} <- Map.fetch(grid, east),
+      with {:ok, east_pipe} <- Map.fetch(grid, east),
            true <- connects_from?(:east, pipe, east_pipe) do
         [{east, east_pipe} | selected]
       else
