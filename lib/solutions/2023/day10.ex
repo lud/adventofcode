@@ -49,7 +49,6 @@ defmodule AdventOfCode.Y23.Day10 do
       end
     end
     |> Enum.sort(:desc)
-    |> dbg()
     |> case do
       [{n, _}, {n, _} | _] -> div(n, 2) + 1
     end
@@ -93,8 +92,8 @@ defmodule AdventOfCode.Y23.Day10 do
   defp search_loop(open, closed, count, grid) do
     discovered = Enum.flat_map(open, fn {xy, pipe} -> connected_neighbours(xy, pipe, grid) end)
 
-    discovered = Enum.uniq(discovered) |> dbg()
-    discovered = Enum.reject(discovered, fn {xy, _} -> MapSet.member?(closed, xy) end) |> dbg()
+    discovered = Enum.uniq(discovered)
+    discovered = Enum.reject(discovered, fn {xy, _} -> MapSet.member?(closed, xy) end)
 
     count |> IO.inspect(label: ~S/count/)
     open_xys = Enum.map(discovered, fn {xy, _} -> xy end)
@@ -195,7 +194,6 @@ defmodule AdventOfCode.Y23.Day10 do
         end
       end
       |> Enum.sort_by(&elem(&1, 0), :desc)
-      |> dbg()
       |> case do
         [{n, from, to, seen}, {n, _, _, _} | _] -> {from, to, seen}
       end
@@ -236,39 +234,106 @@ defmodule AdventOfCode.Y23.Day10 do
     yo = Grid.max_y(grid)
     {xo, yo}
 
-    Enum.reduce(ya..yo, 0, fn y, ext_cout ->
-      {_, count} =
-        Enum.reduce(xa..xo, {:out, ext_cout}, fn x, {side, count} ->
-          pos = {x, y}
-          pos |> IO.inspect(label: ~S/pos/)
-          Map.get(grid, pos, nil) |> IO.inspect(label: ~S/pipe/)
+    {count, debug} =
+      Enum.reduce(ya..yo, {0, []}, fn y, {ext_cout, debug} ->
+        IO.puts("===========")
 
-          case {side, Map.get(grid, pos, nil)} do
-            {:out, nil} ->
-              {:out, count}
+        {_, count, debug, _} =
+          Enum.reduce(xa..xo, {:out, ext_cout, debug, nil}, fn x, {side, count, debug, cut} ->
+            pos = {x, y}
 
-            {:in, nil} ->
-              {:in, count + 1}
+            case {side, Map.get(grid, pos, nil), cut} do
+              {:out, nil, cut} ->
+                {:out, count, [{pos, "O"} | debug], cut}
 
-            {side, pipe} ->
-              if links_to?(pipe, :west) do
-                {side, count}
-              else
-                {switch_side(side), count}
-              end
-          end
+              {:in, nil, cut} ->
+                {:in, count + 1, [{pos, "I"} | debug], cut}
 
-          # if Map.has_key?(on_loop, pos) do
-          #   {:in, count}
-          # else
-          #   {:out, count + 1}
-          # end
-        end)
+              {:out, :F, nil} ->
+                {:in, count, debug, :F}
 
-      count
-    end)
+              {side, :-, cut} ->
+                {side, count, debug, cut}
 
-    # "failing"
+              # F7 : F goes in, 7 goes out
+              {:in, :"7", :F} ->
+                {:out, count, debug, nil}
+
+              {:out, :|, nil} ->
+                {:in, count, debug, nil}
+
+              {:in, :|, nil} ->
+                {:out, count, debug, nil}
+
+              {:in, :F, nil} ->
+                {:out, count, debug, :F}
+
+              # F7 : F goes out, 7 goes back in
+              {:out, :"7", :F} ->
+                {:in, count, debug, nil}
+
+              {:in, :L, nil} ->
+                {:out, count, debug, :L}
+
+              # L7 : that is a cross, we are still out
+              {:out, :"7", :L} ->
+                {:out, count, debug, nil}
+
+              # FJ : a cross
+              {:in, :J, :F} ->
+                {:in, count, debug, nil}
+
+              {:out, :L, nil} ->
+                {:in, count, debug, :L}
+
+              # LJ : dead end, L goes in, J goes out
+              {:in, :J, :L} ->
+                {:out, count, debug, nil}
+
+              # FJ : a cross
+              {:out, :J, :F} ->
+                {:out, count, debug, nil}
+
+              # L7 : that is a cross,
+              {:in, :"7", :L} ->
+                {:in, count, debug, nil}
+
+              # LJ : dead end, L goes in, J goes out
+              {:out, :J, :L} ->
+                {:in, count, debug, nil}
+
+                # IO.puts("-------")
+                # pipe |> IO.inspect(label: ~S/pipe/)
+                # side |> IO.inspect(label: ~S/side/)
+                # streak |> IO.inspect(label: ~S/streak/)
+
+                # links_east = links_to?(pipe, :e)
+                # links_west = links_to?(pipe, :w)
+
+                # if links_west or (links_east and streak) do
+                #   {side, count, debug, links_east}
+                # else
+                #   {switch_side(side), count, debug, links_east}
+                # end
+            end
+
+            # if Map.has_key?(on_loop, pos) do
+            #   {:in, count}
+            # else
+            #   {:out, count + 1}
+            # end
+          end)
+
+        {count, debug}
+      end)
+
+    printable_inside = Map.new(debug)
+    printable_grid = Map.merge(grid, printable_inside)
+    print_grid(printable_grid)
+
+    count |> dbg()
+
+    # "failed"
   end
 
   defp switch_side(:out), do: :in
@@ -277,6 +342,8 @@ defmodule AdventOfCode.Y23.Day10 do
   defp print_grid(grid) do
     Grid.print_map(grid, fn
       nil -> " "
+      "I" -> [IO.ANSI.bright(), "I", IO.ANSI.reset()]
+      "O" -> [IO.ANSI.bright(), "O", IO.ANSI.reset()]
       a -> Atom.to_string(a)
     end)
   end
