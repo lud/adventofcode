@@ -24,15 +24,13 @@ defmodule AdventOfCode.Y23.Day10 do
   def part_one(grid) do
     {start_xy, :S} = Enum.find(grid, fn {_, v} -> v == :S end)
 
-    neighs =
+    {dir, next_node} =
       start_xy
       |> starting_neighbours(grid)
       |> hd()
-      |> case do
-        {dir, node} ->
-          count = follow_path_to(dir, node, 1, start_xy, grid)
-          div(count, 2)
-      end
+
+    count = follow_path_to(dir, next_node, 1, start_xy, grid)
+    div(count, 2)
   end
 
   defp follow_path_to(last_direction, {target, pipe}, count, target, grid) do
