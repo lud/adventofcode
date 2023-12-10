@@ -32,24 +32,55 @@ defmodule AdventOfCode.Y23.Day10 do
     neighs = connected_neighbours(start_xy, :S, grid)
 
     for {xy_from, _} <- neighs, {xy_to, _} <- neighs do
-      xy_from |> dbg()
-      xy_to |> dbg()
-
       try do
-        Grid.bfs_path(grid, xy_from, xy_to, fn pos, grid ->
-          pos |> dbg()
-          pipe = Map.fetch!(grid, pos) |> dbg()
+        bfs_path(grid, xy_from, xy_to, fn pos, grid ->
+          pipe = Map.fetch!(grid, pos)
           connected_neighbours(pos, pipe, grid) |> Enum.map(&elem(&1, 0))
         end)
-        |> dbg()
       catch
         :not_found -> 0
       end
     end
     |> Enum.sort(:desc)
+    |> dbg()
     |> case do
-      [n, n | _] -> div(n, 2) + 1
+      [{n, _}, {n, _} | _] -> div(n, 2) + 1
     end
+  end
+
+  def bfs_path(map, start_pos, end_pos, get_neighs) do
+    bfs_path(
+      map,
+      [start_pos],
+      end_pos,
+      get_neighs,
+      _round = 1,
+      _seen = %{start_pos => true}
+    )
+  catch
+    {:found, x, seen} -> {x, seen}
+  end
+
+  defp bfs_path(map, [_ | _] = open, end_pos, get_neighs, round, seen) do
+    neighs =
+      open
+      |> Enum.flat_map(fn pos -> Enum.map(get_neighs.(pos, map), fn xy -> {xy, pos} end) end)
+      |> Enum.uniq()
+      |> Enum.filter(fn {xy, _} -> not Map.has_key?(seen, xy) end)
+
+    neighs_yxs = Enum.map(neighs, fn {xy, _} -> xy end)
+
+    if end_pos in neighs_yxs do
+      throw({:found, round, seen})
+    end
+
+    seen = Map.merge(seen, Map.new(neighs))
+
+    bfs_path(map, neighs_yxs, end_pos, get_neighs, round + 1, seen)
+  end
+
+  defp bfs_path(_, [], _, _, _, _) do
+    throw(:not_found)
   end
 
   defp search_loop(open, closed, count, grid) do
