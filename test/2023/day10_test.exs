@@ -41,6 +41,18 @@ defmodule AdventOfCode.Y23.Day10Test do
     assert 8 === solve(input, :part_one)
   end
 
+  test "part one bad search" do
+    input = """
+    7-F7-
+    .FJ|7
+    SJLL7
+    |F--J
+    LJ.LJ
+    """
+
+    assert 8 === solve(input, :part_one)
+  end
+
   test "part one correct path" do
     input = """
     .....

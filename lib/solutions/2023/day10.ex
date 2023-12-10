@@ -32,21 +32,40 @@ defmodule AdventOfCode.Y23.Day10 do
   def part_one(grid) do
     {start_xy, :S} = Enum.find(grid, fn {_, v} -> v == :S end)
 
-    neighs = connected_neighbours(start_xy, :S, grid)
+    neighs = carndinal_neighbours(start_xy, :S, grid)
 
-    for xy_from <- neighs, xy_to <- neighs, xy_from != xy_to do
-      try do
-        bfs_path(grid, xy_from, xy_to, fn pos, grid ->
-          pipe = Map.fetch!(grid, pos)
-          connected_neighbours(pos, pipe, grid)
-        end)
-      catch
-        :not_found -> 0
+    result =
+      for xy_from <- neighs, xy_to <- neighs, xy_from != xy_to do
+        try do
+          bfs_path(grid, xy_from, xy_to, fn pos, grid ->
+            pipe = Map.fetch!(grid, pos)
+            carndinal_neighbours(pos, pipe, grid)
+          end)
+        catch
+          :not_found -> 0
+        end
       end
-    end
-    |> Enum.sort(:desc)
-    |> case do
-      [{n, _}, {n, _} | _] -> div(n, 2) + 1
+      |> Enum.sort(:desc)
+      |> case do
+        [{n, _}, {n, _} | _] -> div(n, 2) + 1
+      end
+
+    searched = search_loop(Enum.map(neighs, &{&1, Map.fetch!(grid, &1)}), MapSet.new([start_xy]), 0, grid)
+    result |> IO.inspect(label: ~S/result/)
+    searched |> IO.inspect(label: ~S/searched/)
+
+    result
+  end
+
+  defp search_loop(open, closed, count, grid) do
+    discovered = Enum.flat_map(open, fn {xy, pipe} -> connected_neighbours(xy, pipe, grid) end)
+    discovered = Enum.reject(discovered, fn {xy, _} -> MapSet.member?(closed, xy) end)
+    open_xys = Enum.map(open, fn {xy, _} -> xy end)
+    closed = MapSet.union(closed, MapSet.new(open_xys))
+
+    case discovered do
+      [] -> count
+      _list -> search_loop(discovered, closed, count + 1, grid)
     end
   end
 
@@ -85,10 +104,6 @@ defmodule AdventOfCode.Y23.Day10 do
     throw(:not_found)
   end
 
-  defp find_neighbours(xy, pipe, grid) do
-    cardinal_valid(xy, pipe) |> Enum.filter(fn xy -> Map.get(grid, xy) not in [nil, :S] end)
-  end
-
   defp cardinal_valid(xy, :L), do: [move(xy, :n), move(xy, :e)]
   defp cardinal_valid(xy, :-), do: [move(xy, :w), move(xy, :e)]
   defp cardinal_valid(xy, :J), do: [move(xy, :w), move(xy, :n)]
@@ -102,8 +117,29 @@ defmodule AdventOfCode.Y23.Day10 do
   def move({x, y}, :w), do: {x - 1, y}
   def move({x, y}, :e), do: {x + 1, y}
 
+  defp carndinal_neighbours(xy, pipe, grid) do
+    cardinal_valid(xy, pipe) |> Enum.filter(fn xy -> Map.get(grid, xy) not in [nil, :S] end)
+  end
+
   defp connected_neighbours(xy, pipe, grid) do
-    find_neighbours(xy, pipe, grid)
+    cardinal_valid(xy, pipe)
+    |> Enum.flat_map(fn xy ->
+      case Map.fetch(grid, xy) do
+        {:ok, pipe} -> [{xy, pipe}]
+        :error -> []
+      end
+    end)
+
+    # cardinal_valid(xy, pipe) |>
+
+    # Enum.filter(fn xy -> Map.get(grid, xy) not in [nil, :S] end)
+
+    # find_neighbours(xy, pipe, grid)
+    # |> Enum.filter(fn
+    #   nil -> false
+    #   :S -> false
+    #   _ -> true
+    # end)
   end
 
   links = [
@@ -124,7 +160,7 @@ defmodule AdventOfCode.Y23.Day10 do
   def part_two(grid) do
     {start_xy, :S} = Enum.find(grid, fn {_, v} -> v == :S end)
 
-    neighs = connected_neighbours(start_xy, :S, grid)
+    neighs = carndinal_neighbours(start_xy, :S, grid)
 
     {loop_first, loop_last, seen} =
       for xy_from <- neighs, xy_to <- neighs do
@@ -132,7 +168,7 @@ defmodule AdventOfCode.Y23.Day10 do
           {len, seen} =
             bfs_path(grid, xy_from, xy_to, fn pos, grid ->
               pipe = Map.fetch!(grid, pos)
-              connected_neighbours(pos, pipe, grid)
+              carndinal_neighbours(pos, pipe, grid)
             end)
 
           {len, xy_from, xy_to, seen}
