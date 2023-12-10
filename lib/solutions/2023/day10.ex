@@ -25,15 +25,31 @@ defmodule AdventOfCode.Y23.Day10 do
     # can be reached by two different paths.
     {start_xy, :S} = Enum.find(grid, fn {_, v} -> v == :S end)
     open = [{start_xy, :S}]
-    closed = MapSet.new([])
-    {_, count} = search_loop(open, closed, 0, grid)
-    count
+    # closed = MapSet.new([])
+    # {_, count} = search_loop(open, closed, 0, grid)
+    # count
 
-    # neighs = connected_neighbours(start_xy, :S, MapSet.new(), grid)
+    neighs = connected_neighbours(start_xy, :S, grid)
 
-    # for node <- neighs, node <- neighs do
+    for {xy_from, _} <- neighs, {xy_to, _} <- neighs do
+      xy_from |> dbg()
+      xy_to |> dbg()
 
-    # end
+      try do
+        Grid.bfs_path(grid, xy_from, xy_to, fn pos, grid ->
+          pos |> dbg()
+          pipe = Map.fetch!(grid, pos) |> dbg()
+          connected_neighbours(pos, pipe, grid) |> Enum.map(&elem(&1, 0))
+        end)
+        |> dbg()
+      catch
+        :not_found -> 0
+      end
+    end
+    |> Enum.sort(:desc)
+    |> case do
+      [n, n | _] -> div(n, 2) + 1
+    end
   end
 
   defp search_loop(open, closed, count, grid) do
