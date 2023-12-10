@@ -209,10 +209,13 @@ defmodule AdventOfCode.Y23.Day10 do
     true = Map.fetch!(seen, loop_first)
 
     path = compute_full_path(seen, loop_last, [start_xy])
-    loop_grid = Map.new(path, fn xy -> {xy, Map.fetch!(grid, xy)} end)
-    loop_grid = Map.put(loop_grid, start_xy, start_type)
 
-    print_grid(loop_grid)
+    # !! Replacing the grid with loop only
+
+    grid = Map.new(path, fn xy -> {xy, Map.fetch!(grid, xy)} end)
+    grid = Map.put(grid, start_xy, start_type)
+
+    print_grid(grid)
 
     # Assuming the loop does not touch the borders of the map.  For each line of
     # the map
@@ -234,18 +237,42 @@ defmodule AdventOfCode.Y23.Day10 do
     {xo, yo}
 
     Enum.reduce(ya..yo, 0, fn y, ext_cout ->
-      Enum.reduce(xa..xo, ext_cout, fn x, {:out, count} ->
-        pos = {x, y}
-        pos |> IO.inspect(label: ~S/pos/)
+      {_, count} =
+        Enum.reduce(xa..xo, {:out, ext_cout}, fn x, {side, count} ->
+          pos = {x, y}
+          pos |> IO.inspect(label: ~S/pos/)
+          Map.get(grid, pos, nil) |> IO.inspect(label: ~S/pipe/)
 
-        # if Map.has_key?(on_loop, pos) do
-        #   {:in, count}
-        # else
-        #   {:out, count + 1}
-        # end
-      end)
+          case {side, Map.get(grid, pos, nil)} do
+            {:out, nil} ->
+              {:out, count}
+
+            {:in, nil} ->
+              {:in, count + 1}
+
+            {side, pipe} ->
+              if links_to?(pipe, :west) do
+                {side, count}
+              else
+                {switch_side(side), count}
+              end
+          end
+
+          # if Map.has_key?(on_loop, pos) do
+          #   {:in, count}
+          # else
+          #   {:out, count + 1}
+          # end
+        end)
+
+      count
     end)
+
+    # "failing"
   end
+
+  defp switch_side(:out), do: :in
+  defp switch_side(:in), do: :out
 
   defp print_grid(grid) do
     Grid.print_map(grid, fn
@@ -255,8 +282,6 @@ defmodule AdventOfCode.Y23.Day10 do
   end
 
   defp compute_full_path(seen, pos, acc) do
-    pos |> IO.inspect(label: ~S/pos/)
-
     case Map.fetch!(seen, pos) do
       {_, _} = xy -> compute_full_path(seen, xy, [pos | acc])
       true -> [pos | acc]
