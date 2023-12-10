@@ -10,6 +10,16 @@ defmodule AdventOfCode.Y23.Day10 do
     Grid.parse_stream(lines, &parse_char/1)
   end
 
+  @pipes [
+    :S,
+    :F,
+    :"7",
+    :J,
+    :|,
+    :L,
+    :-
+  ]
+
   defp parse_char("."), do: :ignore
   defp parse_char("S"), do: {:ok, :S}
   defp parse_char("F"), do: {:ok, :F}
@@ -20,9 +30,6 @@ defmodule AdventOfCode.Y23.Day10 do
   defp parse_char("-"), do: {:ok, :-}
 
   def part_one(grid) do
-    # We will travel along all pipes and keeping the longest possible track.
-    # Ignoring all previous positions.  The solution will be the same point that
-    # can be reached by two different paths.
     {start_xy, :S} = Enum.find(grid, fn {_, v} -> v == :S end)
     open = [{start_xy, :S}]
     # closed = MapSet.new([])
@@ -71,7 +78,7 @@ defmodule AdventOfCode.Y23.Day10 do
     neighs_yxs = Enum.map(neighs, fn {xy, _} -> xy end)
 
     if end_pos in neighs_yxs do
-      throw({:found, round, seen})
+      throw({:found, round, Map.merge(seen, Map.new(neighs))})
     end
 
     seen = Map.merge(seen, Map.new(neighs))
@@ -109,7 +116,7 @@ defmodule AdventOfCode.Y23.Day10 do
 
     selected =
       with {:ok, north_pipe} <- Map.fetch(grid, north),
-           true <- connects_from?(:north, pipe, north_pipe) do
+           true <- connects_from?(:n, pipe, north_pipe) do
         [{north, north_pipe} | selected]
       else
         _ -> selected
@@ -117,7 +124,7 @@ defmodule AdventOfCode.Y23.Day10 do
 
     selected =
       with {:ok, south_pipe} <- Map.fetch(grid, south),
-           true <- connects_from?(:south, pipe, south_pipe) do
+           true <- connects_from?(:s, pipe, south_pipe) do
         [{south, south_pipe} | selected]
       else
         _ -> selected
@@ -125,7 +132,7 @@ defmodule AdventOfCode.Y23.Day10 do
 
     selected =
       with {:ok, west_pipe} <- Map.fetch(grid, west),
-           true <- connects_from?(:west, pipe, west_pipe) do
+           true <- connects_from?(:w, pipe, west_pipe) do
         [{west, west_pipe} | selected]
       else
         _ -> selected
@@ -133,7 +140,7 @@ defmodule AdventOfCode.Y23.Day10 do
 
     selected =
       with {:ok, east_pipe} <- Map.fetch(grid, east),
-           true <- connects_from?(:east, pipe, east_pipe) do
+           true <- connects_from?(:e, pipe, east_pipe) do
         [{east, east_pipe} | selected]
       else
         _ -> selected
@@ -144,18 +151,18 @@ defmodule AdventOfCode.Y23.Day10 do
 
   defp connects_from?(_, :S, _), do: true
 
-  defp connects_from?(:north, start, from), do: links_to?(start, :north) and links_to?(from, :south)
-  defp connects_from?(:south, start, from), do: links_to?(start, :south) and links_to?(from, :north)
-  defp connects_from?(:west, start, from), do: links_to?(start, :west) and links_to?(from, :east)
-  defp connects_from?(:east, start, from), do: links_to?(start, :east) and links_to?(from, :west)
+  defp connects_from?(:n, start, from), do: links_to?(start, :n) and links_to?(from, :s)
+  defp connects_from?(:s, start, from), do: links_to?(start, :s) and links_to?(from, :n)
+  defp connects_from?(:w, start, from), do: links_to?(start, :w) and links_to?(from, :e)
+  defp connects_from?(:e, start, from), do: links_to?(start, :e) and links_to?(from, :w)
 
   links = [
-    {:F, [:south, :east]},
-    {:"7", [:west, :south]},
-    {:J, [:west, :north]},
-    {:|, [:north, :south]},
-    {:L, [:north, :east]},
-    {:-, [:east, :west]}
+    {:F, [:s, :e]},
+    {:"7", [:w, :s]},
+    {:J, [:w, :n]},
+    {:|, [:n, :s]},
+    {:L, [:n, :e]},
+    {:-, [:e, :w]}
   ]
 
   for {pipe, dirs} <- links, dir <- dirs do
@@ -164,7 +171,95 @@ defmodule AdventOfCode.Y23.Day10 do
 
   defp links_to?(_, _), do: false
 
-  # def part_two(problem) do
-  #   problem
-  # end
+  def part_two(grid) do
+    {start_xy, :S} = Enum.find(grid, fn {_, v} -> v == :S end)
+    open = [{start_xy, :S}]
+    # closed = MapSet.new([])
+    # {_, count} = search_loop(open, closed, 0, grid)
+    # count
+
+    neighs = connected_neighbours(start_xy, :S, grid)
+
+    {loop_first, loop_last, seen} =
+      for {xy_from, _} <- neighs, {xy_to, _} <- neighs do
+        try do
+          {len, seen} =
+            bfs_path(grid, xy_from, xy_to, fn pos, grid ->
+              pipe = Map.fetch!(grid, pos)
+              connected_neighbours(pos, pipe, grid) |> Enum.map(&elem(&1, 0))
+            end)
+
+          {len, xy_from, xy_to, seen}
+        catch
+          :not_found -> {0, xy_from, xy_to, nil}
+        end
+      end
+      |> Enum.sort_by(&elem(&1, 0), :desc)
+      |> dbg()
+      |> case do
+        [{n, from, to, seen}, {n, _, _, _} | _] -> {from, to, seen}
+      end
+
+    loop_first_direction = [:n, :s, :w, :e] |> Enum.find(&(Grid.translate(start_xy, &1) == loop_first))
+
+    loop_last_direction = [:n, :s, :w, :e] |> Enum.find(&(Grid.translate(start_xy, &1) == loop_last))
+
+    start_type = Enum.find(@pipes, fn t -> links_to?(t, loop_first_direction) and links_to?(t, loop_last_direction) end)
+
+    true = Map.fetch!(seen, loop_first)
+
+    path = compute_full_path(seen, loop_last, [start_xy])
+    loop_grid = Map.new(path, fn xy -> {xy, Map.fetch!(grid, xy)} end)
+    loop_grid = Map.put(loop_grid, start_xy, start_type)
+
+    print_grid(loop_grid)
+
+    # Assuming the loop does not touch the borders of the map.  For each line of
+    # the map
+    # * We start at the leftmost position (west), and we are "outside" the loop.
+    # * We go to east until we reach a loop position.
+    # * Then we are "inside" the loop.
+    # * We go to east.
+    # * If this position pipe links to the west, we are still on the same
+    #   segment pipe, so we are still "inside".
+    # * If it does not link to west, we are now "outside" the loop.
+    # * We continue towards east
+
+    on_loop = Map.new(path, &{&1, true})
+
+    xa = 0
+    ya = 0
+    xo = Grid.max_x(grid)
+    yo = Grid.max_y(grid)
+    {xo, yo}
+
+    Enum.reduce(ya..yo, 0, fn y, ext_cout ->
+      Enum.reduce(xa..xo, ext_cout, fn x, {:out, count} ->
+        pos = {x, y}
+        pos |> IO.inspect(label: ~S/pos/)
+
+        # if Map.has_key?(on_loop, pos) do
+        #   {:in, count}
+        # else
+        #   {:out, count + 1}
+        # end
+      end)
+    end)
+  end
+
+  defp print_grid(grid) do
+    Grid.print_map(grid, fn
+      nil -> " "
+      a -> Atom.to_string(a)
+    end)
+  end
+
+  defp compute_full_path(seen, pos, acc) do
+    pos |> IO.inspect(label: ~S/pos/)
+
+    case Map.fetch!(seen, pos) do
+      {_, _} = xy -> compute_full_path(seen, xy, [pos | acc])
+      true -> [pos | acc]
+    end
+  end
 end
