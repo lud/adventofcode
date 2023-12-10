@@ -31,10 +31,6 @@ defmodule AdventOfCode.Y23.Day10 do
 
   def part_one(grid) do
     {start_xy, :S} = Enum.find(grid, fn {_, v} -> v == :S end)
-    open = [{start_xy, :S}]
-    # closed = MapSet.new([])
-    # {_, count} = search_loop(open, closed, 0, grid)
-    # count
 
     neighs = connected_neighbours(start_xy, :S, grid)
 
@@ -87,22 +83,6 @@ defmodule AdventOfCode.Y23.Day10 do
 
   defp bfs_path(_, [], _, _, _, _) do
     throw(:not_found)
-  end
-
-  defp search_loop(open, closed, count, grid) do
-    discovered = Enum.flat_map(open, fn {xy, pipe} -> connected_neighbours(xy, pipe, grid) end)
-
-    discovered = Enum.uniq(discovered)
-    discovered = Enum.reject(discovered, fn {xy, _} -> MapSet.member?(closed, xy) end)
-
-    count |> IO.inspect(label: ~S/count/)
-    open_xys = Enum.map(discovered, fn {xy, _} -> xy end)
-    closed = MapSet.union(closed, MapSet.new(open_xys))
-
-    case discovered do
-      [] -> {open, count}
-      list -> search_loop(discovered, closed, count + 1, grid)
-    end
   end
 
   defp connected_neighbours(xy, pipe, grid) do
@@ -172,10 +152,6 @@ defmodule AdventOfCode.Y23.Day10 do
 
   def part_two(grid) do
     {start_xy, :S} = Enum.find(grid, fn {_, v} -> v == :S end)
-    open = [{start_xy, :S}]
-    # closed = MapSet.new([])
-    # {_, count} = search_loop(open, closed, 0, grid)
-    # count
 
     neighs = connected_neighbours(start_xy, :S, grid)
 
@@ -213,18 +189,9 @@ defmodule AdventOfCode.Y23.Day10 do
     grid = Map.new(path, fn xy -> {xy, Map.fetch!(grid, xy)} end)
     grid = Map.put(grid, start_xy, start_type)
 
-    # Assuming the loop does not touch the borders of the map.  For each line of
-    # the map
-    # * We start at the leftmost position (west), and we are "outside" the loop.
-    # * We go to east until we reach a loop position.
-    # * Then we are "inside" the loop.
-    # * We go to east.
-    # * If this position pipe links to the west, we are still on the same
-    #   segment pipe, so we are still "inside".
-    # * If it does not link to west, we are now "outside" the loop.
-    # * We continue towards east
-
-    on_loop = Map.new(path, &{&1, true})
+    # Going over the map line by line.  For each line start at west and go over
+    # positions, changing the side beween :in and :out if we cross a pipe, and
+    # counting the empty positions when we are on the :in side.
 
     xa = 0
     ya = 0
