@@ -41,6 +41,18 @@ defmodule AdventOfCode.Y23.Day10Test do
     assert 8 === solve(input, :part_one)
   end
 
+  test "part one correct path" do
+    input = """
+    .....
+    .S-7.
+    .|.|.
+    .L-J.
+    .....
+    """
+
+    assert 4 == solve(input, :part_one)
+  end
+
   @part_one_solution 6682
 
   test "part one solution" do

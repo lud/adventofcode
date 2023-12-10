@@ -34,11 +34,11 @@ defmodule AdventOfCode.Y23.Day10 do
 
     neighs = connected_neighbours(start_xy, :S, grid)
 
-    for {xy_from, _} <- neighs, {xy_to, _} <- neighs do
+    for xy_from <- neighs, xy_to <- neighs, xy_from != xy_to do
       try do
         bfs_path(grid, xy_from, xy_to, fn pos, grid ->
           pipe = Map.fetch!(grid, pos)
-          connected_neighbours(pos, pipe, grid) |> Enum.map(&elem(&1, 0))
+          connected_neighbours(pos, pipe, grid)
         end)
       catch
         :not_found -> 0
@@ -85,55 +85,26 @@ defmodule AdventOfCode.Y23.Day10 do
     throw(:not_found)
   end
 
-  defp connected_neighbours(xy, pipe, grid) do
-    north = Grid.translate(xy, :n)
-    south = Grid.translate(xy, :s)
-    west = Grid.translate(xy, :w)
-    east = Grid.translate(xy, :e)
-
-    selected = []
-
-    selected =
-      with {:ok, north_pipe} <- Map.fetch(grid, north),
-           true <- connects_from?(:n, pipe, north_pipe) do
-        [{north, north_pipe} | selected]
-      else
-        _ -> selected
-      end
-
-    selected =
-      with {:ok, south_pipe} <- Map.fetch(grid, south),
-           true <- connects_from?(:s, pipe, south_pipe) do
-        [{south, south_pipe} | selected]
-      else
-        _ -> selected
-      end
-
-    selected =
-      with {:ok, west_pipe} <- Map.fetch(grid, west),
-           true <- connects_from?(:w, pipe, west_pipe) do
-        [{west, west_pipe} | selected]
-      else
-        _ -> selected
-      end
-
-    selected =
-      with {:ok, east_pipe} <- Map.fetch(grid, east),
-           true <- connects_from?(:e, pipe, east_pipe) do
-        [{east, east_pipe} | selected]
-      else
-        _ -> selected
-      end
-
-    selected
+  defp find_neighbours(xy, pipe, grid) do
+    cardinal_valid(xy, pipe) |> Enum.filter(fn xy -> Map.get(grid, xy) not in [nil, :S] end)
   end
 
-  defp connects_from?(_, :S, _), do: true
+  defp cardinal_valid(xy, :L), do: [move(xy, :n), move(xy, :e)]
+  defp cardinal_valid(xy, :-), do: [move(xy, :w), move(xy, :e)]
+  defp cardinal_valid(xy, :J), do: [move(xy, :w), move(xy, :n)]
+  defp cardinal_valid(xy, :F), do: [move(xy, :s), move(xy, :e)]
+  defp cardinal_valid(xy, :"7"), do: [move(xy, :w), move(xy, :s)]
+  defp cardinal_valid(xy, :|), do: [move(xy, :n), move(xy, :s)]
+  defp cardinal_valid(xy, :S), do: [move(xy, :n), move(xy, :e), move(xy, :w), move(xy, :s)]
 
-  defp connects_from?(:n, start, from), do: links_to?(start, :n) and links_to?(from, :s)
-  defp connects_from?(:s, start, from), do: links_to?(start, :s) and links_to?(from, :n)
-  defp connects_from?(:w, start, from), do: links_to?(start, :w) and links_to?(from, :e)
-  defp connects_from?(:e, start, from), do: links_to?(start, :e) and links_to?(from, :w)
+  def move({x, y}, :n), do: {x, y - 1}
+  def move({x, y}, :s), do: {x, y + 1}
+  def move({x, y}, :w), do: {x - 1, y}
+  def move({x, y}, :e), do: {x + 1, y}
+
+  defp connected_neighbours(xy, pipe, grid) do
+    find_neighbours(xy, pipe, grid)
+  end
 
   links = [
     {:F, [:s, :e]},
@@ -156,12 +127,12 @@ defmodule AdventOfCode.Y23.Day10 do
     neighs = connected_neighbours(start_xy, :S, grid)
 
     {loop_first, loop_last, seen} =
-      for {xy_from, _} <- neighs, {xy_to, _} <- neighs do
+      for xy_from <- neighs, xy_to <- neighs do
         try do
           {len, seen} =
             bfs_path(grid, xy_from, xy_to, fn pos, grid ->
               pipe = Map.fetch!(grid, pos)
-              connected_neighbours(pos, pipe, grid) |> Enum.map(&elem(&1, 0))
+              connected_neighbours(pos, pipe, grid)
             end)
 
           {len, xy_from, xy_to, seen}
