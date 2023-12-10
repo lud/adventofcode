@@ -238,24 +238,20 @@ defmodule AdventOfCode.Y23.Day10 do
           Enum.reduce(xa..xo, {:out, ext_cout, nil}, fn x, {side, count, cut} ->
             pos = {x, y}
 
-            case {side, Map.get(grid, pos, nil), cut} do
-              {:in, :"7", :F} -> {:out, count, nil}
-              {:in, :"7", :L} -> {:in, count, nil}
-              {:in, :|, nil} -> {:out, count, nil}
-              {:in, :F, nil} -> {:out, count, :F}
-              {:in, :J, :F} -> {:in, count, nil}
-              {:in, :J, :L} -> {:out, count, nil}
-              {:in, :L, nil} -> {:out, count, :L}
-              {:in, nil, cut} -> {:in, count + 1, cut}
-              {:out, :"7", :F} -> {:in, count, nil}
-              {:out, :"7", :L} -> {:out, count, nil}
-              {:out, :|, nil} -> {:in, count, nil}
-              {:out, :F, nil} -> {:in, count, :F}
-              {:out, :J, :F} -> {:out, count, nil}
-              {:out, :J, :L} -> {:in, count, nil}
-              {:out, :L, nil} -> {:in, count, :L}
-              {:out, nil, cut} -> {:out, count, cut}
-              {side, :-, cut} -> {side, count, cut}
+            case {cut, Map.get(grid, pos, nil), side} do
+              # Keeping same side over dead ends or horizontal pipes
+              {:F, :J, side} -> {side, count, nil}
+              {:L, :"7", side} -> {side, count, nil}
+              {cut, :-, side} -> {side, count, cut}
+              # crossing pipes
+              {:F, :"7", side} -> {otherside(side), count, nil}
+              {:L, :J, side} -> {otherside(side), count, nil}
+              {nil, :|, side} -> {otherside(side), count, nil}
+              {nil, :F, side} -> {otherside(side), count, :F}
+              {nil, :L, side} -> {otherside(side), count, :L}
+              # counting inside positions, ignoring outside positions
+              {_, nil, :in} -> {:in, count + 1, nil}
+              {_, nil, :out} -> {:out, count, nil}
             end
           end)
 
@@ -267,8 +263,8 @@ defmodule AdventOfCode.Y23.Day10 do
     # "failed"
   end
 
-  defp switch_side(:out), do: :in
-  defp switch_side(:in), do: :out
+  defp otherside(:out), do: :in
+  defp otherside(:in), do: :out
 
   defp compute_full_path(seen, pos, acc) do
     case Map.fetch!(seen, pos) do
