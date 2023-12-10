@@ -213,8 +213,6 @@ defmodule AdventOfCode.Y23.Day10 do
     grid = Map.new(path, fn xy -> {xy, Map.fetch!(grid, xy)} end)
     grid = Map.put(grid, start_xy, start_type)
 
-    print_grid(grid)
-
     # Assuming the loop does not touch the borders of the map.  For each line of
     # the map
     # * We start at the leftmost position (west), and we are "outside" the loop.
@@ -234,119 +232,43 @@ defmodule AdventOfCode.Y23.Day10 do
     yo = Grid.max_y(grid)
     {xo, yo}
 
-    {count, debug} =
-      Enum.reduce(ya..yo, {0, []}, fn y, {ext_cout, debug} ->
-        IO.puts("===========")
-
-        {_, count, debug, _} =
-          Enum.reduce(xa..xo, {:out, ext_cout, debug, nil}, fn x, {side, count, debug, cut} ->
+    count =
+      Enum.reduce(ya..yo, 0, fn y, ext_cout ->
+        {_, count, _} =
+          Enum.reduce(xa..xo, {:out, ext_cout, nil}, fn x, {side, count, cut} ->
             pos = {x, y}
 
             case {side, Map.get(grid, pos, nil), cut} do
-              {:out, nil, cut} ->
-                {:out, count, [{pos, "O"} | debug], cut}
-
-              {:in, nil, cut} ->
-                {:in, count + 1, [{pos, "I"} | debug], cut}
-
-              {:out, :F, nil} ->
-                {:in, count, debug, :F}
-
-              {side, :-, cut} ->
-                {side, count, debug, cut}
-
-              # F7 : F goes in, 7 goes out
-              {:in, :"7", :F} ->
-                {:out, count, debug, nil}
-
-              {:out, :|, nil} ->
-                {:in, count, debug, nil}
-
-              {:in, :|, nil} ->
-                {:out, count, debug, nil}
-
-              {:in, :F, nil} ->
-                {:out, count, debug, :F}
-
-              # F7 : F goes out, 7 goes back in
-              {:out, :"7", :F} ->
-                {:in, count, debug, nil}
-
-              {:in, :L, nil} ->
-                {:out, count, debug, :L}
-
-              # L7 : that is a cross, we are still out
-              {:out, :"7", :L} ->
-                {:out, count, debug, nil}
-
-              # FJ : a cross
-              {:in, :J, :F} ->
-                {:in, count, debug, nil}
-
-              {:out, :L, nil} ->
-                {:in, count, debug, :L}
-
-              # LJ : dead end, L goes in, J goes out
-              {:in, :J, :L} ->
-                {:out, count, debug, nil}
-
-              # FJ : a cross
-              {:out, :J, :F} ->
-                {:out, count, debug, nil}
-
-              # L7 : that is a cross,
-              {:in, :"7", :L} ->
-                {:in, count, debug, nil}
-
-              # LJ : dead end, L goes in, J goes out
-              {:out, :J, :L} ->
-                {:in, count, debug, nil}
-
-                # IO.puts("-------")
-                # pipe |> IO.inspect(label: ~S/pipe/)
-                # side |> IO.inspect(label: ~S/side/)
-                # streak |> IO.inspect(label: ~S/streak/)
-
-                # links_east = links_to?(pipe, :e)
-                # links_west = links_to?(pipe, :w)
-
-                # if links_west or (links_east and streak) do
-                #   {side, count, debug, links_east}
-                # else
-                #   {switch_side(side), count, debug, links_east}
-                # end
+              {:in, :"7", :F} -> {:out, count, nil}
+              {:in, :"7", :L} -> {:in, count, nil}
+              {:in, :|, nil} -> {:out, count, nil}
+              {:in, :F, nil} -> {:out, count, :F}
+              {:in, :J, :F} -> {:in, count, nil}
+              {:in, :J, :L} -> {:out, count, nil}
+              {:in, :L, nil} -> {:out, count, :L}
+              {:in, nil, cut} -> {:in, count + 1, cut}
+              {:out, :"7", :F} -> {:in, count, nil}
+              {:out, :"7", :L} -> {:out, count, nil}
+              {:out, :|, nil} -> {:in, count, nil}
+              {:out, :F, nil} -> {:in, count, :F}
+              {:out, :J, :F} -> {:out, count, nil}
+              {:out, :J, :L} -> {:in, count, nil}
+              {:out, :L, nil} -> {:in, count, :L}
+              {:out, nil, cut} -> {:out, count, cut}
+              {side, :-, cut} -> {side, count, cut}
             end
-
-            # if Map.has_key?(on_loop, pos) do
-            #   {:in, count}
-            # else
-            #   {:out, count + 1}
-            # end
           end)
 
-        {count, debug}
+        count
       end)
 
-    printable_inside = Map.new(debug)
-    printable_grid = Map.merge(grid, printable_inside)
-    print_grid(printable_grid)
-
-    count |> dbg()
+    count
 
     # "failed"
   end
 
   defp switch_side(:out), do: :in
   defp switch_side(:in), do: :out
-
-  defp print_grid(grid) do
-    Grid.print_map(grid, fn
-      nil -> " "
-      "I" -> [IO.ANSI.bright(), "I", IO.ANSI.reset()]
-      "O" -> [IO.ANSI.bright(), "O", IO.ANSI.reset()]
-      a -> Atom.to_string(a)
-    end)
-  end
 
   defp compute_full_path(seen, pos, acc) do
     case Map.fetch!(seen, pos) do
