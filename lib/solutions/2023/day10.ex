@@ -73,16 +73,17 @@ defmodule AdventOfCode.Y23.Day10 do
           pos = {x, y}
 
           case {cut, Map.get(grid, pos, nil), in?} do
-            # Keeping same in? over dead ends or horizontal pipes
-            {:F, :J, in?} -> {in?, count, nil}
-            {:L, :"7", in?} -> {in?, count, nil}
-            {cut, :-, in?} -> {in?, count, cut}
-            # crossing pipes
+            # pipe bendings, cancelling the side change
             {:F, :"7", in?} -> {not in?, count, nil}
             {:L, :J, in?} -> {not in?, count, nil}
+            # crossing pipes
             {nil, :|, in?} -> {not in?, count, nil}
             {nil, :F, in?} -> {not in?, count, :F}
             {nil, :L, in?} -> {not in?, count, :L}
+            # continue/finish to cross, keep changed side
+            {cut, :-, in?} -> {in?, count, cut}
+            {:F, :J, in?} -> {in?, count, nil}
+            {:L, :"7", in?} -> {in?, count, nil}
             # counting inside positions, ignoring outside positions
             {_, nil, true} -> {true, count + 1, nil}
             {_, nil, false} -> {false, count, nil}
