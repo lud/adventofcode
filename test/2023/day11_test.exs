@@ -76,12 +76,9 @@ defmodule AdventOfCode.Y23.Day11Test do
     assert 8410 = Solution.solve(problem, 100)
   end
 
-  # You may also implement a test to validate the part two to ensure that you
-  # did not broke your shared modules when implementing another problem.
+  @part_two_solution 553_224_415_344
 
-  # @part_two_solution CHANGE_ME
-  #
-  # test "part two solution" do
-  #   assert {:ok, @part_two_solution} == AoC.run(2023, 11, :part_two)
-  # end
+  test "part two solution" do
+    assert {:ok, @part_two_solution} == AoC.run(2023, 11, :part_two)
+  end
 end
