@@ -31,9 +31,9 @@ defmodule AdventOfCode.Y23.Day11 do
     empty_xs = xa..xo |> Enum.reject(fn x -> Enum.find(coords, fn {gx, _} -> gx == x end) end)
     empty_ys = ya..yo |> Enum.reject(fn y -> Enum.find(coords, fn {_, gy} -> gy == y end) end)
 
-    coords_list = expand_coords(coords, empty_ys, empty_xs, expand_value)
+    coords = expand_coords(coords, empty_ys, empty_xs, expand_value)
 
-    count_distances(coords_list, 0)
+    count_distances(coords, 0)
   end
 
   defp count_distances([xy_h | t], count) do
