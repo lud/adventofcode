@@ -7,36 +7,37 @@ defmodule AdventOfCode.Y23.Day11 do
   end
 
   def parse_input(input, _part) do
-    AoC.Grid.parse_stream(input, fn
+    input
+    |> Grid.parse_stream(fn
       "." -> :ignore
       "#" -> {:ok, :galaxy}
     end)
+    |> Map.keys()
   end
 
-  def part_one(grid) do
-    solve(grid, 2)
+  def part_one(coords) do
+    solve(coords, 2)
   end
 
-  def part_two(grid) do
-    solve(grid, 1_000_000)
+  def part_two(coords) do
+    solve(coords, 1_000_000)
   end
 
-  def solve(grid, expand_value) do
+  def solve(coords, expand_value) do
     xa = 0
     ya = 0
-    xo = Grid.max_x(grid)
-    yo = Grid.max_y(grid)
-    empty_xs = xa..xo |> Enum.reject(fn x -> Enum.find(grid, fn {{gx, _}, _} -> gx == x end) end)
-    empty_ys = ya..yo |> Enum.reject(fn y -> Enum.find(grid, fn {{_, gy}, _} -> gy == y end) end)
+    xo = Grid.max_x(coords)
+    yo = Grid.max_y(coords)
+    empty_xs = xa..xo |> Enum.reject(fn x -> Enum.find(coords, fn {gx, _} -> gx == x end) end)
+    empty_ys = ya..yo |> Enum.reject(fn y -> Enum.find(coords, fn {_, gy} -> gy == y end) end)
 
-    grid_list = expand_grid(grid, empty_ys, empty_xs, expand_value)
+    coords_list = expand_coords(coords, empty_ys, empty_xs, expand_value)
 
-    count_distances(grid_list, 0)
+    count_distances(coords_list, 0)
   end
 
-  defp count_distances([h | t], count) do
-    {xy_h, _} = h
-    count = Enum.reduce(t, count, fn {xy, _}, acc -> acc + manhattan(xy_h, xy) end)
+  defp count_distances([xy_h | t], count) do
+    count = Enum.reduce(t, count, fn xy, acc -> acc + manhattan(xy_h, xy) end)
     count_distances(t, count)
   end
 
@@ -44,28 +45,28 @@ defmodule AdventOfCode.Y23.Day11 do
     count
   end
 
-  defp expand_grid(grid, empty_ys, empty_xs, expand_value) do
+  defp expand_coords(coords, empty_ys, empty_xs, expand_value) do
     expand_value = expand_value - 1
     empty_xs = Enum.sort(empty_xs, :desc)
     empty_ys = Enum.sort(empty_ys, :desc)
 
-    grid = Enum.reduce(empty_xs, grid, fn ex, grid -> expand_x(grid, ex, expand_value) end)
-    grid = Enum.reduce(empty_ys, grid, fn ey, grid -> expand_y(grid, ey, expand_value) end)
+    coords = Enum.reduce(empty_xs, coords, fn ex, coords -> expand_x(coords, ex, expand_value) end)
+    coords = Enum.reduce(empty_ys, coords, fn ey, coords -> expand_y(coords, ey, expand_value) end)
 
-    grid
+    coords
   end
 
-  defp expand_x(grid, ex, add) do
-    Enum.map(grid, fn
-      {{x, y}, v} when x > ex -> {{x + add, y}, v}
-      {xy, v} -> {xy, v}
+  defp expand_x(coords, ex, add) do
+    Enum.map(coords, fn
+      {x, y} when x > ex -> {x + add, y}
+      xy -> xy
     end)
   end
 
-  defp expand_y(grid, ey, add) do
-    Enum.map(grid, fn
-      {{x, y}, v} when y > ey -> {{x, y + add}, v}
-      {xy, v} -> {xy, v}
+  defp expand_y(coords, ey, add) do
+    Enum.map(coords, fn
+      {x, y} when y > ey -> {x, y + add}
+      xy -> xy
     end)
   end
 
