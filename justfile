@@ -1,3 +1,3 @@
 play:
-  mix aoc.create | rg '\.ex' | xargs code
+  mix aoc.create | rg '\.ex' | rg -v Compiling | xargs code
   firefox $(mix aoc.url | rg "https")
