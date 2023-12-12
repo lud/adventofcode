@@ -82,8 +82,8 @@ defmodule AdventOfCode.Y23.Day12 do
     |> Stream.map(&build_sources(&1, counts))
     |> Stream.map(fn built ->
       if length(built) != n_sources do
-        sources |> dbg()
-        built |> dbg()
+        sources
+        built
         raise "invalid build"
       end
 
@@ -209,7 +209,7 @@ defmodule AdventOfCode.Y23.Day12 do
     qm_indices = sources |> Enum.with_index() |> Enum.filter(fn {c, _} -> c == ?? end) |> Enum.map(fn {_, i} -> i end)
     qm_indices |> IO.inspect(label: ~S/qm_indices/)
 
-    init = [{sources, n_dist_broken}] |> dbg()
+    init = [{sources, n_dist_broken}]
     dist_range = n_questions..1//-1
     dist_range |> IO.inspect(label: ~S/dist_range/)
 
@@ -221,10 +221,13 @@ defmodule AdventOfCode.Y23.Day12 do
       current_maxs =rebuild_counts(built, [])
       valid = Enum.all?(current_maxs, fn g -> g <= max_broken_group end)
       ok? = (valid && match_mask(built, sources))
-      if not ok? do
-        max_broken_group |> IO.inspect(label: ~S/max_broken_group/)
-      built |> IO.inspect(label: ~S/invalid/)
-      end
+      # sources |> IO.inspect(label: ~S/sources/)
+      # if ok? do
+      #   built |> IO.inspect(label: ~S/--valid/)
+      # else
+      #   max_broken_group |> IO.inspect(label: ~S/max_broken_group/)
+      #   built |> IO.inspect(label: ~S/invalid/)
+      # end
       ok?
 
     end
@@ -234,10 +237,10 @@ defmodule AdventOfCode.Y23.Day12 do
         remaining_qms|> IO.inspect(label: ~S/remaining_qms/)
         # Enum.to_list(stream) |> IO.inspect(label: ~S/before/)
         Stream.flat_map(stream, fn
+          {sources, :done} -> [{sources, :done}]
           {sources, 0} ->
-            sources |> IO.inspect(label: ~S/sources/)
-            [{replace_first_qm(sources, ?.), 0}]
-            # |> Enum.filter(keep_group)
+            [{replace_all_qms(sources, ?.), :done}]
+            |> Enum.filter(keep_group)
 
             {sources, needed_broken} when needed_broken > remaining_qms ->
               []
@@ -248,9 +251,9 @@ defmodule AdventOfCode.Y23.Day12 do
               {replace_first_qm(sources, ?.), needed_broken},
               {replace_first_qm(sources, ?#), needed_broken - 1}
             ]
-            |> Enum.filter(keep_group)
-        end)
-        # |> tap(&IO.inspect(Enum.to_list(&1), label: "after"))
+
+          end)
+          |> Stream.filter(keep_group)
 
       end)
 
@@ -278,11 +281,12 @@ defmodule AdventOfCode.Y23.Day12 do
       # IO.puts("-----------")
 
       if valid and matches do
-        (match_count + 1) |> IO.inspect(label: ~S/match_count/)
+        (match_count + 1)
       else
         match_count
       end
     end)
+    |> dbg()
   end
 
   defp partial_match([h_ok | ok_counts], sources, [h_broken | broken_counts]) do
@@ -350,6 +354,10 @@ defmodule AdventOfCode.Y23.Day12 do
 
   defp replace_first_qm([?? | t], c), do: [c | t]
   defp replace_first_qm([h | t], c), do: [h | replace_first_qm(t, c)]
+
+  defp replace_all_qms([?? | t], c), do: [c | replace_all_qms(t,c)]
+  defp replace_all_qms([h | t], c), do: [h | replace_all_qms(t, c)]
+  defp replace_all_qms([], _c), do: []
 
   defp build_sources([ok | ok_sources], [br | broken_sources]) do
     List.duplicate(?., ok) ++ List.duplicate(?#, br) ++ build_sources(ok_sources, broken_sources)
