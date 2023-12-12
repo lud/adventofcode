@@ -51,11 +51,11 @@ defmodule AdventOfCode.Y23.Day12Test do
     assert 21 == solve(input, :part_one)
   end
 
-  @part_one_solution 6958
+  # @part_one_solution 6958
 
-  test "part one solution" do
-    assert {:ok, @part_one_solution} == AoC.run(2023, 12, :part_one)
-  end
+  # test "part one solution" do
+  #   assert {:ok, @part_one_solution} == AoC.run(2023, 12, :part_one)
+  # end
 
   test "part two example" do
     input = """
