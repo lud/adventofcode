@@ -29,13 +29,19 @@ defmodule AdventOfCode.Y23.Day12Test do
     apply(Solution, part, [problem])
   end
 
+  defp try_count(line) do
+    line |> Solution.parse_line() |> Solution.count_line()
+  end
+
   test "count line" do
-    # assert 1 == Solution.count_line({~c"???.###", [1, 1, 3]})
-    assert 4 == Solution.count_line({~c".??..??...?##.", [1, 1, 3]})
-    # assert 1 == Solution.count_line({~c"?#?#?#?#?#?#?#?", [1, 3, 1, 6]})
-    # assert 1 == Solution.count_line({~c"????.#...#...", [4, 1, 1]})
-    # assert 4 == Solution.count_line({~c"????.######..#####.", [1, 6, 5]})
-    # assert 10 == Solution.count_line({~c"?###????????", [3, 2, 1]})
+    assert 1 == try_count(".# 1")
+    assert 10 == try_count("?###???????? 3,2,1")
+    assert 1 == try_count("???.### 1,1,3")
+    assert 4 == try_count(".??..??...?##. 1,1,3")
+    assert 1 == try_count("?#?#?#?#?#?#?#? 1,3,1,6")
+    assert 1 == try_count("????.#...#... 4,1,1")
+    assert 4 == try_count("????.######..#####. 1,6,5")
+    assert 10 == try_count("?###???????? 3,2,1")
   end
 
   test "part one example" do
@@ -51,11 +57,11 @@ defmodule AdventOfCode.Y23.Day12Test do
     assert 21 == solve(input, :part_one)
   end
 
-  # @part_one_solution 6958
+  @part_one_solution 6958
 
-  # test "part one solution" do
-  #   assert {:ok, @part_one_solution} == AoC.run(2023, 12, :part_one)
-  # end
+  test "part one solution" do
+    assert {:ok, @part_one_solution} == AoC.run(2023, 12, :part_one)
+  end
 
   test "part two example" do
     input = """
@@ -63,28 +69,25 @@ defmodule AdventOfCode.Y23.Day12Test do
     .??..??...?##. 1,1,3
     """
 
-    assert (1 + 16384) == solve(input, :part_two)
+    assert 1 + 16384 == solve(input, :part_two)
   end
 
-  # test "part two example" do
-  #   input = """
-  #   ???.### 1,1,3
-  #   .??..??...?##. 1,1,3
-  #   ?#?#?#?#?#?#?#? 1,3,1,6
-  #   ????.#...#... 4,1,1
-  #   ????.######..#####. 1,6,5
-  #   ?###???????? 3,2,1
-  #   """
+  test "part two example full" do
+    input = """
+    ???.### 1,1,3
+    .??..??...?##. 1,1,3
+    ?#?#?#?#?#?#?#? 1,3,1,6
+    ????.#...#... 4,1,1
+    ????.######..#####. 1,6,5
+    ?###???????? 3,2,1
+    """
 
-  #   assert 525_152 == solve(input, :part_two)
-  # end
+    assert 525_152 == solve(input, :part_two)
+  end
 
-  # You may also implement a test to validate the part two to ensure that you
-  # did not broke your shared modules when implementing another problem.
+  @part_two_solution 6_555_315_065_024
 
-  # @part_two_solution CHANGE_ME
-  #
-  # test "part two solution" do
-  #   assert {:ok, @part_two_solution} == AoC.run(2023, 12, :part_two)
-  # end
+  test "part two solution" do
+    assert {:ok, @part_two_solution} == AoC.run(2023, 12, :part_two)
+  end
 end
