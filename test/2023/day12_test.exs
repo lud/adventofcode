@@ -31,25 +31,25 @@ defmodule AdventOfCode.Y23.Day12Test do
 
   test "count line" do
     assert 1 == Solution.count_line({~c"???.###", [1, 1, 3]})
-    # assert 4 == Solution.count_line({~c".??..??...?##.", [1, 1, 3]})
-    # assert 1 == Solution.count_line({~c"?#?#?#?#?#?#?#?", [1, 3, 1, 6]})
-    # assert 1 == Solution.count_line({~c"????.#...#...", [4, 1, 1]})
-    # assert 4 == Solution.count_line({~c"????.######..#####.", [1, 6, 5]})
-    # assert 10 == Solution.count_line({~c"?###????????", [3, 2, 1]})
+    assert 4 == Solution.count_line({~c".??..??...?##.", [1, 1, 3]})
+    assert 1 == Solution.count_line({~c"?#?#?#?#?#?#?#?", [1, 3, 1, 6]})
+    assert 1 == Solution.count_line({~c"????.#...#...", [4, 1, 1]})
+    assert 4 == Solution.count_line({~c"????.######..#####.", [1, 6, 5]})
+    assert 10 == Solution.count_line({~c"?###????????", [3, 2, 1]})
   end
 
-  # test "part one example" do
-  #   input = """
-  #   ???.### 1,1,3
-  #   .??..??...?##. 1,1,3
-  #   ?#?#?#?#?#?#?#? 1,3,1,6
-  #   ????.#...#... 4,1,1
-  #   ????.######..#####. 1,6,5
-  #   ?###???????? 3,2,1
-  #   """
+  test "part one example" do
+    input = """
+    ???.### 1,1,3
+    .??..??...?##. 1,1,3
+    ?#?#?#?#?#?#?#? 1,3,1,6
+    ????.#...#... 4,1,1
+    ????.######..#####. 1,6,5
+    ?###???????? 3,2,1
+    """
 
-  #   assert 21 == solve(input, :part_one)
-  # end
+    assert 21 == solve(input, :part_one)
+  end
 
   # Once your part one was successfully sumbitted, you may uncomment this test
   # to ensure your implementation was not altered when you implement part two.
