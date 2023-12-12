@@ -22,7 +22,31 @@ defmodule AdventOfCode.Y23.Day12 do
     |> Enum.sum()
   end
 
-  def count_line({sources, counts} = line) do
+  def part_two(problem) do
+    problem
+    |> Enum.map(&expand_line/1)
+    |> part_one()
+  end
+
+  defp expand_line({sources, counts}) do
+    sources =
+      :lists.flatten([
+        sources,
+        ??,
+        sources,
+        ??,
+        sources,
+        ??,
+        sources,
+        ??,
+        sources
+      ])
+
+    counts = :lists.flatten([counts, counts, counts, counts, counts])
+    {sources, counts}
+  end
+
+  def count_line_old({sources, counts} = line) do
     line |> IO.inspect(label: ~S/line/)
     n_sources = length(sources)
     known_broken = Enum.sum(counts) |> IO.inspect(label: ~S/known broken/)
@@ -64,7 +88,7 @@ defmodule AdventOfCode.Y23.Day12 do
       # built |> IO.inspect(label: ~S/built/)
       built
     end)
-    |> Stream.filter(&match_mask(&1, sources))
+    # |> Stream.filter(&match_mask(&1, sources))
     |> Stream.filter(fn built ->
       IO.puts("-----------")
       matches = match_mask(built, sources)
@@ -78,6 +102,53 @@ defmodule AdventOfCode.Y23.Day12 do
     |> Enum.count()
     |> IO.inspect(label: ~S/count()/)
   end
+
+  def count_line({sources, counts} = line) do
+    IO.puts("--------")
+    {sources, counts} |> IO.inspect(label: ~S/sources, counts/)
+    freqs = Enum.frequencies(sources)
+    n_questions = Map.get(freqs, ??, 0)
+    n_questions |> IO.inspect(label: ~S/n_questions/)
+    n_known_broken = Map.get(freqs, ?#, 0)
+    n_known_broken |> IO.inspect(label: ~S/n_known_broken/)
+    n_total_broken = Enum.sum(counts)
+    n_total_broken |> IO.inspect(label: ~S/n_total_broken/)
+    n_dist_broken = n_total_broken - n_known_broken
+    n_dist_broken |> IO.inspect(label: ~S/n_dist_broken/)
+    qm_indices = sources |> Enum.with_index() |> Enum.filter(fn {c, _} -> c == ?? end) |> Enum.map(fn {_, i} -> i end)
+    qm_indices |> IO.inspect(label: ~S/qm_indices/)
+
+    init = [{sources, n_dist_broken}]
+    reduce_range = n_questions..1//-1
+    reduce_range |> IO.inspect(label: ~S/reduce_range/)
+
+    Enum.reduce(reduce_range, init, fn _n, acc ->
+      acc |> IO.inspect(label: ~S/acc/)
+
+      Enum.flat_map(acc, fn
+        {sources, 0} ->
+          [{replace_first_qm(sources, ?.), 0}]
+
+        {sources, n_dist_broken} ->
+          [{replace_first_qm(sources, ?.), n_dist_broken}, {replace_first_qm(sources, ?#), n_dist_broken - 1}]
+      end)
+    end)
+    |> Enum.map(fn {built, _} -> built end)
+    |> Stream.filter(fn built ->
+      IO.puts("-----------")
+      matches = match_mask(built, sources)
+      built |> IO.inspect(label: ~S/--built/)
+      sources |> IO.inspect(label: ~S/sources/)
+      matches |> IO.inspect(label: ~S/matches/)
+      IO.puts("-----------")
+
+      matches
+    end)
+    |> Enum.count()
+  end
+
+  defp replace_first_qm([?? | t], c), do: [c | t]
+  defp replace_first_qm([h | t], c), do: [h | replace_first_qm(t, c)]
 
   defp build_sources([ok | ok_sources], [br | broken_sources]) do
     List.duplicate(?., ok) ++ List.duplicate(?#, br) ++ build_sources(ok_sources, broken_sources)
@@ -113,8 +184,4 @@ defmodule AdventOfCode.Y23.Day12 do
     end)
     |> Enum.uniq()
   end
-
-  # def part_two(problem) do
-  #   problem
-  # end
 end

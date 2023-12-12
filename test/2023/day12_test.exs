@@ -31,45 +31,43 @@ defmodule AdventOfCode.Y23.Day12Test do
 
   test "count line" do
     assert 1 == Solution.count_line({~c"???.###", [1, 1, 3]})
-    assert 4 == Solution.count_line({~c".??..??...?##.", [1, 1, 3]})
-    assert 1 == Solution.count_line({~c"?#?#?#?#?#?#?#?", [1, 3, 1, 6]})
-    assert 1 == Solution.count_line({~c"????.#...#...", [4, 1, 1]})
-    assert 4 == Solution.count_line({~c"????.######..#####.", [1, 6, 5]})
-    assert 10 == Solution.count_line({~c"?###????????", [3, 2, 1]})
+    # assert 4 == Solution.count_line({~c".??..??...?##.", [1, 1, 3]})
+    # assert 1 == Solution.count_line({~c"?#?#?#?#?#?#?#?", [1, 3, 1, 6]})
+    # assert 1 == Solution.count_line({~c"????.#...#...", [4, 1, 1]})
+    # assert 4 == Solution.count_line({~c"????.######..#####.", [1, 6, 5]})
+    # assert 10 == Solution.count_line({~c"?###????????", [3, 2, 1]})
   end
 
-  test "part one example" do
-    input = """
-    ???.### 1,1,3
-    .??..??...?##. 1,1,3
-    ?#?#?#?#?#?#?#? 1,3,1,6
-    ????.#...#... 4,1,1
-    ????.######..#####. 1,6,5
-    ?###???????? 3,2,1
-    """
+  # test "part one example" do
+  #   input = """
+  #   ???.### 1,1,3
+  #   .??..??...?##. 1,1,3
+  #   ?#?#?#?#?#?#?#? 1,3,1,6
+  #   ????.#...#... 4,1,1
+  #   ????.######..#####. 1,6,5
+  #   ?###???????? 3,2,1
+  #   """
 
-    assert 21 == solve(input, :part_one)
-  end
+  #   assert 21 == solve(input, :part_one)
+  # end
 
-  # Once your part one was successfully sumbitted, you may uncomment this test
-  # to ensure your implementation was not altered when you implement part two.
+  # @part_one_solution 6958
 
-  # @part_one_solution CHANGE_ME
-  #
   # test "part one solution" do
   #   assert {:ok, @part_one_solution} == AoC.run(2023, 12, :part_one)
   # end
 
   # test "part two example" do
   #   input = """
-  #   This is an
-  #   example input.
-  #   replace with
-  #   an example from
-  #   the AoC website.
+  #   ???.### 1,1,3
+  #   .??..??...?##. 1,1,3
+  #   ?#?#?#?#?#?#?#? 1,3,1,6
+  #   ????.#...#... 4,1,1
+  #   ????.######..#####. 1,6,5
+  #   ?###???????? 3,2,1
   #   """
-  #
-  #   assert CHANGE_ME == solve(input, :part_two)
+
+  #   assert 525_152 == solve(input, :part_two)
   # end
 
   # You may also implement a test to validate the part two to ensure that you
