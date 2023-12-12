@@ -30,32 +30,41 @@ defmodule AdventOfCode.Y23.Day12Test do
   end
 
   test "count line" do
-    assert 1 == Solution.count_line({~c"???.###", [1, 1, 3]})
-    # assert 4 == Solution.count_line({~c".??..??...?##.", [1, 1, 3]})
+    # assert 1 == Solution.count_line({~c"???.###", [1, 1, 3]})
+    assert 4 == Solution.count_line({~c".??..??...?##.", [1, 1, 3]})
     # assert 1 == Solution.count_line({~c"?#?#?#?#?#?#?#?", [1, 3, 1, 6]})
     # assert 1 == Solution.count_line({~c"????.#...#...", [4, 1, 1]})
     # assert 4 == Solution.count_line({~c"????.######..#####.", [1, 6, 5]})
     # assert 10 == Solution.count_line({~c"?###????????", [3, 2, 1]})
   end
 
-  # test "part one example" do
-  #   input = """
-  #   ???.### 1,1,3
-  #   .??..??...?##. 1,1,3
-  #   ?#?#?#?#?#?#?#? 1,3,1,6
-  #   ????.#...#... 4,1,1
-  #   ????.######..#####. 1,6,5
-  #   ?###???????? 3,2,1
-  #   """
+  test "part one example" do
+    input = """
+    ???.### 1,1,3
+    .??..??...?##. 1,1,3
+    ?#?#?#?#?#?#?#? 1,3,1,6
+    ????.#...#... 4,1,1
+    ????.######..#####. 1,6,5
+    ?###???????? 3,2,1
+    """
 
-  #   assert 21 == solve(input, :part_one)
-  # end
+    assert 21 == solve(input, :part_one)
+  end
 
-  # @part_one_solution 6958
+  @part_one_solution 6958
 
-  # test "part one solution" do
-  #   assert {:ok, @part_one_solution} == AoC.run(2023, 12, :part_one)
-  # end
+  test "part one solution" do
+    assert {:ok, @part_one_solution} == AoC.run(2023, 12, :part_one)
+  end
+
+  test "part two example" do
+    input = """
+    ???.### 1,1,3
+    .??..??...?##. 1,1,3
+    """
+
+    assert (1 + 16384) == solve(input, :part_two)
+  end
 
   # test "part two example" do
   #   input = """
