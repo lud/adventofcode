@@ -10,45 +10,25 @@ defmodule AdventOfCode.Y23.Day13 do
   end
 
   def part_one(patterns) do
-    patterns
-    |> Enum.with_index(1)
-    |> Enum.map(fn {pattern, n} ->
-      IO.puts(" == Pattern #{n} ==")
+    Enum.reduce(patterns, 0, fn pattern, sum ->
       {:ok, v} = compute_value(pattern)
-      v
+      sum + v
     end)
-    |> Enum.sum()
   end
 
-  def part_two(problem) do
-    problem
-    |> Enum.with_index(1)
-    |> Enum.map(fn {pattern, n} ->
-      IO.puts(" == Pattern #{n} ==")
-      compute_new_count(pattern)
-    end)
-    |> Enum.sum()
+  def part_two(patterns) do
+    Enum.reduce(patterns, 0, fn pattern, sum -> sum + compute_new_count(pattern) end)
   end
 
   defp compute_new_count(pattern) do
-    {:ok, old_value} = compute_value(pattern)
-
-    old_value |> IO.inspect(label: ~S/old_value/)
+    {:ok, ignored} = compute_value(pattern)
 
     pattern
     |> stream_changes()
     |> Enum.find_value(fn new_pattern ->
-      case compute_value(new_pattern, old_value) do
-        :error ->
-          nil
-
-        {:ok, ^old_value} ->
-          raise "found same"
-          IO.puts("FOUND SAME VALUE")
-          nil
-
-        {:ok, new_value} ->
-          new_value
+      case compute_value(new_pattern, ignored) do
+        :error -> nil
+        {:ok, new_value} -> new_value
       end
     end)
   end
@@ -56,27 +36,16 @@ defmodule AdventOfCode.Y23.Day13 do
   defp stream_changes(pattern) do
     yo = length(pattern) - 1
     xo = (pattern |> hd() |> String.length()) - 1
-    print_pattern(pattern)
 
     Stream.resource(
       fn -> {0, 0} end,
       fn
-        {_, y} when y > yo ->
-          IO.puts("could not find smudge -----------------")
-          print_pattern(pattern)
-          raise "expleted"
-
-        {x, y} when x > xo ->
-          {[], {0, y + 1}}
-
-        {x, y} ->
-          y |> IO.inspect(label: ~S/y/)
-          x |> IO.inspect(label: ~S/x/)
-          {[fix_pattern(pattern, x, y)], {x + 1, y}}
+        {_, y} when y > yo -> raise "expleted"
+        {x, y} when x > xo -> {[], {0, y + 1}}
+        {x, y} -> {[fix_pattern(pattern, x, y)], {x + 1, y}}
       end,
       fn _ -> nil end
     )
-    |> Stream.map(&print_pattern/1)
   end
 
   defp fix_pattern(pattern, x, y) do
@@ -91,77 +60,61 @@ defmodule AdventOfCode.Y23.Day13 do
     end)
   end
 
-  def compute_value(pattern, ignore_value \\ nil) do
-    case h_reflection(pattern, ignore_value) do
+  def compute_value(pattern, ignored \\ nil) do
+    case h_reflection(pattern, ignored) do
       {:ok, v} -> {:ok, v}
-      :error -> v_reflection(pattern, ignore_value)
+      :error -> v_reflection(pattern, ignored)
     end
   end
 
-  defp maybe_div_100(nil), do: nil
-  defp maybe_div_100(n) when n >= 100, do: div(n, 100)
-  defp maybe_div_100(n), do: n
-
-  defp h_reflection(pattern, ignore_value) do
-    abs_reflection(pattern, 100, ignore_value)
+  defp h_reflection(pattern, ignored) do
+    abs_reflection(pattern, 100, ignored)
   end
 
-  defp abs_reflection(pattern, factor, ignore_value) do
+  defp v_reflection(pattern, ignored) do
+    pattern |> to_columns() |> abs_reflection(1, ignored)
+  end
+
+  defp abs_reflection(pattern, factor, ignored) do
     pattern
     |> Enum.chunk_every(2, 1)
     |> Enum.with_index()
     |> Enum.filter(fn
       # try to find two same horizontal lines
-      {[same, same], i} ->
-        same |> IO.inspect(label: ~S/same/)
-        i |> IO.inspect(label: ~S/i/)
-        true
-
-      _ ->
-        false
+      {[same, same], _i} -> true
+      _ -> false
     end)
     # There can be multiple duplicate lines, we have to try them all
     |> Enum.find_value(fn {_, i} ->
-      i |> IO.inspect(label: ~S/i/)
-      ignore_value |> IO.inspect(label: ~S/ignore_value/)
-
       case count_relfected_rows(pattern, i) do
         :error ->
           nil
 
         {:ok, v} ->
           case v * factor do
-            ^ignore_value -> nil
+            ^ignored -> nil
             n -> {:ok, n}
           end
       end
     end)
     |> case do
-      {:ok, ^ignore_value} -> raise "could not ignore horizontal"
       {:ok, v} -> {:ok, v}
       nil -> :error
     end
   end
 
   defp count_relfected_rows(pattern, i) do
-    pattern |> IO.inspect(label: ~S/pattern in count/)
-    i |> IO.inspect(label: ~S/i/)
     {top, bottom} = Enum.split(pattern, i + 1)
     revtop = :lists.reverse(top)
-    revtop |> IO.inspect(label: ~S/revtop/)
 
-    case reflection?(revtop, bottom) do
-      true -> {:ok, length(revtop)}
-      false -> :error
+    if reflection?(revtop, bottom) do
+      {:ok, length(revtop)}
+    else
+      :error
     end
-    |> dbg()
   end
 
-  defp v_reflection(pattern, ignore_value) do
-    pattern = to_columns(pattern) |> abs_reflection(1, ignore_value)
-  end
-
-  defp to_columns([first_row | rest] = p) do
+  defp to_columns([first_row | rest]) do
     first_col =
       first_row
       |> String.graphemes()
@@ -187,10 +140,5 @@ defmodule AdventOfCode.Y23.Day13 do
 
   defp reflection?(_, _) do
     false
-  end
-
-  defp print_pattern(pattern) do
-    Enum.intersperse(pattern, "\n") |> Enum.join() |> IO.puts()
-    pattern
   end
 end
