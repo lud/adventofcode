@@ -120,12 +120,129 @@ defmodule AdventOfCode.Y23.Day13Test do
     assert 100 == solve(input, :part_two)
   end
 
-  # You may also implement a test to validate the part two to ensure that you
-  # did not broke your shared modules when implementing another problem.
+  test "no smudge" do
+    input_p2 = """
+    #......#....##.
+    ####.###.#...#.
+    ####.###.#...#.
+    #......#....##.
+    ..##...#...#...
+    ..#...#####.#..
+    #####.#####.###
+    ...####...##.#.
+    ...####...#..#.
+    """
 
-  # @part_two_solution CHANGE_ME
-  #
-  # test "part two solution" do
-  #   assert {:ok, @part_two_solution} == AoC.run(2023, 13, :part_two)
-  # end
+    # We replace a . by a # in the last row. The reflection should be valid even
+    # if it is on the last two rows. We replace a # by a X to make part one find
+    # the last reflection.
+    smudged = """
+    #......#....##.
+    ####.###.#...#.
+    ####.###.#...X.
+    #......#....##.
+    ..##...#...#...
+    ..#...#####.#..
+    #####.#####.###
+    ...####...##.#.
+    ...####...##.#.
+    """
+
+    assert 800 = solve(smudged, :part_one)
+
+    # should not raise
+
+    assert 200 = solve(input_p2, :part_one)
+    assert 800 = solve(input_p2, :part_two)
+  end
+
+  test "no smudge 2" do
+    input = """
+    ######..##.
+    #....#.#.##
+    .#..#..##..
+    .#..#..##..
+    #....#.#.##
+    ######..##.
+    ######..##.
+    ######.....
+    .###..##..#
+    #....##.#..
+    #....###..#
+    #.##.#.#.#.
+    ######..##.
+    #.##.#.#...
+    .####.##...
+    """
+
+    smudged = """
+    ######
+    #....#
+    .#..#.
+    .#..#.
+    #....#
+    ######
+    ######
+    ######
+    .X##X.
+    #....#
+    #....#
+    #.##.#
+    ######
+    #.##.#
+    .####.
+    """
+
+    [input_pattern] = Solution.parse_input(input, :test)
+    assert {:ok, 300} = Solution.compute_value(input_pattern)
+
+    [smudged_pattern] = Solution.parse_input(smudged, :test)
+    assert {:ok, 3} = Solution.compute_value(smudged_pattern, 300)
+  end
+
+  test "no smudge 3" do
+    input = """
+    ..###.......#.###
+    ..###.......#.###
+    .#..#.#####..#.##
+    ...#.##..##.##...
+    .##.#...#.####..#
+    ...###.##..##...#
+    ##.#.....##.#.#.#
+    ##.#.....##.#.#..
+    ...###.##..##...#
+    .##.#...#.####..#
+    ...#.##..##.##...
+    .#..#.#####..#.##
+    ..###.......#.###
+    """
+
+    smudged = """
+    ..###.......#.###
+    ..###.......#.###
+    .#..#.#####..#.##
+    ...#.##..##.##...
+    .##.#...#.####..#
+    ...###.##..##...#
+    ##.#.....##.#.#.X
+    ##.#.....##.#.#.X
+    ...###.##..##...#
+    .##.#...#.####..#
+    ...#.##..##.##...
+    .#..#.#####..#.##
+    ..###.......#.###
+    """
+
+    [input_pattern] = Solution.parse_input(input, :test)
+    assert {:ok, 100} = Solution.compute_value(input_pattern)
+
+    [smudged_pattern] = Solution.parse_input(smudged, :test)
+    assert {:ok, 700} = Solution.compute_value(smudged_pattern, 100)
+  end
+
+  @part_two_solution 34224
+
+  test "part two solution" do
+    assert {:ok, @part_two_solution} == AoC.run(2023, 13, :part_two)
+  end
 end
