@@ -35,13 +35,13 @@ defmodule AdventOfCode.Y23.Day12 do
   end
 
   require Record
-  Record.defrecordp(:s, :s, [:brk_grp_i, :b_brk, :combis, :consumed, :prev])
+  Record.defrecordp(:s, :s, [:brk_grp_i, :n_brk, :combis, :consumed, :prev])
 
   def count_line({mask, bad_counts}) do
     len = length(mask)
 
     countmap = bad_counts |> Enum.with_index() |> Map.new(fn {n, i} -> {i, n} end)
-    states = [s(brk_grp_i: -1, b_brk: 0, combis: 1, consumed: 0, prev: ".")]
+    states = [s(brk_grp_i: -1, n_brk: 0, combis: 1, consumed: 0, prev: ".")]
     max_index = map_size(countmap) - 1
     n_dist_bad = Enum.sum(bad_counts)
 
@@ -64,7 +64,7 @@ defmodule AdventOfCode.Y23.Day12 do
 
   defp combine(states) do
     states
-    |> Enum.group_by(fn s(brk_grp_i: group_i, b_brk: n, prev: prev) -> {group_i, n, prev} end)
+    |> Enum.group_by(fn s(brk_grp_i: group_i, n_brk: n, prev: prev) -> {group_i, n, prev} end)
     |> Enum.map(fn {_groupby, same_states} ->
       Enum.reduce(same_states, fn s(combis: c1) = a, s(combis: c2) ->
         s(a, combis: c1 + c2)
@@ -94,7 +94,7 @@ defmodule AdventOfCode.Y23.Day12 do
     use_dot(state, countmap)
   end
 
-  defp use_broken(s(brk_grp_i: i, b_brk: n, prev: prev, consumed: tb) = state, countmap, max_index) do
+  defp use_broken(s(brk_grp_i: i, n_brk: n, prev: prev, consumed: tb) = state, countmap, max_index) do
     case prev do
       "#" ->
         new_amount = n + 1
@@ -103,7 +103,7 @@ defmodule AdventOfCode.Y23.Day12 do
           # group too big, abandon state
           []
         else
-          [s(state, b_brk: new_amount, prev: "#", consumed: tb + 1)]
+          [s(state, n_brk: new_amount, prev: "#", consumed: tb + 1)]
         end
 
       "." ->
@@ -112,12 +112,12 @@ defmodule AdventOfCode.Y23.Day12 do
         if next_index > max_index do
           []
         else
-          [s(state, brk_grp_i: i + 1, b_brk: 1, prev: "#", consumed: tb + 1)]
+          [s(state, brk_grp_i: i + 1, n_brk: 1, prev: "#", consumed: tb + 1)]
         end
     end
   end
 
-  defp use_dot(s(brk_grp_i: i, b_brk: n, prev: prev) = state, countmap) do
+  defp use_dot(s(brk_grp_i: i, n_brk: n, prev: prev) = state, countmap) do
     case prev do
       "#" ->
         if Map.get(countmap, i, :infinity) == n do
