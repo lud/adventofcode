@@ -86,7 +86,7 @@ defmodule AdventOfCode.Y23.Day13 do
     end)
     # There can be multiple duplicate lines, we have to try them all
     |> Enum.find_value(fn {_, i} ->
-      case count_relfected_rows(pattern, i) do
+      case count_reflected_rows(pattern, i) do
         :error ->
           nil
 
@@ -103,7 +103,7 @@ defmodule AdventOfCode.Y23.Day13 do
     end
   end
 
-  defp count_relfected_rows(pattern, i) do
+  defp count_reflected_rows(pattern, i) do
     {top, bottom} = Enum.split(pattern, i + 1)
     revtop = :lists.reverse(top)
 
