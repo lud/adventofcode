@@ -6,7 +6,7 @@ defmodule AdventOfCode.Y23.Day14 do
   end
 
   def parse_input(input, _part) do
-    input |> Enum.map(&String.graphemes/1)
+    input |> Enum.map(&String.to_charlist/1)
   end
 
   def part_one(rows) do
@@ -34,7 +34,7 @@ defmodule AdventOfCode.Y23.Day14 do
     # trying to find a loop
     cache = %{init_rows => 0}
 
-    Enum.reduce_while(1..1_000_000_000, {init_rows, cache}, fn n, {rows, cache} ->
+    Enum.reduce_while(1..9999, {init_rows, cache}, fn n, {rows, cache} ->
       new_rows = cycle(rows)
 
       case Map.fetch(cache, new_rows) do
@@ -89,24 +89,24 @@ defmodule AdventOfCode.Y23.Day14 do
     end)
   end
 
-  defp tilt_end(["#" | rest]) do
-    ["#" | tilt_end(rest)]
+  defp tilt_end([?# | rest]) do
+    [?# | tilt_end(rest)]
   end
 
-  defp tilt_end(["." | rest]) do
-    ["." | tilt_end(rest)]
+  defp tilt_end([?. | rest]) do
+    [?. | tilt_end(rest)]
   end
 
-  defp tilt_end(["O", "." | rest]) do
-    ["." | tilt_end(["O" | rest])]
+  defp tilt_end([?O, ?. | rest]) do
+    [?. | tilt_end([?O | rest])]
   end
 
-  defp tilt_end(["O" | rest]) do
+  defp tilt_end([?O | rest]) do
     case tilt_end(rest) do
-      ["." | _] = rest -> tilt_end(["O" | rest])
-      ["O" | _] = rest -> ["O" | rest]
-      ["#" | _] = rest -> ["O" | rest]
-      [] -> ["O"]
+      [?. | _] = rest -> tilt_end([?O | rest])
+      [?O | _] = rest -> [?O | rest]
+      [?# | _] = rest -> [?O | rest]
+      [] -> [?O]
     end
   end
 
@@ -118,7 +118,7 @@ defmodule AdventOfCode.Y23.Day14 do
     count_score(col, 1, 0)
   end
 
-  defp count_score(["O" | rest], row_i, acc) do
+  defp count_score([?O | rest], row_i, acc) do
     count_score(rest, row_i + 1, acc + row_i)
   end
 
