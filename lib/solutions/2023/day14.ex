@@ -10,20 +10,53 @@ defmodule AdventOfCode.Y23.Day14 do
   end
 
   def part_one(rows) do
-    rows |> rotate() |> tilt() |> Enum.map(&count_score/1) |> Enum.sum()
+    rows |> rotate() |> tilt() |> score()
   end
 
-  def part_two(init_rows) do
-    Enum.reduce(1_000_000_000..1//-1, init_rows, fn n, rows ->
-      if rem(n, 1000) == 0 do
-        IO.puts("Cycle #{Integer.to_string(n)}")
-      end
+  def part_two(rows) do
+    left_cycles = 1_000_000_000
+    # left_cycles = 20
+    {loop_start, loop_end} = find_loop(rows) |> dbg()
+    rows_loop_start = apply_cycles(rows, loop_start)
+    rows_loop_start |> print()
 
-      cycle(rows)
+    left_cycles = (left_cycles - loop_start) |> dbg()
+    diff = (loop_end - loop_start) |> dbg()
+    left_cycles = rem(left_cycles, diff) |> dbg()
+
+    end_rows = apply_cycles(rows_loop_start, left_cycles)
+
+    end_rows |> rotate() |> score()
+
+    # faked = apply_cycles(rows, 20) |> print() |> score() |> dbg()
+  end
+
+  defp find_loop(init_rows) do
+    # trying to find a loop
+    cache = %{init_rows => 0}
+
+    Enum.reduce_while(1..1_000_000_000, {init_rows, cache}, fn n, {rows, cache} ->
+      IO.puts("Cycle #{Integer.to_string(n)}")
+      new_rows = cycle(rows)
+
+      case Map.fetch(cache, new_rows) do
+        {:ok, same_cycle} ->
+          print(new_rows)
+          {:halt, {same_cycle, n}}
+
+        :error ->
+          new_rows |> rotate() |> score() |> IO.inspect(label: "Score at #{n}")
+          {:cont, {new_rows, Map.put(cache, new_rows, n)}}
+      end
     end)
-    |> print()
-    |> Enum.map(&count_score/1)
-    |> Enum.sum()
+  end
+
+  defp apply_cycles(rows, 0) do
+    rows
+  end
+
+  defp apply_cycles(rows, n) when n > 0 do
+    rows |> cycle() |> apply_cycles(n - 1)
   end
 
   defp cycle(rows) do
@@ -40,6 +73,10 @@ defmodule AdventOfCode.Y23.Day14 do
     # east
     |> rotate()
     |> tilt()
+  end
+
+  defp score(rows) do
+    rows |> Enum.map(&count_score/1) |> Enum.sum()
   end
 
   defp tilt(rows) do
