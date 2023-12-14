@@ -14,21 +14,20 @@ defmodule AdventOfCode.Y23.Day14 do
   end
 
   def part_two(rows) do
-    left_cycles = 1_000_000_000
-    # left_cycles = 20
-    {loop_start, loop_end} = find_loop(rows) |> dbg()
+    cycles_left = 1_000_000_000
+    {loop_start, loop_end} = find_loop(rows)
+
     rows_loop_start = apply_cycles(rows, loop_start)
-    rows_loop_start |> print()
 
-    left_cycles = (left_cycles - loop_start) |> dbg()
-    diff = (loop_end - loop_start) |> dbg()
-    left_cycles = rem(left_cycles, diff) |> dbg()
+    cycles_left = cycles_left - loop_start
 
-    end_rows = apply_cycles(rows_loop_start, left_cycles)
+    diff = loop_end - loop_start
+    cycles_left = rem(cycles_left, diff)
 
-    end_rows |> rotate() |> score()
-
-    # faked = apply_cycles(rows, 20) |> print() |> score() |> dbg()
+    rows_loop_start
+    |> apply_cycles(cycles_left)
+    |> rotate()
+    |> score()
   end
 
   defp find_loop(init_rows) do
@@ -36,16 +35,14 @@ defmodule AdventOfCode.Y23.Day14 do
     cache = %{init_rows => 0}
 
     Enum.reduce_while(1..1_000_000_000, {init_rows, cache}, fn n, {rows, cache} ->
-      IO.puts("Cycle #{Integer.to_string(n)}")
       new_rows = cycle(rows)
 
       case Map.fetch(cache, new_rows) do
         {:ok, same_cycle} ->
-          print(new_rows)
+          IO.puts("found loop after #{n} cycles")
           {:halt, {same_cycle, n}}
 
         :error ->
-          new_rows |> rotate() |> score() |> IO.inspect(label: "Score at #{n}")
           {:cont, {new_rows, Map.put(cache, new_rows, n)}}
       end
     end)
@@ -131,10 +128,5 @@ defmodule AdventOfCode.Y23.Day14 do
 
   defp count_score([], _row_i, acc) do
     acc
-  end
-
-  defp print(map) do
-    ["==========\n" | Enum.intersperse(map, "\n")] |> IO.puts()
-    map
   end
 end
