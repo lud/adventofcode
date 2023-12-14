@@ -6,21 +6,52 @@ defmodule AdventOfCode.Y23.Day14 do
   end
 
   def parse_input(input, _part) do
-    input |> Enum.to_list()
+    input |> Enum.map(&String.graphemes/1)
   end
 
-  def part_one(problem) do
-    problem |> to_columns() |> Enum.map(&tilt_end/1) |> Enum.map(&count_score/1) |> Enum.sum()
+  def part_one(rows) do
+    rows |> rotate() |> tilt() |> Enum.map(&count_score/1) |> Enum.sum()
   end
 
-  defp to_columns([first_row | rest]) do
+  def part_two(init_rows) do
+    Enum.reduce(1_000_000_000..1//-1, init_rows, fn n, rows ->
+      if rem(n, 1000) == 0 do
+        IO.puts("Cycle #{Integer.to_string(n)}")
+      end
+
+      cycle(rows)
+    end)
+    |> print()
+    |> Enum.map(&count_score/1)
+    |> Enum.sum()
+  end
+
+  defp cycle(rows) do
+    rows
+    # north
+    |> rotate()
+    |> tilt()
+    # west
+    |> rotate()
+    |> tilt()
+    # south
+    |> rotate()
+    |> tilt()
+    # east
+    |> rotate()
+    |> tilt()
+  end
+
+  defp tilt(rows) do
+    Enum.map(rows, &tilt_end/1)
+  end
+
+  defp rotate([first_row | rest]) do
     first_col =
-      first_row
-      |> String.graphemes()
-      |> Enum.map(fn v -> [v] end)
+      Enum.map(first_row, fn v -> [v] end)
 
     Enum.reduce(rest, first_col, fn row, acc ->
-      row |> String.graphemes() |> Enum.zip_with(acc, fn v, col -> [v | col] end)
+      Enum.zip_with(row, acc, fn v, col -> [v | col] end)
     end)
   end
 
@@ -65,7 +96,8 @@ defmodule AdventOfCode.Y23.Day14 do
     acc
   end
 
-  # def part_two(problem) do
-  #   problem
-  # end
+  defp print(map) do
+    ["==========\n" | Enum.intersperse(map, "\n")] |> IO.puts()
+    map
+  end
 end
