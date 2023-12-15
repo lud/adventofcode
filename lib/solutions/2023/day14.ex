@@ -81,8 +81,7 @@ defmodule AdventOfCode.Y23.Day14 do
   end
 
   defp rotate([first_row | rest]) do
-    first_col =
-      Enum.map(first_row, fn v -> [v] end)
+    first_col = Enum.map(first_row, fn v -> [v] end)
 
     Enum.reduce(rest, first_col, fn row, acc ->
       Enum.zip_with(row, acc, fn v, col -> [v | col] end)

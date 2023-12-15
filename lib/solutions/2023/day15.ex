@@ -43,8 +43,7 @@ defmodule AdventOfCode.Y23.Day15 do
   def part_two(problem) do
     boxes = Map.new(0..255, fn i -> {i, []} end)
 
-    boxes =
-      Enum.reduce(problem, boxes, &run_command/2)
+    boxes = Enum.reduce(problem, boxes, &run_command/2)
 
     focusing_power(boxes)
   end
