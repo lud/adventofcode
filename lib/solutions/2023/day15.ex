@@ -25,7 +25,7 @@ defmodule AdventOfCode.Y23.Day15 do
   end
 
   def part_one(problem) do
-    problem |> Enum.map(&hash/1) |> Enum.sum() |> dbg()
+    problem |> Enum.reduce(0, fn com, sum -> sum + hash(com) end)
   end
 
   defp hash(chars) when is_list(chars) do
@@ -44,64 +44,28 @@ defmodule AdventOfCode.Y23.Day15 do
     boxes = Map.new(0..255, fn i -> {i, []} end)
 
     boxes =
-      Enum.reduce(problem, boxes, fn com, boxes ->
-        com |> IO.inspect(label: ~S/After/)
-        boxes = run_command(com, boxes)
-        print_boxes(boxes)
-        boxes
-      end)
+      Enum.reduce(problem, boxes, &run_command/2)
 
     focusing_power(boxes)
   end
 
   defp focusing_power(boxes) do
-    0..255
-    |> Enum.reduce(0, fn i, acc ->
-      lenses = Map.fetch!(boxes, i)
-      acc + focusing_power(lenses, 1, i + 1)
-    end)
+    Enum.reduce(boxes, 0, fn {i, lenses}, acc -> acc + focusing_power(lenses, 1, i + 1) end)
   end
 
-  defp focusing_power([{_, n} = lens | t], lens_i, box_val) do
-    binding() |> IO.inspect(label: ~S/----------------binding()/)
+  defp focusing_power([{_, n} | t], lens_i, box_val) do
     power = n * lens_i * box_val
-    lens |> IO.inspect(label: ~S/lens/)
-    power |> IO.inspect(label: ~S/power/)
     power + focusing_power(t, lens_i + 1, box_val)
   end
 
-  defp focusing_power([], lens_i, box_val) do
+  defp focusing_power([], _lens_i, _box_val) do
     0
-  end
-
-  defp print_boxes(boxes) do
-    boxes
-    |> Map.to_list()
-    |> Enum.sort()
-    |> Enum.filter(fn
-      {_, []} -> false
-      _ -> true
-    end)
-    |> Enum.map(fn {i, contents} ->
-      [
-        "Box ",
-        Integer.to_string(i),
-        ": ",
-        Enum.map(contents, fn {label, n} -> ["[", label, " ", Integer.to_string(n), "]"] end),
-        "\n"
-      ]
-    end)
-    |> IO.puts()
-
-    boxes
   end
 
   defp run_command({box_i, _, _} = com, boxes) do
     box = Map.fetch!(boxes, box_i)
     box = runcom(com, box)
-    boxes = Map.put(boxes, box_i, box)
-
-    boxes
+    Map.put(boxes, box_i, box)
   end
 
   defp runcom({_, label, :-}, box) do
@@ -109,7 +73,7 @@ defmodule AdventOfCode.Y23.Day15 do
   end
 
   defp runcom({_, label, n}, box) when is_integer(n) do
-    box = set_num(box, label, n)
+    set_num(box, label, n)
   end
 
   defp rm_num([{label, _n} | rest], label), do: rest
