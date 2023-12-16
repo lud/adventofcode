@@ -7,10 +7,8 @@ defmodule AdventOfCode.Y23.Day16 do
   end
 
   def parse_input(input, _part) do
-    input |> Grid.parse_stream(&parse_char/1)
+    input |> Grid.parse_stream(fn <<c>> -> {:ok, c} end)
   end
-
-  defp parse_char(x), do: {:ok, x}
 
   def part_one(grid) do
     energize({{0, 0}, :e}, grid)
@@ -22,10 +20,11 @@ defmodule AdventOfCode.Y23.Day16 do
     xo = Grid.max_x(grid)
     yo = Grid.max_y(grid)
 
-    (Enum.flat_map(xa..xo, fn x -> [{{x, ya}, :s}, {{x, yo}, :n}] end) ++
-       Enum.flat_map(ya..yo, fn y -> [{{xa, y}, :e}, {{xo, y}, :w}] end))
-    |> Enum.reduce(0, fn pos, best ->
+    vertical = Enum.flat_map(xa..xo, fn x -> [{{x, ya}, :s}, {{x, yo}, :n}] end)
+    horizontal = Enum.flat_map(ya..yo, fn y -> [{{xa, y}, :e}, {{xo, y}, :w}] end)
+    all = vertical ++ horizontal
 
+    Enum.reduce(all, 0, fn pos, best ->
       case energize(pos, grid) do
         n when n > best -> n
         _ -> best
@@ -60,42 +59,39 @@ defmodule AdventOfCode.Y23.Day16 do
           end
       end)
 
-    # print_done(done, grid)
     simulate(new_rays, done, grid)
   end
 
-  defp simulate([], done, grid) do
+  defp simulate([], done, _grid) do
     done
   end
 
-  defp simcell(ray, "."), do: [continue(ray)]
+  defp simcell(ray, ?.), do: [continue(ray)]
 
-  defp simcell({xy, dir}, "|") when dir in [:e, :w] do
+  defp simcell({xy, dir}, ?|) when dir in [:e, :w] do
     [{Grid.translate(xy, :n), :n}, {Grid.translate(xy, :s), :s}]
   end
 
-  defp simcell({xy, dir} = ray, "|") when dir in [:n, :s] do
+  defp simcell({_, dir} = ray, ?|) when dir in [:n, :s] do
     [continue(ray)]
   end
 
-  defp simcell({xy, dir}, "-") when dir in [:n, :s] do
+  defp simcell({xy, dir}, ?-) when dir in [:n, :s] do
     [{Grid.translate(xy, :e), :e}, {Grid.translate(xy, :w), :w}]
   end
 
-  defp simcell({xy, dir} = ray, "-") when dir in [:e, :w] do
+  defp simcell({_, dir} = ray, ?-) when dir in [:e, :w] do
     [continue(ray)]
   end
 
-  defp simcell({xy, :e}, "/"), do: [{Grid.translate(xy, :n), :n}]
-  defp simcell({xy, :e}, "\\"), do: [{Grid.translate(xy, :s), :s}]
-  defp simcell({xy, :n}, "/"), do: [{Grid.translate(xy, :e), :e}]
-  defp simcell({xy, :n}, "\\"), do: [{Grid.translate(xy, :w), :w}]
-  defp simcell({xy, :s}, "/"), do: [{Grid.translate(xy, :w), :w}]
-  defp simcell({xy, :s}, "\\"), do: [{Grid.translate(xy, :e), :e}]
-  defp simcell({xy, :w}, "/"), do: [{Grid.translate(xy, :s), :s}]
-  defp simcell({xy, :w}, "\\"), do: [{Grid.translate(xy, :n), :n}]
-
-  #  --
+  defp simcell({xy, :e}, ?/), do: [{Grid.translate(xy, :n), :n}]
+  defp simcell({xy, :e}, ?\\), do: [{Grid.translate(xy, :s), :s}]
+  defp simcell({xy, :n}, ?/), do: [{Grid.translate(xy, :e), :e}]
+  defp simcell({xy, :n}, ?\\), do: [{Grid.translate(xy, :w), :w}]
+  defp simcell({xy, :s}, ?/), do: [{Grid.translate(xy, :w), :w}]
+  defp simcell({xy, :s}, ?\\), do: [{Grid.translate(xy, :e), :e}]
+  defp simcell({xy, :w}, ?/), do: [{Grid.translate(xy, :s), :s}]
+  defp simcell({xy, :w}, ?\\), do: [{Grid.translate(xy, :n), :n}]
 
   defp continue({xy, dir}), do: {Grid.translate(xy, dir), dir}
 end

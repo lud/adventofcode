@@ -38,12 +38,8 @@ defmodule AdventOfCode.Y23.Day14 do
       new_rows = cycle(rows)
 
       case Map.fetch(cache, new_rows) do
-        {:ok, same_cycle} ->
-          IO.puts("found loop after #{n} cycles")
-          {:halt, {same_cycle, n}}
-
-        :error ->
-          {:cont, {new_rows, Map.put(cache, new_rows, n)}}
+        {:ok, same_cycle} -> {:halt, {same_cycle, n}}
+        :error -> {:cont, {new_rows, Map.put(cache, new_rows, n)}}
       end
     end)
   end
