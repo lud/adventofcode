@@ -13,7 +13,27 @@ defmodule AdventOfCode.Y23.Day16 do
   defp parse_char(x), do: {:ok, x}
 
   def part_one(grid) do
-    rays = [{{0, 0}, :e}]
+    energize({{0, 0}, :e}, grid)
+  end
+
+  def part_two(grid) do
+    xa = 0
+    ya = 0
+    xo = Grid.max_x(grid)
+    yo = Grid.max_y(grid)
+
+    (Enum.flat_map(xa..xo, fn x -> [{{x, ya}, :s}, {{x, yo}, :n}] end) ++
+       Enum.flat_map(ya..yo, fn y -> [{{xa, y}, :e}, {{xo, y}, :w}] end))
+    |> Enum.reduce(0, fn pos, best ->
+      case energize(pos, grid) do
+        n when n > best -> n
+        _ -> best
+      end
+    end)
+  end
+
+  defp energize({xy, dir}, grid) do
+    rays = [{xy, dir}]
     done = %{}
 
     sim = simulate(rays, done, grid)
@@ -91,8 +111,4 @@ defmodule AdventOfCode.Y23.Day16 do
       nil -> " "
     end)
   end
-
-  # def part_two(problem) do
-  #   problem
-  # end
 end
