@@ -25,6 +25,7 @@ defmodule AdventOfCode.Y23.Day16 do
     (Enum.flat_map(xa..xo, fn x -> [{{x, ya}, :s}, {{x, yo}, :n}] end) ++
        Enum.flat_map(ya..yo, fn y -> [{{xa, y}, :e}, {{xo, y}, :w}] end))
     |> Enum.reduce(0, fn pos, best ->
+
       case energize(pos, grid) do
         n when n > best -> n
         _ -> best
@@ -97,18 +98,4 @@ defmodule AdventOfCode.Y23.Day16 do
   #  --
 
   defp continue({xy, dir}), do: {Grid.translate(xy, dir), dir}
-
-  defp print_done(done, grid) do
-    done
-    |> Map.new(fn {{xy, dir}, true} -> {xy, dir} end)
-    |> then(&Map.merge(grid, &1))
-    |> Grid.print_map(fn
-      :e -> ">"
-      :s -> "v"
-      :w -> "<"
-      :n -> "^"
-      c when is_binary(c) -> c
-      nil -> " "
-    end)
-  end
 end
