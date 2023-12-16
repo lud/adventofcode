@@ -24,12 +24,9 @@ defmodule AdventOfCode.Y23.Day16 do
     horizontal = Enum.flat_map(ya..yo, fn y -> [{{xa, y}, :e}, {{xo, y}, :w}] end)
     all = vertical ++ horizontal
 
-    Enum.reduce(all, 0, fn pos, best ->
-      case energize(pos, grid) do
-        n when n > best -> n
-        _ -> best
-      end
-    end)
+    Task.async_stream(all, fn pos -> energize(pos, grid) end)
+    |> Enum.max_by(fn {:ok, x} -> x end)
+    |> elem(1)
   end
 
   defp energize({xy, dir}, grid) do

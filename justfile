@@ -4,3 +4,6 @@ play:
 
 benchmark:
   mix aoc.run -b
+
+repo:
+  firefox https://github.com/lud/adventofcode/
