@@ -20,13 +20,14 @@ defmodule AdventOfCode.Y23.Day16 do
     xo = Grid.max_x(grid)
     yo = Grid.max_y(grid)
 
-    vertical = Enum.flat_map(xa..xo, fn x -> [{{x, ya}, :s}, {{x, yo}, :n}] end)
-    horizontal = Enum.flat_map(ya..yo, fn y -> [{{xa, y}, :e}, {{xo, y}, :w}] end)
-    all = vertical ++ horizontal
+    vertical = Enum.map(xa..xo, fn x -> [{{x, ya}, :s}, {{x, yo}, :n}] end)
+    horizontal = Enum.map(ya..yo, fn y -> [{{xa, y}, :e}, {{xo, y}, :w}] end)
 
-    Task.async_stream(all, fn pos -> energize(pos, grid) end)
-    |> Enum.max_by(fn {:ok, x} -> x end)
-    |> elem(1)
+    all = :lists.flatten([vertical, horizontal])
+
+    all
+    |> Task.async_stream(fn pos -> energize(pos, grid) end, ordered: false)
+    |> Enum.reduce(0, fn {:ok, x}, best -> max(x, best) end)
   end
 
   defp energize({xy, dir}, grid) do
