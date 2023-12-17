@@ -32,7 +32,7 @@ defmodule AdventOfCode.Y23.Day17 do
     find_target(start_poses, target_xy, %{}, grid, :part_two)
   end
 
-  defp find_target([{target_xy, _, cost} | open], target_xy, seen, grid, _) do
+  defp find_target([{target_xy, _, cost} | _], target_xy, _, _, _) do
     cost
   end
 
@@ -49,7 +49,7 @@ defmodule AdventOfCode.Y23.Day17 do
         end
       end)
 
-    open = insert_all(next_poses, open)
+    open = insert_all(next_poses, open) |> Enum.take(2000)
     find_target(open, target_xy, seen, grid, part)
   end
 
@@ -61,8 +61,12 @@ defmodule AdventOfCode.Y23.Day17 do
     open
   end
 
-  defp insert({xy, dc, cost} = new_best, [{_xy, _dc, best} = cand | open]) when cost <= best do
+  defp insert({_, _, cost} = new_best, [{_xy, _dc, best} = cand | open]) when cost <= best do
     [new_best, cand | open]
+  end
+
+  defp insert(same, [same | open]) do
+    [same | open]
   end
 
   defp insert(new, [best | open]) do
@@ -76,8 +80,8 @@ defmodule AdventOfCode.Y23.Day17 do
   # -- Next positions for part two --------------------------------------------
 
   defp next_poses({xy, {dir, count}, cost}, grid, :part_two) do
-    can_continue? = count < 10
-    can_turn? = count > 4
+    can_continue? = count <= 9
+    can_turn? = count >= 4
 
     poses =
       if can_continue? do
@@ -117,37 +121,20 @@ defmodule AdventOfCode.Y23.Day17 do
 
   # -- Next positions for part one --------------------------------------------
 
-  defp next_poses({xy, {dir, count}, cost}, grid, :part_one) when count < 3 do
-    xy_cont = Grid.translate(xy, dir)
+  defp next_poses({xy, {dir, count}, cost}, grid, :part_one) do
+    can_continue? = count < 3
 
     poses =
-      case Map.fetch(grid, xy_cont) do
-        {:ok, add_cost} -> [{xy_cont, {dir, count + 1}, cost + add_cost}]
-        :error -> []
+      if can_continue? do
+        xy_cont = Grid.translate(xy, dir)
+
+        case Map.fetch(grid, xy_cont) do
+          {:ok, add_cost} -> [{xy_cont, {dir, count + 1}, cost + add_cost}]
+          :error -> []
+        end
+      else
+        []
       end
-
-    left_dir = turn_left(dir)
-    right_dir = turn_right(dir)
-    left_xy = Grid.translate(xy, left_dir)
-    right_xy = Grid.translate(xy, right_dir)
-
-    poses =
-      case Map.fetch(grid, left_xy) do
-        {:ok, add_cost} -> [{left_xy, {left_dir, 1}, cost + add_cost} | poses]
-        :error -> poses
-      end
-
-    poses =
-      case Map.fetch(grid, right_xy) do
-        {:ok, add_cost} -> [{right_xy, {right_dir, 1}, cost + add_cost} | poses]
-        :error -> poses
-      end
-
-    poses
-  end
-
-  defp next_poses({xy, {dir, 3}, cost}, grid, :part_one) do
-    poses = []
 
     left_dir = turn_left(dir)
     right_dir = turn_right(dir)
