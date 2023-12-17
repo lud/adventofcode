@@ -52,23 +52,31 @@ defmodule AdventOfCode.Y23.Day17Test do
   # Once your part one was successfully sumbitted, you may uncomment this test
   # to ensure your implementation was not altered when you implement part two.
 
-  # @part_one_solution CHANGE_ME
-  #
-  # test "part one solution" do
-  #   assert {:ok, @part_one_solution} == AoC.run(2023, 17, :part_one)
-  # end
+  @part_one_solution 1195
 
-  # test "part two example" do
-  #   input = ~S"""
-  #   This is an
-  #   example input.
-  #   replace with
-  #   an example from
-  #   the AoC website.
-  #   """
-  #
-  #   assert CHANGE_ME == solve(input, :part_two)
-  # end
+  test "part one solution" do
+    assert {:ok, @part_one_solution} == AoC.run(2023, 17, :part_one)
+  end
+
+  test "part two example" do
+    input = ~S"""
+    2413432311323
+    3215453535623
+    3255245654254
+    3446585845452
+    4546657867536
+    1438598798454
+    4457876987766
+    3637877979653
+    4654967986887
+    4564679986453
+    1224686865563
+    2546548887735
+    4322674655533
+    """
+
+    assert 94 == solve(input, :part_two)
+  end
 
   # You may also implement a test to validate the part two to ensure that you
   # did not broke your shared modules when implementing another problem.
