@@ -10,36 +10,33 @@ defmodule AdventOfCode.Y23.Day17 do
     input |> Grid.parse_stream(fn x -> {:ok, String.to_integer(x)} end)
   end
 
-  def part_one(grid) do
-    target_xy = {Grid.max_x(grid), Grid.max_y(grid)} |> dbg()
+  def part_one(problem), do: solve(problem, :part_one)
+  def part_two(problem), do: solve(problem, :part_two)
 
-    start_poses = [
-      {{0, 0}, {:e, 0}, 0},
-      {{0, 0}, {:s, 0}, 0}
-    ]
+  defp solve(grid, part) do
+    target_xy = {Grid.max_x(grid), Grid.max_y(grid)}
 
-    find_target(start_poses, target_xy, %{}, grid, :part_one)
+    start_poses =
+      :gb_sets.from_list([
+        {0, {0, 0}, {:e, 0}},
+        {0, {0, 0}, {:s, 0}}
+      ])
+
+    find_target(start_poses, target_xy, %{}, grid, part)
   end
 
-  def part_two(grid) do
-    target_xy = {Grid.max_x(grid), Grid.max_y(grid)} |> dbg()
-
-    start_poses = [
-      {{0, 0}, {:e, 0}, 0},
-      {{0, 0}, {:s, 0}, 0}
-    ]
-
-    find_target(start_poses, target_xy, %{}, grid, :part_two)
+  defp find_target(open, target_xy, seen, grid, part) do
+    case :gb_sets.take_smallest(open) do
+      {{cost, ^target_xy, _}, _} -> cost
+      {node, open} -> discover_node(node, open, target_xy, seen, grid, part)
+    end
   end
 
-  defp find_target([{target_xy, _, cost} | _], target_xy, _, _, _) do
-    cost
-  end
+  defp discover_node(node, open, target_xy, seen, grid, part) do
+    next_poses = next_poses(node, grid, part)
 
-  defp find_target([h | open], target_xy, seen, grid, part) do
     {next_poses, seen} =
-      next_poses(h, grid, part)
-      |> Enum.flat_map_reduce(seen, fn {xy, dc, _} = node, seen ->
+      Enum.flat_map_reduce(next_poses, seen, fn {_, xy, dc} = node, seen ->
         key = {xy, dc}
 
         if Map.has_key?(seen, key) do
@@ -49,37 +46,13 @@ defmodule AdventOfCode.Y23.Day17 do
         end
       end)
 
-    open = insert_all(next_poses, open) |> Enum.take(2000)
+    open = Enum.reduce(next_poses, open, &:gb_sets.add/2)
     find_target(open, target_xy, seen, grid, part)
-  end
-
-  defp insert_all([h | t], open) do
-    insert_all(t, insert(h, open))
-  end
-
-  defp insert_all([], open) do
-    open
-  end
-
-  defp insert({_, _, cost} = new_best, [{_xy, _dc, best} = cand | open]) when cost <= best do
-    [new_best, cand | open]
-  end
-
-  defp insert(same, [same | open]) do
-    [same | open]
-  end
-
-  defp insert(new, [best | open]) do
-    [best | insert(new, open)]
-  end
-
-  defp insert(new, []) do
-    [new]
   end
 
   # -- Next positions for part two --------------------------------------------
 
-  defp next_poses({xy, {dir, count}, cost}, grid, :part_two) do
+  defp next_poses({cost, xy, {dir, count}}, grid, :part_two) do
     can_continue? = count <= 9
     can_turn? = count >= 4
 
@@ -88,7 +61,7 @@ defmodule AdventOfCode.Y23.Day17 do
         xy_cont = Grid.translate(xy, dir)
 
         case Map.fetch(grid, xy_cont) do
-          {:ok, add_cost} -> [{xy_cont, {dir, count + 1}, cost + add_cost}]
+          {:ok, add_cost} -> [{cost + add_cost, xy_cont, {dir, count + 1}}]
           :error -> []
         end
       else
@@ -103,13 +76,13 @@ defmodule AdventOfCode.Y23.Day17 do
 
       poses =
         case Map.fetch(grid, left_xy) do
-          {:ok, add_cost} -> [{left_xy, {left_dir, 1}, cost + add_cost} | poses]
+          {:ok, add_cost} -> [{cost + add_cost, left_xy, {left_dir, 1}} | poses]
           :error -> poses
         end
 
       poses =
         case Map.fetch(grid, right_xy) do
-          {:ok, add_cost} -> [{right_xy, {right_dir, 1}, cost + add_cost} | poses]
+          {:ok, add_cost} -> [{cost + add_cost, right_xy, {right_dir, 1}} | poses]
           :error -> poses
         end
 
@@ -121,7 +94,7 @@ defmodule AdventOfCode.Y23.Day17 do
 
   # -- Next positions for part one --------------------------------------------
 
-  defp next_poses({xy, {dir, count}, cost}, grid, :part_one) do
+  defp next_poses({cost, xy, {dir, count}}, grid, :part_one) do
     can_continue? = count < 3
 
     poses =
@@ -129,7 +102,7 @@ defmodule AdventOfCode.Y23.Day17 do
         xy_cont = Grid.translate(xy, dir)
 
         case Map.fetch(grid, xy_cont) do
-          {:ok, add_cost} -> [{xy_cont, {dir, count + 1}, cost + add_cost}]
+          {:ok, add_cost} -> [{cost + add_cost, xy_cont, {dir, count + 1}}]
           :error -> []
         end
       else
@@ -143,13 +116,13 @@ defmodule AdventOfCode.Y23.Day17 do
 
     poses =
       case Map.fetch(grid, left_xy) do
-        {:ok, add_cost} -> [{left_xy, {left_dir, 1}, cost + add_cost} | poses]
+        {:ok, add_cost} -> [{cost + add_cost, left_xy, {left_dir, 1}} | poses]
         :error -> poses
       end
 
     poses =
       case Map.fetch(grid, right_xy) do
-        {:ok, add_cost} -> [{right_xy, {right_dir, 1}, cost + add_cost} | poses]
+        {:ok, add_cost} -> [{cost + add_cost, right_xy, {right_dir, 1}} | poses]
         :error -> poses
       end
 
