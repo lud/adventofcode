@@ -29,43 +29,57 @@ defmodule AdventOfCode.Y23.Day18 do
       problem
       |> Enum.reduce({{0, 0}, %{}, %{}}, &dig/2)
 
+    print(grid)
+
+    # This may not work with any input. We are searching for "#.#", and in my
+    # input and the exemple input, the dot is inside, so we can fill from there.
+    fill_xy = find_fill_start(rows)
+
+    grid = fill_map([fill_xy], grid)
+    map_size(grid)
+  end
+
+  defp print(grid) do
     AoC.Grid.print_map(grid, fn
       true -> "#"
       nil -> "."
     end)
-
-    rows
-    |> Enum.map(&count_row/1)
-    |> Enum.sum()
   end
 
-  defp count_row({y, xs}) do
-    y |> IO.inspect(label: ~S/====================== y/)
-    [h | t] = xs = Enum.sort(xs)
+  defp fill_map([h | open], grid) do
+    neighs =
+      h
+      |> AoC.Grid.cardinal4()
+      |> Enum.reject(fn xy -> Map.has_key?(grid, xy) end)
 
-    count =
-      Enum.reduce(t, {h, [[h]]}, fn
-        x, {prev, [acc | accs]} when x == prev + 1 -> {x, [[x | acc] | accs]}
-        x, {prev, [acc | accs]} -> {x, [[x], acc | accs]}
-      end)
-      |> elem(1)
-      |> Enum.chunk_every(2)
-      |> Enum.map(fn
-        [end_bound, start_bound] ->
-          [start | tstart] = start_bound
-          count = length(tstart)
-          [xend | _] = end_bound
-          count = count + (xend - start) + 1
-          start_bound |> IO.inspect(label: ~S/start_bound/)
-          end_bound |> IO.inspect(label: ~S/end_bound/)
-          count
+    grid = Map.put(grid, h, true)
+    open = neighs ++ open
+    fill_map(open, grid)
+  end
 
-        [single_acc] ->
-          length(single_acc)
-      end)
-      |> Enum.sum()
+  defp fill_map([], grid) do
+    grid
+  end
 
-    count |> IO.inspect(label: ~S/count/)
+  defp find_fill_start(rows) do
+    Enum.find_value(rows, fn {y, row} ->
+      case find_one_gap(Enum.sort(row)) do
+        nil -> nil
+        x -> {x + 1, y}
+      end
+    end)
+  end
+
+  defp find_one_gap([xa, xb | rest]) when xa + 2 == xb do
+    xa
+  end
+
+  defp find_one_gap([xa | rest]) do
+    find_one_gap(rest)
+  end
+
+  defp find_one_gap([]) do
+    nil
   end
 
   defp dig({_dir, 0}, {pos, grid, rows}) do
