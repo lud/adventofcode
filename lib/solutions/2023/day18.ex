@@ -40,35 +40,32 @@ defmodule AdventOfCode.Y23.Day18 do
   end
 
   defp count_row({y, xs}) do
-    y |> IO.inspect(label: ~S/y/)
-    xs = Enum.sort(xs) |> dbg()
-    count_zones(xs, 0)
-  end
+    y |> IO.inspect(label: ~S/====================== y/)
+    [h | t] = xs = Enum.sort(xs)
 
-  defp count_zones(xs, count) do
-    {left, [right | _] = xs, count} = consume_start(xs, count) |> dbg()
-    {xs, count} = consume_end(xs, count)
-    count_zones(xs, count)
-  end
+    count =
+      Enum.reduce(t, {h, [[h]]}, fn
+        x, {prev, [acc | accs]} when x == prev + 1 -> {x, [[x | acc] | accs]}
+        x, {prev, [acc | accs]} -> {x, [[x], acc | accs]}
+      end)
+      |> elem(1)
+      |> Enum.chunk_every(2)
+      |> Enum.map(fn
+        [end_bound, start_bound] ->
+          [start | tstart] = start_bound
+          count = length(tstart)
+          [xend | _] = end_bound
+          count = count + (xend - start) + 1
+          start_bound |> IO.inspect(label: ~S/start_bound/)
+          end_bound |> IO.inspect(label: ~S/end_bound/)
+          count
 
-  defp consume_start([x1, x2 | xs], count) when x1 + 1 == x2 do
-    consume_start([x2 | xs], count + 1)
-  end
+        [single_acc] ->
+          length(single_acc)
+      end)
+      |> Enum.sum()
 
-  defp consume_start([x], count) do
-    {x, [], count + 1}
-  end
-
-  defp consume_start([x1, x2 | xs], count) when x1 + 1 == x2 do
-    consume_start([x2 | xs], count + 1)
-  end
-
-  defp consume_end([x1, x2 | xs], count) when x1 + 1 == x2 do
-    consume_end([x2 | xs], count + 1)
-  end
-
-  defp consume_end([], count) do
-    {[], count}
+    count |> IO.inspect(label: ~S/count/)
   end
 
   defp dig({_dir, 0}, {pos, grid, rows}) do
