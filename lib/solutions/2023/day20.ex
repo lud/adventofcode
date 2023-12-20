@@ -43,8 +43,7 @@ defmodule AdventOfCode.Y23.Day20 do
 
   def part_one({modules, _}) do
     {count_low, count_high, _} =
-      Enum.reduce(1..1000, {0, 0, modules}, fn i, {count_low, count_high, modules} ->
-        IO.puts("--- #{i} ---")
+      Enum.reduce(1..1000, {0, 0, modules}, fn _, {count_low, count_high, modules} ->
         {count_low_add, count_high_add, modules} = push_button(modules)
         {count_low + count_low_add, count_high + count_high_add, modules}
       end)
@@ -98,7 +97,7 @@ defmodule AdventOfCode.Y23.Day20 do
 
     cyclics = Enum.flat_map(["rx"], &Map.fetch!(out_from, &1))
     cyclics = Enum.flat_map(cyclics, &Map.fetch!(out_from, &1))
-    cyclics = Enum.flat_map(cyclics, &Map.fetch!(out_from, &1)) |> dbg()
+    cyclics = Enum.flat_map(cyclics, &Map.fetch!(out_from, &1))
 
     counts = count_cycles_until_low_pulse(modules, cyclics)
     counts |> Map.values() |> Enum.reduce(fn a, b -> trunc(lcm(a, b)) end)
@@ -110,8 +109,6 @@ defmodule AdventOfCode.Y23.Day20 do
     cycle_counts = Map.new(watch_list, &{&1, false})
 
     Enum.reduce(infinite_ints, {modules, cycle_counts}, fn i, {modules, cycle_counts} ->
-      IO.puts("--- #{i} ---")
-
       # We cannot inspect the states after the button is pushed because the
       # modules we are looking for are resetting before the modules are
       # returned.
@@ -132,7 +129,6 @@ defmodule AdventOfCode.Y23.Day20 do
         end)
 
       if Enum.all?(cycle_counts, fn {_, count} -> count end) do
-        IO.puts("Found all cycles")
         throw({:counts, cycle_counts})
       end
 
@@ -142,26 +138,9 @@ defmodule AdventOfCode.Y23.Day20 do
     {:counts, counts} -> counts
   end
 
-  defp print_modules(modules, keys) when is_list(keys) do
-    modules
-    |> Enum.filter(fn {key, _} -> key in keys end)
-    |> Enum.map(fn
-      # {key, {:flip, :on, outs}} -> [key, " ", "1"]
-      # {key, {:flip, :off, outs}} -> [key, " ", "0"]
-      {key, {:conj, state, outs}} ->
-        [key, " ", Enum.map(state, fn {k, v} -> " #{k}:#{v}" end), "\n"]
-
-      _ ->
-        []
-    end)
-    |> IO.puts()
-
-    # Process.sleep(100)
-  end
-
   defp push_button(modules) do
     init_pulse = {"button", 0, "broadcaster"}
-    {count_low, count_high, modules} = reduce([init_pulse], modules, 0, 0)
+    {_count_low, _count_high, _modules} = reduce([init_pulse], modules, 0, 0)
   end
 
   defp reduce([], modules, count_low, count_high) do
@@ -172,7 +151,7 @@ defmodule AdventOfCode.Y23.Day20 do
     {count_low, count_high} = count_pulses(pulses, count_low, count_high)
 
     {new_pulses, new_modules} =
-      Enum.flat_map_reduce(pulses, modules, fn {_, kind, to} = p, modules ->
+      Enum.flat_map_reduce(pulses, modules, fn {_, _, to} = p, modules ->
         case Map.fetch(modules, to) do
           {:ok, module} ->
             {next_pulses, new_module} = handle_pulse(p, module)
@@ -189,16 +168,16 @@ defmodule AdventOfCode.Y23.Day20 do
 
   defp push_button(modules, acc, f) do
     init_pulse = {"button", 0, "broadcaster"}
-    {modules, acc} = run([init_pulse], modules, acc, f)
+    {_modules, _acc} = run([init_pulse], modules, acc, f)
   end
 
-  defp run([], modules, acc, f) do
+  defp run([], modules, acc, _f) do
     {modules, acc}
   end
 
   defp run(pulses, modules, acc, f) do
     {new_pulses, new_modules} =
-      Enum.flat_map_reduce(pulses, modules, fn {_, kind, to} = p, modules ->
+      Enum.flat_map_reduce(pulses, modules, fn {_, _, to} = p, modules ->
         case Map.fetch(modules, to) do
           {:ok, module} ->
             {next_pulses, new_module} = handle_pulse(p, module)
@@ -210,7 +189,6 @@ defmodule AdventOfCode.Y23.Day20 do
         end
       end)
 
-    f |> IO.inspect(label: ~S/f/)
     new_acc = f.(new_pulses, acc)
 
     run(new_pulses, new_modules, new_acc, f)
@@ -270,13 +248,11 @@ defmodule AdventOfCode.Y23.Day20 do
     Enum.map(outs, &{me, kind, &1})
   end
 
-  defp count_pulses([{from, 0, to} = p | pulses], count_low, count_high) do
-    print_pulse(p)
+  defp count_pulses([{_, 0, _} | pulses], count_low, count_high) do
     count_pulses(pulses, count_low + 1, count_high)
   end
 
-  defp count_pulses([{from, 1, to} = p | pulses], count_low, count_high) do
-    print_pulse(p)
+  defp count_pulses([{_, 1, _} | pulses], count_low, count_high) do
     count_pulses(pulses, count_low, count_high + 1)
   end
 
@@ -284,29 +260,6 @@ defmodule AdventOfCode.Y23.Day20 do
     {count_low, count_high}
   end
 
-  @watch_from ["bx", "bc", "qq", "gj"]
-
-  defp print_pulse({from, kind, to} = p) when from in @watch_from do
-    case kind do
-      1 ->
-        "high"
-
-      0 ->
-        IO.puts("#{from} -#{kind}-> #{to}")
-        "low"
-    end
-
-    p
-  end
-
-  defp print_pulse(p) do
-    p
-  end
-
-  defp gcd(a, 0), do: a
-  defp gcd(0, b), do: b
-  defp gcd(a, b), do: gcd(b, rem(a, b))
-
   defp lcm(0, 0), do: 0
-  defp lcm(a, b), do: a * b / gcd(a, b)
+  defp lcm(a, b), do: a * b / Integer.gcd(a, b)
 end
