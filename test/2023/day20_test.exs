@@ -41,33 +41,15 @@ defmodule AdventOfCode.Y23.Day20Test do
     assert 32_000_000 == solve(input, :part_one)
   end
 
-  # Once your part one was successfully sumbitted, you may uncomment this test
-  # to ensure your implementation was not altered when you implement part two.
+  @part_one_solution 841_763_884
 
-  # @part_one_solution CHANGE_ME
-  #
-  # test "part one solution" do
-  #   assert {:ok, @part_one_solution} == AoC.run(2023, 20, :part_one)
-  # end
+  test "part one solution" do
+    assert {:ok, @part_one_solution} == AoC.run(2023, 20, :part_one)
+  end
 
-  # test "part two example" do
-  #   input = ~S"""
-  #   This is an
-  #   example input.
-  #   replace with
-  #   an example from
-  #   the AoC website.
-  #   """
-  #
-  #   assert CHANGE_ME == solve(input, :part_two)
-  # end
+  @part_two_solution 246_006_621_493_687
 
-  # You may also implement a test to validate the part two to ensure that you
-  # did not broke your shared modules when implementing another problem.
-
-  # @part_two_solution CHANGE_ME
-  #
-  # test "part two solution" do
-  #   assert {:ok, @part_two_solution} == AoC.run(2023, 20, :part_two)
-  # end
+  test "part two solution" do
+    assert {:ok, @part_two_solution} == AoC.run(2023, 20, :part_two)
+  end
 end
