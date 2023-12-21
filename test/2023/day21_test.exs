@@ -44,6 +44,7 @@ defmodule AdventOfCode.Y23.Day21Test do
     ...........
     """
 
+    assert 2 == solve(input, :part_one, 1)
     assert 16 == solve(input, :part_one, 6)
   end
 
@@ -53,24 +54,71 @@ defmodule AdventOfCode.Y23.Day21Test do
     assert {:ok, @part_one_solution} == AoC.run(2023, 21, :part_one)
   end
 
-  # test "part two example" do
-  #   input = ~S"""
-  #   This is an
-  #   example input.
-  #   replace with
-  #   an example from
-  #   the AoC website.
-  #   """
-  #
-  #   assert CHANGE_ME == solve(input, :part_two)
-  # end
+  # There is no test for p2, the input is tailored but the sample input is not.
 
-  # You may also implement a test to validate the part two to ensure that you
-  # did not broke your shared modules when implementing another problem.
+  test "pyramid_count" do
+    #    1
+    #   234
+    height_2 = 4
 
-  # @part_two_solution CHANGE_ME
-  #
-  # test "part two solution" do
-  #   assert {:ok, @part_two_solution} == AoC.run(2023, 21, :part_two)
-  # end
+    #     1
+    #    234
+    #   56789
+    height_3 = 9
+
+    #      1
+    #     234
+    #    56789
+    #   0123456
+    height_4 = 16
+
+    assert height_2 == Solution.pyramid_count(2)
+    assert height_3 == Solution.pyramid_count(3)
+    assert height_4 == Solution.pyramid_count(4)
+  end
+
+  test "diamond_count" do
+    #  1
+    # 234
+    #  5
+    ray_2 = 5
+
+    #   1
+    #  234
+    # 56789
+    #  012
+    #   3
+    ray_3 = 13
+
+    #    1
+    #   234
+    #  56789
+    # 0123456
+    #  78901
+    #   234
+    #    5
+    ray_4 = 25
+
+    assert ray_2 == Solution.diamond_count(2)
+    assert ray_3 == Solution.diamond_count(3)
+    assert ray_4 == Solution.diamond_count(4)
+  end
+
+  test "p1 with repeat" do
+    IO.warn("remove test")
+    # {:ok, path} = Input.ensure_local(2023, 21)
+
+    # problem =
+    #   path
+    #   |> Solution.read_file(:duplicate)
+    #   |> Solution.parse_input(:duplicate)
+
+    # assert :nope == Solution.part_one({problem, 196})
+  end
+
+  @part_two_solution CHANGE_ME
+
+  test "part two solution" do
+    assert {:ok, @part_two_solution} == AoC.run(2023, 21, :part_two)
+  end
 end
