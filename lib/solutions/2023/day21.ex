@@ -21,7 +21,7 @@ defmodule AdventOfCode.Y23.Day21 do
     # those that can be reached after exactly 64 steps.
     pos =
       Enum.find_value(grid, fn
-        {xy, "S"} = start -> xy
+        {xy, "S"} -> xy
         _ -> false
       end)
 
@@ -31,7 +31,7 @@ defmodule AdventOfCode.Y23.Day21 do
     length(positions)
   end
 
-  defp loop(open, step, max_steps, grid) when step > max_steps do
+  defp loop(open, step, max_steps, _grid) when step > max_steps do
     open
   end
 
@@ -45,8 +45,8 @@ defmodule AdventOfCode.Y23.Day21 do
             case Map.get(grid, xy) do
               "S" -> true
               "." -> true
-              "*" -> true
-              _ -> false
+              "#" -> false
+              nil -> false
             end
         end)
       end)
@@ -60,11 +60,11 @@ defmodule AdventOfCode.Y23.Day21 do
   end
 
   def part_two({grid, max_steps}) do
-    max_steps |> IO.inspect(label: ~S/max_steps/)
     # This solution will only work with the actual input. It has a clear path
     # in the caridnal directions over the starting point.
 
     {x_start, y_start} =
+      start_pos =
       Enum.find_value(grid, fn
         {xy, "S"} -> xy
         _ -> false
@@ -73,8 +73,6 @@ defmodule AdventOfCode.Y23.Day21 do
     {xa, xo, ya, yo} = Grid.bounds(grid)
     width = xo - xa + 1
     ^width = xo + 1
-
-    width |> dbg()
 
     height = yo - ya + 1
     ^height = yo + 1
@@ -100,9 +98,6 @@ defmodule AdventOfCode.Y23.Day21 do
     # After n_tiles_side steps we are at the top of the map
     remain_steps = max_steps - n_tiles_side
 
-    max_steps |> IO.inspect(label: ~S/   max_steps/)
-    remain_steps |> IO.inspect(label: ~S/remain_steps/)
-
     # we can get got to the top of the next map as long as steps remain
     # convenintly, we reach the top of the map when there is no more step to walk
     # past that
@@ -115,11 +110,10 @@ defmodule AdventOfCode.Y23.Day21 do
     # the central grid. (so counting just one direction)
     short_ray = div(remain_steps, square_size)
 
-    short_ray |> IO.inspect(label: ~S/short_ray/)
-
     # The shape is a diamond so the tiling for the repeated grid will also be a
     # diamond, but with 3 grids at each pike, since the diamond shape of the
-    # garden slots cuts through the middle of the grid sides.
+    # garden slots cuts through the middle of the grid sides, it overflows on
+    # the sides.
     #
     # * The topmost row will have bottom part full and top part diamond, with
     #   "regular" fill.
@@ -130,34 +124,41 @@ defmodule AdventOfCode.Y23.Day21 do
     # * Then each row will alternate between "alternate" and "regular" fill
     #   until the center.
     #
-    # So let's generate a grid duplicated, 3x3 with the original grid in center.
-    # The "*" are used to see the boundaries in a debug file, they count as
-    # dots.
-    copy =
-      Map.new(grid, fn
-        {xy, "S"} -> {xy, "."}
-        # {{0, y}, "."} -> {{0, y}, "*"}
-        # {{x, 0}, "."} -> {{x, 0}, "*"}
-        # {{^xo, y}, "."} -> {{xo, y}, "*"}
-        # {{x, ^yo}, "."} -> {{x, yo}, "*"}
-        other -> other
-      end)
+    # So we know what we are talking about:
+    #
+    # A 7/8th tile with the corner cut on top right
+    #
+    #     ***-+
+    #     *  *|
+    #     *   *
+    #     *   *
+    #     *****
+    #
+    # A 1/8th tile just the bottom right corner
+    #
+    #     +---+
+    #     |   |   A 1/8th tile just the
+    #     |   *   bottom right corner
+    #     |  **
+    #     --***
+    #
+    #
+    # So let's generate a grid duplicated 3x3 with the original grid in center.
+    center = grid
 
-    top = Map.new(copy, fn {{x, y}, v} -> {{x, y - height}, v} end)
-    top_left = Map.new(copy, fn {{x, y}, v} -> {{x - width, y - height}, v} end)
-    top_right = Map.new(copy, fn {{x, y}, v} -> {{x + width, y - height}, v} end)
+    top = Map.new(center, fn {{x, y}, v} -> {{x, y - height}, v} end)
+    top_left = Map.new(center, fn {{x, y}, v} -> {{x - width, y - height}, v} end)
+    top_right = Map.new(center, fn {{x, y}, v} -> {{x + width, y - height}, v} end)
 
-    left = Map.new(copy, fn {{x, y}, v} -> {{x - width, y}, v} end)
-    right = Map.new(copy, fn {{x, y}, v} -> {{x + width, y}, v} end)
+    left = Map.new(center, fn {{x, y}, v} -> {{x - width, y}, v} end)
+    right = Map.new(center, fn {{x, y}, v} -> {{x + width, y}, v} end)
 
-    bottom = Map.new(copy, fn {{x, y}, v} -> {{x, y + height}, v} end)
-    bottom_left = Map.new(copy, fn {{x, y}, v} -> {{x - width, y + height}, v} end)
-    bottom_right = Map.new(copy, fn {{x, y}, v} -> {{x + width, y + height}, v} end)
+    bottom = Map.new(center, fn {{x, y}, v} -> {{x, y + height}, v} end)
+    bottom_left = Map.new(center, fn {{x, y}, v} -> {{x - width, y + height}, v} end)
+    bottom_right = Map.new(center, fn {{x, y}, v} -> {{x + width, y + height}, v} end)
 
     expanded_grid =
       Enum.reduce([top, top_left, top_right, left, right, bottom, bottom_left, bottom_right], grid, &Map.merge/2)
-
-    # generate_ff_tiling(grid)
 
     # Now we will run the simulation and get our different fillings. But how
     # many steps should we run. Well, 1 grid heigt plus the steps to reach the
@@ -166,19 +167,12 @@ defmodule AdventOfCode.Y23.Day21 do
 
     sim_steps = n_tiles_side + square_size
 
-    positions = cached_loop(expanded_grid, {x_start, y_start}, sim_steps, false)
+    positions = loop([start_pos], 1, sim_steps, expanded_grid)
 
-    debug =
-      expanded_grid
-      |> Map.merge(Map.new(positions, fn xy -> {xy, "O"} end))
-      |> Grid.format_map()
-
-    File.write!("/tmp/debug.txt", debug)
-
-    # Alright so to validate that we can just count the coordinates, if we merge
+    # Alright so to validate that we can just count the coordinates, if we add
     # the fills between the top and bottom grid, we should have the total number
-    # for regular fill.
-    # So we should have the same number of in the left and right
+    # for regular fill.  So we should have the same number of in the left and
+    # right
 
     count_topdown = count_slots(positions, Grid.bounds(top)) + count_slots(positions, Grid.bounds(bottom))
     count_leftright = count_slots(positions, Grid.bounds(left)) + count_slots(positions, Grid.bounds(right))
@@ -201,8 +195,9 @@ defmodule AdventOfCode.Y23.Day21 do
     right_slots_centered =
       positions |> filter_slots(Grid.bounds(right)) |> Enum.map(fn {x, y} -> {x - width, y} end)
 
-    # After this translation, top and down cover the whole tile we can merge the
-    # two lists and count the unique values
+    # After this translation, top and down cover the whole tile so we can merge
+    # the two lists and count the unique values. We should get the same result
+    # when merging left and right
     regular_full_tile = unique_length(top_slots_centered, bottom_slots_centered)
     ^regular_full_tile = unique_length(left_slots_centered, right_slots_centered)
 
@@ -210,22 +205,22 @@ defmodule AdventOfCode.Y23.Day21 do
     # that points top and the tile that points left, as none of both covers that
     # corner.
 
-    seven_eighteenths_top_left = unique_length(top_slots_centered, left_slots_centered) |> dbg()
-    seven_eighteenths_top_right = unique_length(top_slots_centered, right_slots_centered) |> dbg()
-    seven_eighteenths_bottom_left = unique_length(bottom_slots_centered, left_slots_centered) |> dbg()
-    seven_eighteenths_bottom_right = unique_length(bottom_slots_centered, right_slots_centered) |> dbg()
+    seven_eighteenths_top_left = unique_length(top_slots_centered, left_slots_centered)
+    seven_eighteenths_top_right = unique_length(top_slots_centered, right_slots_centered)
+    seven_eighteenths_bottom_left = unique_length(bottom_slots_centered, left_slots_centered)
+    seven_eighteenths_bottom_right = unique_length(bottom_slots_centered, right_slots_centered)
 
     # On our 3*3 grid the center grid is filled with the alternate fill, unlinke
     # as in the solution conditions.
-    alternate_full_tile = count_slots(positions, Grid.bounds(grid)) |> dbg()
+    alternate_full_tile = count_slots(positions, Grid.bounds(grid))
 
     # The other alternate fills are the 1/8th tiles on the sides. there are 4 of them
 
     alternate_eitheenths_count =
-      (count_slots(positions, Grid.bounds(top_left)) |> dbg()) +
-        (count_slots(positions, Grid.bounds(top_right)) |> dbg()) +
-        (count_slots(positions, Grid.bounds(bottom_left)) |> dbg()) +
-        (count_slots(positions, Grid.bounds(bottom_right)) |> dbg())
+      count_slots(positions, Grid.bounds(top_left)) +
+        count_slots(positions, Grid.bounds(top_right)) +
+        count_slots(positions, Grid.bounds(bottom_left)) +
+        count_slots(positions, Grid.bounds(bottom_right))
 
     # How many of each tiles do we have ?
 
@@ -271,9 +266,6 @@ defmodule AdventOfCode.Y23.Day21 do
     bjorn_plots = 2 * short_ray * short_ray - (2 * short_ray - 1)
     bjorn_shorter = (short_ray - 1) * short_ray - (short_ray - 1)
     bjorn_longer = bjorn_plots - bjorn_shorter
-
-    [bjorn_plots: bjorn_plots, bjorn_shorter: bjorn_shorter, bjorn_longer: bjorn_longer] |> dbg()
-
     ^bjorn_longer = n_full_alternate
     ^bjorn_shorter = n_full_regular
 
@@ -282,10 +274,10 @@ defmodule AdventOfCode.Y23.Day21 do
     [
       # The pikes
 
-      length(top_slots_centered) |> dbg(),
-      length(bottom_slots_centered) |> dbg(),
-      length(left_slots_centered) |> dbg(),
-      length(right_slots_centered) |> dbg(),
+      length(top_slots_centered),
+      length(bottom_slots_centered),
+      length(left_slots_centered),
+      length(right_slots_centered),
 
       # The 1/8ths
 
@@ -309,43 +301,6 @@ defmodule AdventOfCode.Y23.Day21 do
     |> Enum.sum()
   end
 
-  defp generate_ff_tiling(grid) do
-    # Five by Five tiling of the grid
-
-    {xa, xo, ya, yo} = Grid.bounds(grid)
-    width = xo - xa + 1
-    height = yo - ya + 1
-
-    copy =
-      Map.new(grid, fn
-        {xy, "S"} -> {xy, "."}
-        # {{0, y}, "."} -> {{0, y}, "*"}
-        # {{x, 0}, "."} -> {{x, 0}, "*"}
-        # {{^xo, y}, "."} -> {{xo, y}, "*"}
-        # {{x, ^yo}, "."} -> {{x, yo}, "*"}
-        other -> other
-      end)
-
-    for w <- -2..2, h <- -2..2 do
-      Map.new(copy, fn {{x, y}, v} -> {{x + width * w, y + height * h}, v} end)
-    end
-  end
-
-  defp cached_loop(large_grid, start_pos, sim_steps, false) do
-     loop([start_pos], 1, sim_steps, large_grid)
-  end
-  defp cached_loop(large_grid, start_pos, sim_steps, cache_file) do
-    if File.exists?(cache_file) do
-      cache_file |> File.read!() |> :erlang.binary_to_term()
-    else
-      IO.puts("go loop")
-      poses = cached_loop(large_grid, start_pos, sim_steps, false)
-      IO.puts("looped => #{cache_file}")
-      File.write!(cache_file, :erlang.term_to_binary(poses))
-      poses
-    end
-  end
-
   # 1+2+3+4+...+n = n*(n+1)/2
   defp sum_to(n) do
     div(n * (n + 1), 2)
@@ -361,22 +316,5 @@ defmodule AdventOfCode.Y23.Day21 do
 
   defp unique_length(xys_a, xys_b) do
     length(Enum.uniq(xys_a ++ xys_b))
-  end
-
-  def pyramid_count(height) do
-    # the left part contains the central column and is just the formula for
-    # 1+2+3+4+..+n
-    left = div(height * (height + 1), 2)
-    # the left part does not contain the central column
-    right = left - height
-    left + right
-  end
-
-  def diamond_count(ray) do
-    # the ray contains the central pixel, so the top part does
-    top = pyramid_count(ray)
-    bottom_row = ray * 2 - 1
-    bottom = top - bottom_row
-    top + bottom
   end
 end

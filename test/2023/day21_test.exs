@@ -56,62 +56,9 @@ defmodule AdventOfCode.Y23.Day21Test do
 
   # There is no test for p2, the input is tailored but the sample input is not.
 
-  test "pyramid_count" do
-    #    1
-    #   234
-    height_2 = 4
-
-    #     1
-    #    234
-    #   56789
-    height_3 = 9
-
-    #      1
-    #     234
-    #    56789
-    #   0123456
-    height_4 = 16
-
-    assert height_2 == Solution.pyramid_count(2)
-    assert height_3 == Solution.pyramid_count(3)
-    assert height_4 == Solution.pyramid_count(4)
-  end
-
-  test "diamond_count" do
-    #  1
-    # 234
-    #  5
-    ray_2 = 5
-
-    #   1
-    #  234
-    # 56789
-    #  012
-    #   3
-    ray_3 = 13
-
-    #    1
-    #   234
-    #  56789
-    # 0123456
-    #  78901
-    #   234
-    #    5
-    ray_4 = 25
-
-    assert ray_2 == Solution.diamond_count(2)
-    assert ray_3 == Solution.diamond_count(3)
-    assert ray_4 == Solution.diamond_count(4)
-  end
-
-  @part_two_solution CHANGE_ME
+  @part_two_solution 605_247_138_198_755
 
   test "part two solution" do
-    bad = 605_206_212_908_755
-    {:ok, found} = AoC.run(2023, 21, :part_two)
-    bad |> dbg()
-    found |> dbg()
-    assert bad < found
-    # assert {:ok, @part_two_solution} == AoC.run(2023, 21, :part_two)
+    assert {:ok, @part_two_solution} == AoC.run(2023, 21, :part_two)
   end
 end
