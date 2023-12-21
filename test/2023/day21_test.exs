@@ -104,18 +104,6 @@ defmodule AdventOfCode.Y23.Day21Test do
     assert ray_4 == Solution.diamond_count(4)
   end
 
-  test "p1 with repeat" do
-    IO.warn("remove test")
-    # {:ok, path} = Input.ensure_local(2023, 21)
-
-    # problem =
-    #   path
-    #   |> Solution.read_file(:duplicate)
-    #   |> Solution.parse_input(:duplicate)
-
-    # assert :nope == Solution.part_one({problem, 196})
-  end
-
   @part_two_solution CHANGE_ME
 
   test "part two solution" do

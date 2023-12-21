@@ -6,41 +6,6 @@ defmodule AdventOfCode.Y23.Day21 do
     Input.stream!(file, trim: true)
   end
 
-  def parse_input(input, :duplicate) do
-    grid = Grid.parse_stream(input, &{:ok, &1})
-
-    {xa, xo, ya, yo} = Grid.bounds(grid)
-
-    start =
-      Enum.find_value(grid, fn
-        {xy, "S"} -> xy
-        _ -> false
-      end)
-
-    copy =
-      Map.new(grid, fn
-        {xy, "S"} -> {xy, "."}
-        {{0, y}, "."} -> {{0, y}, "*"}
-        {{x, 0}, "."} -> {{x, 0}, "*"}
-        {{^xo, y}, "."} -> {{xo, y}, "*"}
-        {{x, ^yo}, "."} -> {{x, yo}, "*"}
-        other -> other
-      end)
-
-    top = Map.new(copy, fn {{x, y}, v} -> {{x, y - yo - 1}, v} end)
-    top_left = Map.new(copy, fn {{x, y}, v} -> {{x - xo - 1, y - yo - 1}, v} end)
-    top_right = Map.new(copy, fn {{x, y}, v} -> {{x + xo + 1, y - yo - 1}, v} end)
-
-    left = Map.new(copy, fn {{x, y}, v} -> {{x - xo - 1, y}, v} end)
-    right = Map.new(copy, fn {{x, y}, v} -> {{x + xo + 1, y}, v} end)
-
-    bottom = Map.new(copy, fn {{x, y}, v} -> {{x, y + yo + 1}, v} end)
-    bottom_left = Map.new(copy, fn {{x, y}, v} -> {{x - xo - 1, y + yo + 1}, v} end)
-    bottom_right = Map.new(copy, fn {{x, y}, v} -> {{x + xo + 1, y + yo + 1}, v} end)
-
-    Enum.reduce([top, top_left, top_right, left, right, bottom, bottom_left, bottom_right], grid, &Map.merge/2)
-  end
-
   def parse_input(input, _part) do
     Grid.parse_stream(input, &{:ok, &1})
   end
@@ -78,6 +43,7 @@ defmodule AdventOfCode.Y23.Day21 do
         |> Enum.filter(fn
           xy ->
             case Map.get(grid, xy) do
+              "S" -> true
               "." -> true
               "*" -> true
               _ -> false
@@ -191,6 +157,8 @@ defmodule AdventOfCode.Y23.Day21 do
     expanded_grid =
       Enum.reduce([top, top_left, top_right, left, right, bottom, bottom_left, bottom_right], grid, &Map.merge/2)
 
+    generate_ff_tiling(grid)
+
     # Now we will run the simulation and get our different fillings. But how
     # many steps should we run. Well, 1 grid heigt plus the steps to reach the
     # side of the center grid, as we know the solution step reaches the side
@@ -198,18 +166,7 @@ defmodule AdventOfCode.Y23.Day21 do
 
     sim_steps = n_tiles_side + square_size
 
-    cache_file = "/tmp/fillcache7"
-
-    positions =
-      if File.exists?(cache_file) do
-        cache_file |> File.read!() |> :erlang.binary_to_term()
-      else
-        IO.puts("go loop")
-        poses = loop([{x_start, y_start}], 1, sim_steps, expanded_grid)
-        IO.puts("looped")
-        File.write!(cache_file, :erlang.term_to_binary(poses))
-        poses
-      end
+    positions = cached_loop(grid, {x_start, y_start}, sim_steps, "/tmp/3by32")
 
     debug =
       expanded_grid
@@ -244,33 +201,36 @@ defmodule AdventOfCode.Y23.Day21 do
     right_slots_centered =
       positions |> filter_slots(Grid.bounds(right)) |> Enum.map(fn {x, y} -> {x - width, y} end)
 
-    # After this translation, top and down cover the whole tile we can merge the two lists and count the unique
-    # values
+    # After this translation, top and down cover the whole tile we can merge the
+    # two lists and count the unique values
     regular_full_tile = unique_length(top_slots_centered, bottom_slots_centered)
+    ^regular_full_tile = unique_length(left_slots_centered, right_slots_centered)
 
     # A 7/8 tile with the corner cut on top left can be made by merging the tile
     # that points top and the tile that points left, as none of both covers that
     # corner.
 
-    seven_eighteenths_top_left = unique_length(top_slots_centered, left_slots_centered)
-    seven_eighteenths_top_right = unique_length(top_slots_centered, right_slots_centered)
-    seven_eighteenths_bottom_left = unique_length(bottom_slots_centered, left_slots_centered)
-    seven_eighteenths_bottom_right = unique_length(bottom_slots_centered, right_slots_centered)
+    seven_eighteenths_top_left = unique_length(top_slots_centered, left_slots_centered) |> dbg()
+    seven_eighteenths_top_right = unique_length(top_slots_centered, right_slots_centered) |> dbg()
+    seven_eighteenths_bottom_left = unique_length(bottom_slots_centered, left_slots_centered) |> dbg()
+    seven_eighteenths_bottom_right = unique_length(bottom_slots_centered, right_slots_centered) |> dbg()
 
-    # On our 3*3 grid the center grid is filled with the alternate fill.
-    alternate_full_tile = count_slots(positions, Grid.bounds(grid))
+    # On our 3*3 grid the center grid is filled with the alternate fill, unlinke
+    # as in the solution conditions.
+    alternate_full_tile = count_slots(positions, Grid.bounds(grid)) |> dbg()
 
     # The other alternate fills are the 1/8th tiles on the sides. there are 4 of them
 
     alternate_eitheenths_count =
-      count_slots(positions, Grid.bounds(top_left)) +
-        count_slots(positions, Grid.bounds(top_right)) +
-        count_slots(positions, Grid.bounds(bottom_left)) +
-        count_slots(positions, Grid.bounds(bottom_right))
+      (count_slots(positions, Grid.bounds(top_left)) |> dbg()) +
+        (count_slots(positions, Grid.bounds(top_right)) |> dbg()) +
+        (count_slots(positions, Grid.bounds(bottom_left)) |> dbg()) +
+        (count_slots(positions, Grid.bounds(bottom_right)) |> dbg())
 
     # How many of each tiles do we have ?
 
     # Obviously we have 4 pointy tiles, but 1 of each type
+    n_pointy = 1
 
     # Then there are the 1/8th tiles, 4 of them, 1 of each type, for 1 short
     # ray (remember, short ray is the number of grids above the center grid,
@@ -303,11 +263,9 @@ defmodule AdventOfCode.Y23.Day21 do
     expected_tiles = sum_to(short_ray + 1) + 2 * sum_to(short_ray) + sum_to(short_ray - 1) + 4 * short_ray
 
     actual_tiles =
-      4 + n_oneight * 4 + n_seveneight * 4 + n_full_regular + n_full_alternate
+      n_pointy * 4 + n_oneight * 4 + n_seveneight * 4 + n_full_regular + n_full_alternate
 
-    expected_tiles |> IO.inspect(label: ~S/expected_tiles/)
-    actual_tiles |> IO.inspect(label: ~S/  actual_tiles/)
-    # 0 = diff
+    ^expected_tiles = actual_tiles
 
     # Bjorng's checks
     bjorn_plots = 2 * short_ray * short_ray - (2 * short_ray - 1)
@@ -316,19 +274,18 @@ defmodule AdventOfCode.Y23.Day21 do
 
     [bjorn_plots: bjorn_plots, bjorn_shorter: bjorn_shorter, bjorn_longer: bjorn_longer] |> dbg()
 
-    import ExUnit.Assertions
-    assert (bjorn_longer == n_full_alternate) |> dbg()
-    assert (bjorn_shorter == n_full_regular) |> dbg()
+    ^bjorn_longer = n_full_alternate
+    ^bjorn_shorter = n_full_regular
 
     # Now, adding it all together:
 
     [
       # The pikes
 
-      length(top_slots_centered),
-      length(bottom_slots_centered),
-      length(left_slots_centered),
-      length(right_slots_centered),
+      length(top_slots_centered) |> dbg(),
+      length(bottom_slots_centered) |> dbg(),
+      length(left_slots_centered) |> dbg(),
+      length(right_slots_centered) |> dbg(),
 
       # The 1/8ths
 
@@ -350,6 +307,40 @@ defmodule AdventOfCode.Y23.Day21 do
       alternate_full_tile * n_full_alternate
     ]
     |> Enum.sum()
+  end
+
+  defp generate_ff_tiling(grid) do
+    # Five by Five tiling of the grid
+
+    {xa, xo, ya, yo} = Grid.bounds(grid)
+    width = xo - xa + 1
+    height = yo - ya + 1
+
+    copy =
+      Map.new(grid, fn
+        {xy, "S"} -> {xy, "."}
+        {{0, y}, "."} -> {{0, y}, "*"}
+        {{x, 0}, "."} -> {{x, 0}, "*"}
+        {{^xo, y}, "."} -> {{xo, y}, "*"}
+        {{x, ^yo}, "."} -> {{x, yo}, "*"}
+        other -> other
+      end)
+
+    for w <- -2..2, h <- -2..2 do
+      Map.new(copy, fn {{x, y}, v} -> {{x + width * w, y + height * h}, v} end)
+    end
+  end
+
+  defp cached_loop(large_grid, start_pos, sim_steps, cache_file) do
+    if File.exists?(cache_file) do
+      cache_file |> File.read!() |> :erlang.binary_to_term()
+    else
+      IO.puts("go loop")
+      poses = loop([start_pos], 1, sim_steps, large_grid)
+      IO.puts("looped => #{cache_file}")
+      File.write!(cache_file, :erlang.term_to_binary(poses))
+      poses
+    end
   end
 
   # 1+2+3+4+...+n = n*(n+1)/2
