@@ -52,11 +52,11 @@ defmodule AdventOfCode.Y23.Day21 do
       end)
       |> Enum.uniq()
 
-    IO.puts("after step #{step}")
+    # IO.puts("after step #{step}")
 
-    grid
-    |> Map.merge(Map.new(open, fn xy -> {xy, "O"} end))
-    |> Grid.print_map()
+    # grid
+    # |> Map.merge(Map.new(open, fn xy -> {xy, "O"} end))
+    # |> Grid.print_map()
 
     loop(new_open, step + 1, max_steps, grid)
   end

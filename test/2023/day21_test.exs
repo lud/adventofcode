@@ -47,14 +47,11 @@ defmodule AdventOfCode.Y23.Day21Test do
     assert 16 == solve(input, :part_one, 6)
   end
 
-  # Once your part one was successfully sumbitted, you may uncomment this test
-  # to ensure your implementation was not altered when you implement part two.
+  @part_one_solution 3594
 
-  # @part_one_solution CHANGE_ME
-  #
-  # test "part one solution" do
-  #   assert {:ok, @part_one_solution} == AoC.run(2023, 21, :part_one)
-  # end
+  test "part one solution" do
+    assert {:ok, @part_one_solution} == AoC.run(2023, 21, :part_one)
+  end
 
   # test "part two example" do
   #   input = ~S"""
