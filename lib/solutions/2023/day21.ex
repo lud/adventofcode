@@ -136,10 +136,10 @@ defmodule AdventOfCode.Y23.Day21 do
     copy =
       Map.new(grid, fn
         {xy, "S"} -> {xy, "."}
-        {{0, y}, "."} -> {{0, y}, "*"}
-        {{x, 0}, "."} -> {{x, 0}, "*"}
-        {{^xo, y}, "."} -> {{xo, y}, "*"}
-        {{x, ^yo}, "."} -> {{x, yo}, "*"}
+        # {{0, y}, "."} -> {{0, y}, "*"}
+        # {{x, 0}, "."} -> {{x, 0}, "*"}
+        # {{^xo, y}, "."} -> {{xo, y}, "*"}
+        # {{x, ^yo}, "."} -> {{x, yo}, "*"}
         other -> other
       end)
 
@@ -157,7 +157,7 @@ defmodule AdventOfCode.Y23.Day21 do
     expanded_grid =
       Enum.reduce([top, top_left, top_right, left, right, bottom, bottom_left, bottom_right], grid, &Map.merge/2)
 
-    generate_ff_tiling(grid)
+    # generate_ff_tiling(grid)
 
     # Now we will run the simulation and get our different fillings. But how
     # many steps should we run. Well, 1 grid heigt plus the steps to reach the
@@ -166,7 +166,7 @@ defmodule AdventOfCode.Y23.Day21 do
 
     sim_steps = n_tiles_side + square_size
 
-    positions = cached_loop(grid, {x_start, y_start}, sim_steps, "/tmp/3by32")
+    positions = cached_loop(expanded_grid, {x_start, y_start}, sim_steps, false)
 
     debug =
       expanded_grid
@@ -319,10 +319,10 @@ defmodule AdventOfCode.Y23.Day21 do
     copy =
       Map.new(grid, fn
         {xy, "S"} -> {xy, "."}
-        {{0, y}, "."} -> {{0, y}, "*"}
-        {{x, 0}, "."} -> {{x, 0}, "*"}
-        {{^xo, y}, "."} -> {{xo, y}, "*"}
-        {{x, ^yo}, "."} -> {{x, yo}, "*"}
+        # {{0, y}, "."} -> {{0, y}, "*"}
+        # {{x, 0}, "."} -> {{x, 0}, "*"}
+        # {{^xo, y}, "."} -> {{xo, y}, "*"}
+        # {{x, ^yo}, "."} -> {{x, yo}, "*"}
         other -> other
       end)
 
@@ -331,12 +331,15 @@ defmodule AdventOfCode.Y23.Day21 do
     end
   end
 
+  defp cached_loop(large_grid, start_pos, sim_steps, false) do
+     loop([start_pos], 1, sim_steps, large_grid)
+  end
   defp cached_loop(large_grid, start_pos, sim_steps, cache_file) do
     if File.exists?(cache_file) do
       cache_file |> File.read!() |> :erlang.binary_to_term()
     else
       IO.puts("go loop")
-      poses = loop([start_pos], 1, sim_steps, large_grid)
+      poses = cached_loop(large_grid, start_pos, sim_steps, false)
       IO.puts("looped => #{cache_file}")
       File.write!(cache_file, :erlang.term_to_binary(poses))
       poses
