@@ -234,25 +234,102 @@ defmodule AdventOfCode.Y23.Day21 do
     bottom_slots_centered =
       positions |> filter_slots(Grid.bounds(bottom)) |> Enum.map(fn {x, y} -> {x, y - height} end) |> dbg()
 
-    true =
-      length(top_slots_centered) + length(bottom_slots_centered) >
-        length(Enum.uniq(top_slots_centered ++ bottom_slots_centered))
+    # We will also need left and right to build the 7/8ths tiles
 
-    # After this translation we can merge the two lists and count the unique
+    left_slots_centered =
+      positions |> filter_slots(Grid.bounds(left)) |> Enum.map(fn {x, y} -> {x + width, y} end) |> dbg()
+
+    right_slots_centered =
+      positions |> filter_slots(Grid.bounds(right)) |> Enum.map(fn {x, y} -> {x - width, y} end) |> dbg()
+
+    # After this translation, top and down cover the whole tile we can merge the two lists and count the unique
     # values
-    regular_1tile_count = length(Enum.uniq(top_slots_centered ++ bottom_slots_centered))
+    regular_full_tile = unique_length(top_slots_centered, bottom_slots_centered)
+
+    # A 7/8 tile with the corner cut on top left can be made by merging the tile
+    # that points top and the tile that points left, as none of both covers that
+    # corner.
+
+    seven_eighteenths_top_left = unique_length(top_slots_centered, left_slots_centered)
+    seven_eighteenths_top_right = unique_length(top_slots_centered, right_slots_centered)
+    seven_eighteenths_bottom_left = unique_length(bottom_slots_centered, left_slots_centered)
+    seven_eighteenths_bottom_right = unique_length(bottom_slots_centered, right_slots_centered)
 
     # On our 3*3 grid the center grid is filled with the alternate fill.
-    alternate_1tile_count = count_slots(positions, Grid.bounds(grid))
+    alternate_full_tile = count_slots(positions, Grid.bounds(grid))
 
-    # For each 1 short ray, (as we have 4 sides, we have 4 1/8 alternate fill
-    # grid)
+    # The other alternate fills are the 1/8th tiles on the sides. there are 4 of them
+
     alternate_eitheenths_count =
-      short_ray *
-        (count_slots(positions, Grid.bounds(top_left)) +
-           count_slots(positions, Grid.bounds(top_right)) +
-           count_slots(positions, Grid.bounds(bottom_left)) +
-           count_slots(positions, Grid.bounds(bottom_right)))
+      count_slots(positions, Grid.bounds(top_left)) +
+        count_slots(positions, Grid.bounds(top_right)) +
+        count_slots(positions, Grid.bounds(bottom_left)) +
+        count_slots(positions, Grid.bounds(bottom_right))
+
+    # How many of each tiles do we have ?
+
+    # Obviously we have 4 pointy tiles, but 1 of each type
+
+    # Then there are the 1/8th tiles, 4 of them, 1 of each type, for 1 short
+    # ray (remember, short ray is the number of grids above the center grid,
+    # to the top – a "long ray" would include the center grid).
+
+    n_oneight = short_ray
+
+    # Same for the 7/8th tiles, 4 of them, 1 of each type, for 1 short ray,
+    # except the extremities that are the pointy tiles.
+    n_seveneight = short_ray - 1
+
+    # How many full regular tiles. They make a pyramid from the middle : n, n-1,
+    # n-2, ... 1, but the 1 is not the pointy top, neither the tile below which
+    # is an alternate fill. So it is 1+2+3+4+...+(short_ray-1). Here we use
+    # short_ray-1 (and not -2) because we want to count the center row.
+
+    # But they also make a pyramid from the middle to the bottom, so we have to
+    # calculate that. As we must not count the center row twice, we use short_ray-2
+
+    n_full_regular = sum_to(short_ray - 1) + sum_to(short_ray - 2)
+
+    # For the alternate fills its the same with one more grid range, as they are
+    # the inner circle behind the pointy/cut tiles.
+
+    n_full_alternate = sum_to(short_ray) + sum_to(short_ray - 1)
+
+    # Now, adding it all together:
+
+    [
+      # The pikes
+
+      length(top_slots_centered),
+      length(bottom_slots_centered),
+      length(left_slots_centered),
+      length(right_slots_centered),
+
+      # The 1/8ths
+
+      alternate_eitheenths_count * n_oneight,
+
+      # The 7/8th
+
+      seven_eighteenths_top_left * n_seveneight,
+      seven_eighteenths_top_right * n_seveneight,
+      seven_eighteenths_bottom_left * n_seveneight,
+      seven_eighteenths_bottom_right * n_seveneight,
+
+      # The full regular tiles
+
+      regular_full_tile * n_full_regular,
+
+      # And the full alternate
+
+      alternate_full_tile * n_full_alternate
+    ]
+    |> Enum.sum()
+  end
+
+  # 1+2+3+4+...+n = n*(n+1)/2
+  defp sum_to(n) do
+    div(n * (n + 1), 2)
   end
 
   defp count_slots(xys, {xa, xo, ya, yo}) do
@@ -261,6 +338,10 @@ defmodule AdventOfCode.Y23.Day21 do
 
   defp filter_slots(xys, {xa, xo, ya, yo}) do
     Enum.filter(xys, fn {x, y} -> x in xa..xo && y in ya..yo end)
+  end
+
+  defp unique_length(xys_a, xys_b) do
+    length(Enum.uniq(xys_a ++ xys_b))
   end
 
   def pyramid_count(height) do
