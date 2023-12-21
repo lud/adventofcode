@@ -119,6 +119,11 @@ defmodule AdventOfCode.Y23.Day21Test do
   @part_two_solution CHANGE_ME
 
   test "part two solution" do
-    assert {:ok, @part_two_solution} == AoC.run(2023, 21, :part_two)
+    bad = 605_206_212_908_755
+    {:ok, found} = AoC.run(2023, 21, :part_two)
+    bad |> dbg()
+    found |> dbg()
+    assert bad < found
+    # assert {:ok, @part_two_solution} == AoC.run(2023, 21, :part_two)
   end
 end

@@ -9,7 +9,7 @@ defmodule AdventOfCode.Y23.Day21 do
   def parse_input(input, :duplicate) do
     grid = Grid.parse_stream(input, &{:ok, &1})
 
-    {xa, xo, ya, yo} = Grid.bounds(grid) |> dbg()
+    {xa, xo, ya, yo} = Grid.bounds(grid)
 
     start =
       Enum.find_value(grid, fn
@@ -94,6 +94,7 @@ defmodule AdventOfCode.Y23.Day21 do
   end
 
   def part_two({grid, max_steps}) do
+    max_steps |> IO.inspect(label: ~S/max_steps/)
     # This solution will only work with the actual input. It has a clear path
     # in the caridnal directions over the starting point.
 
@@ -107,6 +108,8 @@ defmodule AdventOfCode.Y23.Day21 do
     width = xo - xa + 1
     ^width = xo + 1
 
+    width |> dbg()
+
     height = yo - ya + 1
     ^height = yo + 1
 
@@ -116,7 +119,6 @@ defmodule AdventOfCode.Y23.Day21 do
 
     # we are in the middle
     n_tiles_side = x_start - xa
-    n_tiles_side |> dbg()
     ^n_tiles_side = xo - x_start
 
     ^n_tiles_side = y_start - ya
@@ -196,7 +198,7 @@ defmodule AdventOfCode.Y23.Day21 do
 
     sim_steps = n_tiles_side + square_size
 
-    cache_file = "/tmp/fillcache6"
+    cache_file = "/tmp/fillcache7"
 
     positions =
       if File.exists?(cache_file) do
@@ -229,18 +231,18 @@ defmodule AdventOfCode.Y23.Day21 do
     # coordinates. So we translate and merge the two "grid" (we are manipulating
     # lists of coordinates only)
     top_slots_centered =
-      positions |> filter_slots(Grid.bounds(top)) |> Enum.map(fn {x, y} -> {x, y + height} end) |> dbg()
+      positions |> filter_slots(Grid.bounds(top)) |> Enum.map(fn {x, y} -> {x, y + height} end)
 
     bottom_slots_centered =
-      positions |> filter_slots(Grid.bounds(bottom)) |> Enum.map(fn {x, y} -> {x, y - height} end) |> dbg()
+      positions |> filter_slots(Grid.bounds(bottom)) |> Enum.map(fn {x, y} -> {x, y - height} end)
 
     # We will also need left and right to build the 7/8ths tiles
 
     left_slots_centered =
-      positions |> filter_slots(Grid.bounds(left)) |> Enum.map(fn {x, y} -> {x + width, y} end) |> dbg()
+      positions |> filter_slots(Grid.bounds(left)) |> Enum.map(fn {x, y} -> {x + width, y} end)
 
     right_slots_centered =
-      positions |> filter_slots(Grid.bounds(right)) |> Enum.map(fn {x, y} -> {x - width, y} end) |> dbg()
+      positions |> filter_slots(Grid.bounds(right)) |> Enum.map(fn {x, y} -> {x - width, y} end)
 
     # After this translation, top and down cover the whole tile we can merge the two lists and count the unique
     # values
@@ -294,6 +296,29 @@ defmodule AdventOfCode.Y23.Day21 do
     # the inner circle behind the pointy/cut tiles.
 
     n_full_alternate = sum_to(short_ray) + sum_to(short_ray - 1)
+
+    # We will control that we have the right amount of tiles. The total grid
+    # tiles are four counts of 1+2+3+4+...+n for 1 long ray, two short rays and
+    # 1 short_ray-1, plus 4 * short_ray for the 1/8th
+    expected_tiles = sum_to(short_ray + 1) + 2 * sum_to(short_ray) + sum_to(short_ray - 1) + 4 * short_ray
+
+    actual_tiles =
+      4 + n_oneight * 4 + n_seveneight * 4 + n_full_regular + n_full_alternate
+
+    expected_tiles |> IO.inspect(label: ~S/expected_tiles/)
+    actual_tiles |> IO.inspect(label: ~S/  actual_tiles/)
+    # 0 = diff
+
+    # Bjorng's checks
+    bjorn_plots = 2 * short_ray * short_ray - (2 * short_ray - 1)
+    bjorn_shorter = (short_ray - 1) * short_ray - (short_ray - 1)
+    bjorn_longer = bjorn_plots - bjorn_shorter
+
+    [bjorn_plots: bjorn_plots, bjorn_shorter: bjorn_shorter, bjorn_longer: bjorn_longer] |> dbg()
+
+    import ExUnit.Assertions
+    assert (bjorn_longer == n_full_alternate) |> dbg()
+    assert (bjorn_shorter == n_full_regular) |> dbg()
 
     # Now, adding it all together:
 
