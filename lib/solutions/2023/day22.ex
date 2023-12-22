@@ -71,26 +71,30 @@ defmodule AdventOfCode.Y23.Day22 do
   end
 
   defp on_top_of?(
-         {_, {xabeg, yabeg, _}, {xafin, yafin, _}, top_cubes},
-         {_, {xabotbeg, yabotbeg, _}, {xabotfin, yabotfin, _}, bottom_cubes}
+         {_, {xdeb, ydeb, zdeb}, {xfin, yfin, zfin}, top_cubes},
+         {_, {xbotdeb, ybotdeb, zbotdeb}, {xbotfin, ybotfin, zbotfin}, bottom_cubes}
        )
-       when xabeg in xabotbeg..xabotfin or
-              xafin in xabotbeg..xabotfin or
-              (yabeg in yabotbeg..yabotfin or
-                 yafin in yabotbeg..yabotfin) do
-    # for now we use a slow method, just compute all the cubes and check if one
-    # is above another
-
-    Enum.any?(top_cubes, fn top -> Enum.any?(bottom_cubes, fn bottom -> on_top_of_cube?(top, bottom) end) end)
+       when (zdeb == zbotdeb + 1 or
+               zfin == zbotfin + 1 or
+               zdeb == zbotfin + 1 or
+               zfin == zbotdeb + 1) and
+              (xdeb in xbotdeb..xbotfin or
+                 xfin in xbotdeb..xbotfin or
+                 xbotdeb in xdeb..xfin or
+                 xbotfin in xdeb..xfin) and
+              (ydeb in ybotdeb..ybotfin or
+                 yfin in ybotdeb..ybotfin or
+                 ybotdeb in ydeb..yfin or
+                 ybotfin in ydeb..yfin) do
+    true
   end
 
   defp on_top_of?(_, _) do
     false
   end
 
-  defp on_top_of_cube?({x, y, z}, {x2, y2, z2}) do
-    x == x2 and y == y2 and z == z2 + 1
-  end
+  defp same_xy?({x, y, _}, {x, y, _}), do: true
+  defp same_xy?(_, _), do: false
 
   defp cubes({{xbeg, ybeg, zbeg}, {xfin, yfin, zfin}}) do
     for x <- xbeg..xfin, y <- ybeg..yfin, z <- zbeg..zfin, do: {x, y, z}
