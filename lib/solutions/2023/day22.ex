@@ -1,19 +1,21 @@
 defmodule AdventOfCode.Y23.Day22 do
   alias AoC.Input, warn: false
+  use AoC.ComputeCache, version: 1
 
   def read_file(file, _part) do
     Input.stream!(file, trim: true)
   end
 
   def parse_input(input, _part) do
-    input |> Stream.with_index(?A) |> Enum.map(&parse_line/1)
+    input |> Stream.with_index(100_001) |> Stream.map(&parse_line/1)
   end
 
   defp parse_line({line, id}) do
     [beg, fin] = String.split(line, "~")
     beg = parse_coords(beg)
     fin = parse_coords(fin)
-    {<<id>>, beg, fin, cubes({beg, fin})}
+
+    {id, beg, fin, cubes({beg, fin})}
   end
 
   defp parse_coords(coords) do
@@ -33,71 +35,60 @@ defmodule AdventOfCode.Y23.Day22 do
     |> count_removables()
   end
 
-  # def part_two(problem) do
-  #   problem
-  # end
-
   defp count_removables(bricks) do
+    {sper_sped, sped_sper} = build_relations(bricks)
+
+    # brick is removable if it is not found as the single supporter of another
+    single_supporters =
+      Enum.flat_map(sped_sper, fn
+        {_brick, [single]} -> [single]
+        _ -> []
+      end)
+      |> Enum.uniq()
+      |> dbg()
+
+    length(bricks) - length(single_supporters)
+  end
+
+  defp build_relations(bricks) do
     # Create two maps, on of supporter => [supported]
     # one of supported => [supporters]
-    #
-    # brick is removable if it has no supported or if all its suppored have multiple supporters
 
     sper_sped = Map.new(bricks, fn brick -> {id(brick), []} end)
     sped_sper = sper_sped
 
-    {sper_sped, sped_sper} =
-      for a <- bricks, b <- bricks, a != b, reduce: {sper_sped, sped_sper} do
+    {_sper_sped, _sped_sper} =
+      for sped <- bricks, sper <- bricks, sped != sper, reduce: {sper_sped, sped_sper} do
         {sper_sped, sped_sper} ->
           cond do
-            a |> on_top_of?(b) ->
-              IO.puts("a is on top of b")
-              sper_sped = Map.update!(sper_sped, id(b), &[id(a) | &1])
-              sped_sper = Map.update!(sped_sper, id(a), &[id(b) | &1])
+            sped |> on_top_of?(sper) ->
+              sper_sped = Map.update!(sper_sped, id(sper), &[id(sped) | &1])
+              sped_sper = Map.update!(sped_sper, id(sped), &[id(sper) | &1])
               {sper_sped, sped_sper}
 
             true ->
               {sper_sped, sped_sper}
           end
       end
-
-    sper_sped |> dbg()
-
-    {top_bricks, supporters} = Enum.split_with(sper_sped, fn {brick, supported} -> supported == [] end)
-    top_bricks |> dbg()
-
-    removable_supporters =
-      Enum.filter(supporters, fn {brick, supported} ->
-        Enum.all?(supported, fn above ->
-          case Map.fetch!(sped_sper, above) do
-            [^brick] -> false
-            [_, _ | _] -> true
-          end
-        end)
-      end)
-
-    top_bricks |> dbg()
-    supporters |> dbg()
-    sped_sper |> dbg()
-    removable_supporters |> dbg()
-
-    length(removable_supporters) + length(top_bricks)
   end
 
   defp loop_fall(bricks) do
-    loop_fall(bricks, [])
+    cached("loop_fall", bricks, fn -> do_loop_fall(bricks) end)
   end
 
-  defp loop_fall(unstable, stable) do
-    length(unstable) |> IO.inspect(label: ~S/length(unstable)/)
+  defp do_loop_fall(bricks) do
+    do_loop_fall(bricks, [])
+  end
 
+  defp do_loop_fall(unstable, stable) do
     case stabilize(unstable, stable) do
       {[], all_stable} ->
         all_stable
 
       {unstable, stable} ->
+        IO.puts("step down")
         unstable = Enum.map(unstable, &stepdown/1)
-        loop_fall(unstable, stable)
+        do_loop_fall(unstable, stable)
     end
   end
 
@@ -122,11 +113,25 @@ defmodule AdventOfCode.Y23.Day22 do
     Enum.any?(stable, &on_top_of?(brick, &1))
   end
 
-  defp on_top_of?({_, _, _, top_cubes} = top_brick, {_, _, _, bottom_cubes} = bottom_brick) do
+  defp on_top_of?(
+         {_, {xabeg, yabeg, _}, {xafin, yafin, _}, top_cubes} = top_brick,
+         {_, {xabotbeg, yabotbeg, _}, {xabotfin, yabotfin, _}, bottom_cubes} = bottom_brick
+       )
+       when xabeg in xabotbeg..xabotfin or
+              xafin in xabotbeg..xabotfin or
+              (yabeg in yabotbeg..yabotfin or
+                 yafin in yabotbeg..yabotfin) do
     # for now we use a slow method, just compute all the cubes and check if one
     # is above another
 
     Enum.any?(top_cubes, fn top -> Enum.any?(bottom_cubes, fn bottom -> on_top_of_cube?(top, bottom) end) end)
+  end
+
+  defp on_top_of?(
+         {_, {xabeg, yabeg, _}, {xafin, yafin, _}, top_cubes} = top_brick,
+         {_, {xabotbeg, yabotbeg, _}, {xabotfin, yabotfin, _}, bottom_cubes} = bottom_brick
+       ) do
+    false
   end
 
   defp on_top_of_cube?({x, y, z}, {x2, y2, z2}) do
@@ -142,4 +147,51 @@ defmodule AdventOfCode.Y23.Day22 do
   end
 
   defp id({id, _, _, _}), do: id
+
+  def part_two(bricks) do
+    bricks
+    |> Enum.sort_by(fn {_id, {_, _, zbeg}, {_, _, zfin}, _} -> min(zbeg, zfin) end)
+    |> loop_fall()
+    |> build_relations()
+    |> case do
+      {_sper_sped, sped_sper} -> count_chains(sped_sper)
+    end
+  end
+
+  defp count_chains(sped_sper) do
+    sped_sper = Map.new(sped_sper, fn {id, spers} -> {id, MapSet.new(spers)} end) |> dbg()
+
+    sped_sper
+    |> Enum.map(fn {id, _} ->
+      IO.puts("\n\n-- CHECK #{id}")
+      count_chain(MapSet.new([id]), sped_sper)
+    end)
+    |> Enum.sum()
+  end
+
+  defp count_chain(moved, speds) do
+    Enum.reduce(speds, {moved, false}, fn
+      {id, %MapSet{map: m}}, {moved, changed?} when 0 == map_size(m) ->
+        # id |> IO.inspect(label: ~S/id/)
+        # IO.puts("no supporters")
+        {moved, changed?}
+
+      {id, spers}, {moved, changed?} ->
+        # id |> IO.inspect(label: ~S/id/)
+
+        if MapSet.subset?(spers, moved) do
+          # spers |> IO.inspect(label: ~S/spers/)
+          # moved |> IO.inspect(label: ~S/moved/)
+          # IO.puts("moving")
+          {MapSet.put(moved, id), _changed? = true}
+        else
+          # IO.puts("not moving")
+          {moved, changed?}
+        end
+    end)
+    |> case do
+      {new_moved, true = _changed?} -> count_chain(new_moved, Map.drop(speds, MapSet.to_list(new_moved)))
+      {new_moved, false} -> MapSet.size(new_moved) - 1
+    end
+  end
 end
