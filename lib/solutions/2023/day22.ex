@@ -129,7 +129,6 @@ defmodule AdventOfCode.Y23.Day22 do
 
   def part_two(bricks) do
     bricks
-    |> Enum.sort_by(fn {_id, {_, _, zbeg}, {_, _, zfin}} -> min(zbeg, zfin) end)
     |> loop_fall()
     |> build_relations()
     |> count_chains()
