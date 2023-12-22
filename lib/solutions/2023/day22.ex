@@ -14,7 +14,7 @@ defmodule AdventOfCode.Y23.Day22 do
     beg = parse_coords(beg)
     fin = parse_coords(fin)
 
-    {id, beg, fin, cubes({beg, fin})}
+    {id, beg, fin}
   end
 
   defp parse_coords(coords) do
@@ -29,7 +29,7 @@ defmodule AdventOfCode.Y23.Day22 do
 
   def part_one(bricks) do
     bricks
-    |> Enum.sort_by(fn {_id, {_, _, zbeg}, {_, _, zfin}, _} -> min(zbeg, zfin) end)
+    |> Enum.sort_by(fn {_id, {_, _, zbeg}, {_, _, zfin}} -> min(zbeg, zfin) end)
     |> loop_fall()
     |> count_removables()
   end
@@ -49,8 +49,8 @@ defmodule AdventOfCode.Y23.Day22 do
     end
   end
 
-  defp stepdown({id, {xbeg, ybeg, zbeg}, {xfin, yfin, zfin}, cubes}) do
-    {id, {xbeg, ybeg, zbeg - 1}, {xfin, yfin, zfin - 1}, stepdown_cubes(cubes)}
+  defp stepdown({id, {xbeg, ybeg, zbeg}, {xfin, yfin, zfin}}) do
+    {id, {xbeg, ybeg, zbeg - 1}, {xfin, yfin, zfin - 1}}
   end
 
   defp stabilize(unstable, stable) do
@@ -61,7 +61,7 @@ defmodule AdventOfCode.Y23.Day22 do
   end
 
   # stable if it touches the ground
-  defp stable?({_id, {_, _, zbeg}, {_, _, zfin}, _cubes}, _stable) when zbeg == 1 when zfin == 1 do
+  defp stable?({_id, {_, _, zbeg}, {_, _, zfin}}, _stable) when zbeg == 1 when zfin == 1 do
     true
   end
 
@@ -71,8 +71,8 @@ defmodule AdventOfCode.Y23.Day22 do
   end
 
   defp on_top_of?(
-         {_, {xdeb, ydeb, zdeb}, {xfin, yfin, zfin}, top_cubes},
-         {_, {xbotdeb, ybotdeb, zbotdeb}, {xbotfin, ybotfin, zbotfin}, bottom_cubes}
+         {_, {xdeb, ydeb, zdeb}, {xfin, yfin, zfin}},
+         {_, {xbotdeb, ybotdeb, zbotdeb}, {xbotfin, ybotfin, zbotfin}}
        )
        when (zdeb == zbotdeb + 1 or
                zfin == zbotfin + 1 or
@@ -93,18 +93,7 @@ defmodule AdventOfCode.Y23.Day22 do
     false
   end
 
-  defp same_xy?({x, y, _}, {x, y, _}), do: true
-  defp same_xy?(_, _), do: false
-
-  defp cubes({{xbeg, ybeg, zbeg}, {xfin, yfin, zfin}}) do
-    for x <- xbeg..xfin, y <- ybeg..yfin, z <- zbeg..zfin, do: {x, y, z}
-  end
-
-  defp stepdown_cubes(cubes) do
-    Enum.map(cubes, fn {x, y, z} -> {x, y, z - 1} end)
-  end
-
-  defp id({id, _, _, _}), do: id
+  defp id({id, _, _}), do: id
 
   defp build_relations(bricks) do
     # Create two maps, on of supporter => [supported]
@@ -140,7 +129,7 @@ defmodule AdventOfCode.Y23.Day22 do
 
   def part_two(bricks) do
     bricks
-    |> Enum.sort_by(fn {_id, {_, _, zbeg}, {_, _, zfin}, _} -> min(zbeg, zfin) end)
+    |> Enum.sort_by(fn {_id, {_, _, zbeg}, {_, _, zfin}} -> min(zbeg, zfin) end)
     |> loop_fall()
     |> build_relations()
     |> count_chains()
