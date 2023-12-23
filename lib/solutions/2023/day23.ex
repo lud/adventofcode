@@ -22,50 +22,38 @@ defmodule AdventOfCode.Y23.Day23 do
     end)
   end
 
-  defmodule GridWrap do
-    defstruct [:grid]
-
-    defimpl Inspect do
-      def inspect(%{grid: g}, _) do
-        "Grid<#{map_size(g)}>"
-      end
-    end
-  end
-
   def part_one(grid) do
     start_xy = {1, 0}
     "." = Map.fetch!(grid, start_xy)
-    {xa, xo, ya, yo} = Grid.bounds(grid)
+    {_, xo, _, yo} = Grid.bounds(grid)
 
     # use Xo as we did not parse the walls, so the right border is not included
     target_xy = {xo, yo}
     "." = Map.fetch!(grid, target_xy)
 
-    grid |> Map.keys() |> Enum.max_by(fn {x, y} -> y end)
-    init = [{start_xy, ".", %GridWrap{grid: grid}, 0}]
-    loop_longest(init, [], target_xy, [])
+    init = [{start_xy, ".", grid, 0}]
+    loop_longest(init, [], target_xy, 0)
   end
 
-  defp loop_longest([], [], target_xy, finish_counts) do
-    Enum.max(finish_counts)
+  defp loop_longest([], [], _target_xy, best) do
+    best
   end
 
-  defp loop_longest([], [chunk | states_chunks] = all, target_xy, finish_counts) do
-    loop_longest(chunk, states_chunks, target_xy, finish_counts)
+  defp loop_longest([], [chunk | states_chunks], target_xy, best) do
+    loop_longest(chunk, states_chunks, target_xy, best)
   end
 
-  defp loop_longest([{:done, count} = done | t], states_chunks, target_xy, finish_counts) do
-    loop_longest(t, states_chunks, target_xy, [count | finish_counts])
+  defp loop_longest([{:done, count} | t], states_chunks, target_xy, best) do
+    loop_longest(t, states_chunks, target_xy, max(best, count))
   end
 
-  defp loop_longest([h | t], states_chunks, target_xy, finish_counts) do
+  defp loop_longest([h | t], states_chunks, target_xy, best) do
     next_states = next_steps(h, target_xy)
-    loop_longest(t, [next_states | states_chunks], target_xy, finish_counts)
+    loop_longest(t, [next_states | states_chunks], target_xy, best)
   end
 
-  defp next_steps({xy, ground, wrap, n}, target_xy) do
-    grid = wrap.grid
-    next_wrap = %GridWrap{grid: Map.delete(grid, xy)}
+  defp next_steps({xy, ground, grid, n}, target_xy) do
+    next_grid = Map.delete(grid, xy)
 
     xy
     |> possible_neighs(ground)
@@ -75,7 +63,7 @@ defmodule AdventOfCode.Y23.Day23 do
 
       next_xy ->
         case Map.fetch(grid, next_xy) do
-          {:ok, o} -> [{next_xy, o, next_wrap, n + 1}]
+          {:ok, o} -> [{next_xy, o, next_grid, n + 1}]
           :error -> []
         end
     end)
@@ -94,31 +82,23 @@ defmodule AdventOfCode.Y23.Day23 do
   def part_two(grid) do
     start_xy = {1, 0}
     "." = Map.fetch!(grid, start_xy)
-    {xa, xo, ya, yo} = Grid.bounds(grid)
+    {_, xo, _, yo} = Grid.bounds(grid)
 
     # use Xo as we did not parse the walls, so the right border is not included
     target_xy = {xo, yo}
     "." = Map.fetch!(grid, target_xy)
 
-    graph = explore_nodes([start_xy, target_xy], start_xy, target_xy, %{}, %{}, grid) |> dbg()
-
-    nodemap = Map.new(graph, fn {xy, _} -> {xy, "O"} end)
-    Grid.print_map(Map.merge(grid, nodemap))
-    map_size(graph)
-
-    IO.puts(encode_graph(graph, start_xy, target_xy) |> dbg())
+    graph = explore_nodes([start_xy, target_xy], start_xy, target_xy, %{}, %{}, grid)
 
     init = [{start_xy, 0, %{}}]
-    possible_paths = possible_paths(init, target_xy, 0, graph)
+    longest_path(init, target_xy, 0, graph)
   end
 
-  defp possible_paths([], target_xy, best, graph) do
+  defp longest_path([], _target_xy, best, _graph) do
     best
   end
 
-  defp possible_paths(states, target_xy, best, graph) do
-    length(states) |> IO.inspect(label: ~S/length(states)/)
-
+  defp longest_path(states, target_xy, best, graph) do
     {new_states, best} =
       states
       |> Enum.flat_map(fn state -> go_hike(state, target_xy, graph) end)
@@ -127,10 +107,12 @@ defmodule AdventOfCode.Y23.Day23 do
         other, best -> {[other], best}
       end)
 
-    # There is too many possible paths so we take a change and keep 10k best
-    new_states = Enum.sort_by(new_states, fn {_, n, _} -> n end, :desc) |> Enum.take(10_000)
+    # There is too many possible paths so we take a change and keep the bests
+    new_states =
+      Enum.sort_by(new_states, fn {_, n, _} -> n end, :desc)
+      |> Enum.take(3_000)
 
-    possible_paths(new_states, target_xy, best, graph)
+    longest_path(new_states, target_xy, best, graph)
   end
 
   defp go_hike({xy, n, seen}, target_xy, graph) do
@@ -142,37 +124,6 @@ defmodule AdventOfCode.Y23.Day23 do
       _ -> []
     end)
   end
-
-  # -- Graphviz encoding ------------------------------------------------------
-
-  defp encode_graph(graph, start_xy, target_xy) do
-    {edges, _} =
-      graph
-      |> Enum.sort_by(fn {{_, y}, _} -> y end, :desc)
-      |> Enum.reduce({[], %{}}, fn {xy, links}, {edges, seen} ->
-        new_edges =
-          links
-          |> Map.keys()
-          |> Enum.filter(fn lxy -> not is_map_key(seen, lxy) end)
-          |> Enum.map(fn lxy ->
-            encode_node(xy, start_xy, target_xy) <> " -- " <> encode_node(lxy, start_xy, target_xy)
-          end)
-
-        edges = new_edges ++ edges
-        seen = Map.put(seen, xy, true)
-        {edges, seen}
-      end)
-
-    """
-    graph {
-      #{Enum.map_intersperse(edges, "\n  ", fn edge -> "#{edge};" end)}
-    }
-    """
-  end
-
-  defp encode_node(start, start, _), do: "start"
-  defp encode_node(target, _, target), do: "target"
-  defp encode_node({x, y}, _, _), do: "n_#{x}_#{y}"
 
   # -- Generate graph nodes ---------------------------------------------------
 
@@ -215,11 +166,11 @@ defmodule AdventOfCode.Y23.Day23 do
     end)
   end
 
-  defp follow_trail(start_xy, prev_xy, n, start_xy, target_xy, grid) do
+  defp follow_trail(start_xy, _prev_xy, n, start_xy, _target_xy, _grid) do
     {start_xy, n}
   end
 
-  defp follow_trail(target_xy, prev_xy, n, start_xy, target_xy, grid) do
+  defp follow_trail(target_xy, _prev_xy, n, _start_xy, target_xy, _grid) do
     {target_xy, n}
   end
 
