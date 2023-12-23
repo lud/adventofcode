@@ -55,7 +55,7 @@ defmodule AdventOfCode.Y23.Day22 do
 
   defp stabilize(unstable, stable) do
     case Enum.split_with(unstable, fn brick -> not stable?(brick, stable) end) do
-      {^unstable, []} -> {unstable, stable}
+      {unstable, []} -> {unstable, stable}
       {unstable, [_ | _] = new_stable} -> stabilize(unstable, new_stable ++ stable)
     end
   end
