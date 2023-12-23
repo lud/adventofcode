@@ -59,26 +59,41 @@ defmodule AdventOfCode.Y23.Day23Test do
     assert 94 == solve(input, :part_one)
   end
 
-  # Once your part one was successfully sumbitted, you may uncomment this test
-  # to ensure your implementation was not altered when you implement part two.
+  @part_one_solution 2250
 
-  # @part_one_solution CHANGE_ME
-  #
-  # test "part one solution" do
-  #   assert {:ok, @part_one_solution} == AoC.run(2023, 23, :part_one)
-  # end
+  test "part one solution" do
+    assert {:ok, @part_one_solution} == AoC.run(2023, 23, :part_one)
+  end
 
-  # test "part two example" do
-  #   input = ~S"""
-  #   This is an
-  #   example input.
-  #   replace with
-  #   an example from
-  #   the AoC website.
-  #   """
-  #
-  #   assert CHANGE_ME == solve(input, :part_two)
-  # end
+  test "part two example" do
+    input = ~S"""
+    #.#####################
+    #.......#########...###
+    #######.#########.#.###
+    ###.....#.>.>.###.#.###
+    ###v#####.#v#.###.#.###
+    ###.>...#.#.#.....#...#
+    ###v###.#.#.#########.#
+    ###...#.#.#.......#...#
+    #####.#.#.#######.#.###
+    #.....#.#.#.......#...#
+    #.#####.#.#.#########v#
+    #.#...#...#...###...>.#
+    #.#.#v#######v###.###v#
+    #...#.>.#...>.>.#.###.#
+    #####v#.#.###v#.#.###.#
+    #.....#...#...#.#.#...#
+    #.#########.###.#.#.###
+    #...###...#...#...#.###
+    ###.###.#.###v#####v###
+    #...#...#.#.>.>.#.>.###
+    #.###.###.#.###.#.#v###
+    #.....###...###...#...#
+    #####################.#
+    """
+
+    assert 154 == solve(input, :part_two)
+  end
 
   # You may also implement a test to validate the part two to ensure that you
   # did not broke your shared modules when implementing another problem.
