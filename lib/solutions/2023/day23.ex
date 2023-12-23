@@ -32,24 +32,20 @@ defmodule AdventOfCode.Y23.Day23 do
     "." = Map.fetch!(grid, target_xy)
 
     init = [{start_xy, ".", grid, 0}]
-    loop_longest(init, [], target_xy, 0)
+    loop_longest(init, target_xy, 0)
   end
 
-  defp loop_longest([], [], _target_xy, best) do
+  defp loop_longest([], _target_xy, best) do
     best
   end
 
-  defp loop_longest([], [chunk | states_chunks], target_xy, best) do
-    loop_longest(chunk, states_chunks, target_xy, best)
+  defp loop_longest([{:done, count} | t], target_xy, best) do
+    loop_longest(t, target_xy, max(best, count))
   end
 
-  defp loop_longest([{:done, count} | t], states_chunks, target_xy, best) do
-    loop_longest(t, states_chunks, target_xy, max(best, count))
-  end
-
-  defp loop_longest([h | t], states_chunks, target_xy, best) do
+  defp loop_longest([h | t], target_xy, best) do
     next_states = next_steps(h, target_xy)
-    loop_longest(t, [next_states | states_chunks], target_xy, best)
+    loop_longest(next_states ++ t, target_xy, best)
   end
 
   defp next_steps({xy, ground, grid, n}, target_xy) do
