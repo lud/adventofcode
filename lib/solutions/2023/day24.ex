@@ -155,47 +155,132 @@ defmodule AdventOfCode.Y23.Day24 do
       acc ->
         IO.puts("try #{inspect({x, y, z})}")
 
-        case sim_hit_all(stones, {x, y, z}) do
-          {{t1_pos, vs}, first_hit_ns} ->
-            IO.puts("#{inspect(t1_pos)} hits all")
-            [move_back({t1_pos, vs}, first_hit_ns) | acc]
-
-          nil ->
-            acc
+        case rev_match(stones, {x, y, z}) do
+          nil -> acc
+          found -> throw({:found, found})
         end
     end
-    |> case do
-      [{a, b, c}] -> a + b + c
+  catch
+    {:found, {{a, b, c}, _}} -> a + b + c
+  end
+
+  defp rev_match(stones, {cand_vx, cand_vy, cand_vz} = cand_v) do
+    # Find a stone that thas the same Y velocity as our candidate.  We know that
+    # it exists with the sample input and my input, so we will discard other
+    # possibilities. A more generic solution would try with X and Z as well.
+    #
+    # This stone and our starting point have the same Y velocity, so they also
+    # have the same initial Y, otherwise they would never hit.
+    cand_v |> dbg()
+
+    case Enum.filter(stones, fn {{_, _, _}, {_, vy, _}} -> vy == cand_vy end) do
+      [] ->
+        nil
+
+      [_, _ | _] ->
+        nil
+
+      [{{px, py, pz}, {_, vy, _}} = found] ->
+        # We know py now.
+        # Using the first rock, we can derive the rest
+        {{_, opy, _}=other_p, {_, ovy, _}} = other_rock = Enum.find(stones, fn s -> s != found end)
+
+        hit_time = find_hit_time(opy, ovy, py, vy, 0)
+        hit_time |> IO.inspect(label: ~S/hit_time/)
+        other_rock |> IO.inspect(label: ~s/hit after #{hit_time}/)
+        {or_p_hit,_}=_other_rock_at_hit = move_stone(other_rock, hit_time)
+
+        move_back({or_p_hit, cand_v}, hit_time)
+
+
+        # # Now we want to know WHEN we do hit that stone. For a range of possible
+        # # rounds where we would hit it, derive a list of initial positions, and
+        # # simulate the launch. If we hit all stones, we have a winner.
+        # 0..10000
+        # |> Enum.find_value(fn round ->
+        #   round |> IO.inspect(label: ~S/====================round/)
+        #   {hit_p_tn, _} = move_stone(found, round)
+        #   initial_launch = move_back({hit_p_tn, cand_v}, round)
+
+        #   case simulate(stones, initial_launch, 0) do
+        #     true -> initial_launch
+        #     false -> nil
+        #   end
+        # end)
     end
   end
 
-  # To know if the velocity would hit all stones, we consider each stone at
-  # T+1ns to be the first hit stone, and we check if from that position all
-  # other stones would be hit.
-  defp sim_hit_all(stones_t0, {vx, vy, vz} = cand_v) do
-    # cand_v |> IO.inspect(label: ~S/cand_v/)
+  defp find_hit_time(other_rock_py, other_rock_vy, cand_py, cand_vy, round) do
+    diff = other_rock_py - cand_py
 
-    possible_start_positions = 1..100
+    diff = abs(diff)
+    diff |> IO.inspect(label: ~S/diff/)
+    cond do
+      diff > 1_000_000_0000 ->
+        mult = 1_000_000
 
-    Enum.find_value(possible_start_positions, fn first_hit_on_ns ->
-      stones_t1 = Enum.map(stones_t0, &move_stone(&1, first_hit_on_ns))
-      init_poses = Enum.map(stones_t1, fn {p_t1, _} -> {p_t1, cand_v} end)
+        find_hit_time(
+          other_rock_py + other_rock_vy * mult,
+          other_rock_vy,
+          cand_py + cand_vy * mult,
+          cand_vy,
+          round + mult
+        )
+      diff > 1_000_000_000 ->
+        mult = 1_000_00
 
-      # We run the simulation, keeping the first hit stone in the list because
-      # there could be more at T1
-      case Enum.find(init_poses, fn cand ->
-             #  cand |> IO.inspect(label: ~S/cand/)
-             simulate(stones_t1, cand, first_hit_on_ns)
-           end) do
-        nil -> nil
-        found -> {found, first_hit_on_ns}
-      end
-    end)
+        find_hit_time(
+          other_rock_py + other_rock_vy * mult,
+          other_rock_vy,
+          cand_py + cand_vy * mult,
+          cand_vy,
+          round + mult
+        )
+
+      diff > 1_000_000 ->
+        mult = 100_0
+
+        find_hit_time(
+          other_rock_py + other_rock_vy * mult,
+          other_rock_vy,
+          cand_py + cand_vy * mult,
+          cand_vy,
+          round + mult
+        )
+
+      diff > 100_000 ->
+        mult = 100
+
+        find_hit_time(
+          other_rock_py + other_rock_vy * mult,
+          other_rock_vy,
+          cand_py + cand_vy * mult,
+          cand_vy,
+          round + mult
+        )
+
+
+      diff == 0 ->
+        round |> IO.inspect(label: ~S/round hit/)
+
+      true ->
+        mult = 1
+
+        find_hit_time(
+          other_rock_py + other_rock_vy * mult,
+          other_rock_vy,
+          cand_py + cand_vy * mult,
+          cand_vy,
+          round + mult
+        )
+    end
+
+
   end
 
   # When simulating from an initial position we go for max 1000 rounds before
   # bailing
-  defp simulate([_ | _] = stones, {p, v}, round) when round > 1000 do
+  defp simulate([_ | _] = stones, {p, v}, round) when round > 20000 do
     # IO.puts("bail on round #{round}")
     false
   end
@@ -224,7 +309,7 @@ defmodule AdventOfCode.Y23.Day24 do
   end
 
   defp move_back({{px, py, pz}, {vx, vy, vz}}, nanosecs) do
-    {px - vx * nanosecs, py - vy * nanosecs, pz - vz * nanosecs}
+    {{px - vx * nanosecs, py - vy * nanosecs, pz - vz * nanosecs}, {vx, vy, vz}}
   end
 
   defp next_n(n) when n > 1000 do
