@@ -29,6 +29,16 @@ defmodule AdventOfCode.Y23.Day24Test do
     apply(Solution, part, [{problem, range}])
   end
 
+  defp solve(input, part) do
+    problem =
+      input
+      |> Input.as_file()
+      |> Solution.read_file(part)
+      |> Solution.parse_input(part)
+
+    apply(Solution, part, [problem])
+  end
+
   test "part one example" do
     input = ~S"""
     19, 13, 30 @ -2, 1, -2
@@ -47,17 +57,17 @@ defmodule AdventOfCode.Y23.Day24Test do
     assert {:ok, @part_one_solution} == AoC.run(2023, 24, :part_one)
   end
 
-  # test "part two example" do
-  #   input = ~S"""
-  #   This is an
-  #   example input.
-  #   replace with
-  #   an example from
-  #   the AoC website.
-  #   """
-  #
-  #   assert CHANGE_ME == solve(input, :part_two)
-  # end
+  test "part two example" do
+    input = ~S"""
+    19, 13, 30 @ -2, 1, -2
+    18, 19, 22 @ -1, -1, -2
+    20, 25, 34 @ -2, -2, -4
+    12, 31, 28 @ -1, -2, -1
+    20, 19, 15 @ 1, -5, -3
+    """
+
+    assert 47 == solve(input, :part_two)
+  end
 
   # You may also implement a test to validate the part two to ensure that you
   # did not broke your shared modules when implementing another problem.

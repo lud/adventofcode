@@ -53,10 +53,6 @@ defmodule AdventOfCode.Y23.Day24 do
     count
   end
 
-  # def part_two(problem) do
-  #   problem
-  # end
-
   defp with_equation({p, v} = stone) do
     # f(x) = ax + b
 
@@ -120,5 +116,64 @@ defmodule AdventOfCode.Y23.Day24 do
     # end
 
     does?
+  end
+
+  def part_two(stones) do
+    # Trying to replicate this :
+    # https://community.alteryx.com/t5/General-Discussions/Advent-of-Code-2023-Day-24-BaseA-Style/m-p/1223244
+
+
+    # group the stones by x velocities
+    stones_pairs = pairs_by_vx(stones)
+
+    Stream.iterate(0, &next_n/1)
+    |> Enum.find(fn cand_vx ->
+
+      cand_vx |> IO.inspect(label: ~S/------------------------------- cand_vx/)
+
+      Enum.all?(stones_pairs, &hit_on_x?(&1, cand_vx))
+    end)
+  end
+
+  defp next_n(n) when n > 0 do
+    -n
+  end
+
+  defp next_n(n) when n <= 0 do
+    -n + 1
+  end
+
+  # To know if the velocity is ok the first stone should be hit at T0 and the
+  # second stone should be hit at TN where N gives a multiple of the stone 2 x
+  # velocity and a multiple of the candidate velocity.
+  defp hit_on_x?(
+         [
+           {{px1, py1, pz1}, {vx, vy1, vz1}},
+           {{px2, py2, pz2}, {vx, vy2, vz2}}
+         ],
+         cand_vx
+       ) do
+    # We put ourselves in the static coordinate system of the second stone, that
+    # is, the candidate velocity is vx - rock2_vx do we get the remaining
+    # velocity towards rock 2.
+    #
+    # And we want to know if with this velocity we can hit px2 coming from px1,
+    # that is if the distance between px1 and px2 is a multiple of
+    # the remaining velocity.
+    distance = px1 - px2
+    remaining_velocity = cand_vx - vx
+
+    if remaining_velocity == 0 do
+      false
+    else
+      rem = rem(distance, remaining_velocity)
+      rem |> IO.inspect(label: ~S/rem/)
+      rem == 0
+    end
+  end
+
+  defp pairs_by_vx(stones) do
+    groups = Enum.group_by(stones, fn {{_, _, _}, {vx, _, _}} -> vx end)
+    Enum.flat_map(groups, fn {vx, stones} -> Enum.chunk_every(stones, 2, 1, :discard) end)
   end
 end
