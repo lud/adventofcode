@@ -70,7 +70,7 @@ defmodule AdventOfCode.Y23.Day25 do
     count_reachable(others ++ t, Map.put(seen, h, true), graph)
   end
 
-  defp count_reachable([], seen, graph) do
+  defp count_reachable([], seen, _graph) do
     map_size(seen)
   end
 

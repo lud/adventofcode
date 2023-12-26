@@ -186,8 +186,6 @@ defmodule AdventOfCode.Y23.Day24 do
         {{_, opy, _}, {_, ovy, _}} = other_rock = Enum.find(stones, fn s -> s != found end)
 
         hit_time = find_hit_time(opy, ovy, py, vy, 0)
-        hit_time |> IO.inspect(label: ~S/hit_time/)
-        other_rock |> IO.inspect(label: ~s/hit after #{hit_time}/)
         {or_p_hit, _} = _other_rock_at_hit = move_stone(other_rock, hit_time)
 
         move_back({or_p_hit, cand_v}, hit_time)
