@@ -194,6 +194,9 @@ defmodule AdventOfCode.Y23.Day24 do
     end
   end
 
+  # This should be the chinese remainder or something like that, but at this
+  # point I am too fed up with that math problem to really try so let's just do
+  # what I'll call the "brute remainder".
   defp find_hit_time(other_rock_py, other_rock_vy, cand_py, cand_vy, round) do
     diff = other_rock_py - cand_py
 
