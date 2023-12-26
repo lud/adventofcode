@@ -57,24 +57,9 @@ defmodule AdventOfCode.Y23.Day24Test do
     assert {:ok, @part_one_solution} == AoC.run(2023, 24, :part_one)
   end
 
-  test "part two example" do
-    input = ~S"""
-    19, 13, 30 @ -2, 1, -2
-    18, 19, 22 @ -1, -1, -2
-    20, 25, 34 @ -2, -2, -4
-    12, 31, 28 @ -1, -2, -1
-    20, 19, 15 @ 1, -5, -3
-    """
+  @part_two_solution 786_617_045_860_267
 
-    assert 47 == solve(input, :part_two)
+  test "part two solution" do
+    assert {:ok, @part_two_solution} == AoC.run(2023, 24, :part_two)
   end
-
-  # You may also implement a test to validate the part two to ensure that you
-  # did not broke your shared modules when implementing another problem.
-
-  # @part_two_solution CHANGE_ME
-  #
-  # test "part two solution" do
-  #   assert {:ok, @part_two_solution} == AoC.run(2023, 24, :part_two)
-  # end
 end
