@@ -21,11 +21,18 @@ defmodule AdventOfCode.Y15.Day2 do
     |> Enum.sum()
   end
 
-  # def part_two(problem) do
-  #   problem
-  # end
-
   defp compute_surface({l, w, h}) do
     2 * l * w + 2 * w * h + 2 * h * l + min(l * w, min(w * h, h * l))
+  end
+
+  def part_two(problem) do
+    problem
+    |> Enum.map(&compute_ribbon/1)
+    |> Enum.sum()
+  end
+
+  defp compute_ribbon({l, w, h}) do
+    [a, b, _c] = Enum.sort([l, w, h])
+    2 * a + 2 * b + l * w * h
   end
 end
