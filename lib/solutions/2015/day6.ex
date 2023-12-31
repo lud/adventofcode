@@ -70,7 +70,29 @@ defmodule AdventOfCode.Y15.Day6 do
     %{lightrec | value: :on}
   end
 
-  # def part_two(problem) do
-  #   problem
-  # end
+  def part_two(problem) do
+    lights = [Rect.from_ranges(0..999, 0..999, 0)]
+    lights = Enum.reduce(problem, lights, &reduce_brightness/2)
+    lights |> Enum.map(&sum_brightness/1) |> Enum.sum()
+  end
+
+  defp reduce_brightness({op, rect}, lights) do
+    {covered, remains} = split_lights(lights, rect, [], [])
+    covered = Enum.map(covered, fn lightrec -> apply_brightness(lightrec, op) end)
+    covered ++ remains
+  end
+
+  defp apply_brightness(%{value: b} = lightrec, :on) do
+    %{lightrec | value: b + 1}
+  end
+
+  defp apply_brightness(%{value: b} = lightrec, :off) do
+    %{lightrec | value: max(b - 1, 0)}
+  end
+
+  defp apply_brightness(%{value: b} = lightrec, :toggle) do
+    %{lightrec | value: b + 2}
+  end
+
+  defp sum_brightness(%{value: b} = rect), do: Rect.area(rect) * b
 end

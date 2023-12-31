@@ -52,24 +52,25 @@ defmodule AdventOfCode.Y15.Day6Test do
     assert {:ok, @part_one_solution} == AoC.run(2015, 6, :part_one)
   end
 
-  # test "part two example" do
-  #   input = ~S"""
-  #   This is an
-  #   example input.
-  #   replace with
-  #   an example from
-  #   the AoC website.
-  #   """
-  #
-  #   assert CHANGE_ME == solve(input, :part_two)
-  # end
+  test "part two example" do
+    input = ~S"""
+    turn on 0,0 through 0,0
+    """
 
-  # You may also implement a test to validate the part two to ensure that you
-  # did not broke your shared modules when implementing another problem.
+    assert 1 == solve(input, :part_two)
+  end
 
-  # @part_two_solution CHANGE_ME
-  #
-  # test "part two solution" do
-  #   assert {:ok, @part_two_solution} == AoC.run(2015, 6, :part_two)
-  # end
+  test "part two example 2" do
+    input = ~S"""
+    toggle 0,0 through 999,999
+    """
+
+    assert 2_000_000 == solve(input, :part_two)
+  end
+
+  @part_two_solution 17_836_115
+
+  test "part two solution" do
+    assert {:ok, @part_two_solution} == AoC.run(2015, 6, :part_two)
+  end
 end
