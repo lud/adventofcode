@@ -19,16 +19,6 @@ defmodule AdventOfCode.Y15.Day5Test do
   #
   # Good luck!
 
-  defp solve(input, part) do
-    problem =
-      input
-      |> Input.as_file()
-      |> Solution.read_file(part)
-      |> Solution.parse_input(part)
-
-    apply(Solution, part, [problem])
-  end
-
   test "part one example" do
     assert Solution.nice?("ugknbfddgicrmopn")
     assert Solution.nice?("aaa")
@@ -43,24 +33,9 @@ defmodule AdventOfCode.Y15.Day5Test do
     assert {:ok, @part_one_solution} == AoC.run(2015, 5, :part_one)
   end
 
-  # test "part two example" do
-  #   input = ~S"""
-  #   This is an
-  #   example input.
-  #   replace with
-  #   an example from
-  #   the AoC website.
-  #   """
-  #
-  #   assert CHANGE_ME == solve(input, :part_two)
-  # end
+  @part_two_solution 53
 
-  # You may also implement a test to validate the part two to ensure that you
-  # did not broke your shared modules when implementing another problem.
-
-  # @part_two_solution CHANGE_ME
-  #
-  # test "part two solution" do
-  #   assert {:ok, @part_two_solution} == AoC.run(2015, 5, :part_two)
-  # end
+  test "part two solution" do
+    assert {:ok, @part_two_solution} == AoC.run(2015, 5, :part_two)
+  end
 end

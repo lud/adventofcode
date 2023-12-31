@@ -11,13 +11,13 @@ defmodule AdventOfCode.Y15.Day5 do
 
   def part_one(problem) do
     problem
-    |> dbg()
     |> Enum.count(&nice?/1)
   end
 
-  # def part_two(problem) do
-  #   problem
-  # end
+  def part_two(problem) do
+    problem
+    |> Enum.count(&valid?/1)
+  end
 
   @vowels ~w(a e i o u)
   @forbidden ~w(ab cd pq xy)
@@ -38,11 +38,41 @@ defmodule AdventOfCode.Y15.Day5 do
   defp count_vowels([_ | t], n), do: count_vowels(t, n)
   defp count_vowels([], n), do: n
 
-  defp double?([c, c | t]), do: true
+  defp double?([c, c | _]), do: true
   defp double?([_, x | t]), do: double?([x | t])
   defp double?([_]), do: false
 
   defp forbidden?(str) do
     Enum.any?(@forbidden, &String.contains?(str, &1))
   end
+
+  defp valid?(str) do
+    chars = String.graphemes(str)
+
+    with true <- pair?(chars),
+         true <- repeat?(chars) do
+      true
+    end
+  end
+
+  defp pair?([a, b | t]) do
+    if contains_pair?(t, a, b) do
+      true
+    else
+      pair?([b | t])
+    end
+  end
+
+  defp pair?([_]) do
+    false
+  end
+
+  defp contains_pair?([a, b | _], a, b), do: true
+  defp contains_pair?([_, c | t], a, b), do: contains_pair?([c | t], a, b)
+  defp contains_pair?([_], _, _), do: false
+  defp contains_pair?([], _, _), do: false
+
+  defp repeat?([c, a, c | _]) when a != c, do: true
+  defp repeat?([_, a, c | t]), do: repeat?([a, c | t])
+  defp repeat?([_, _]), do: false
 end
