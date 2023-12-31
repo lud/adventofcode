@@ -51,7 +51,7 @@ defmodule AdventOfCode.Y15.Day1Test do
     assert 5 == solve(input, :part_two)
   end
 
-  @part_two_solution 1873
+  @part_two_solution 1783
 
   test "part two solution" do
     assert {:ok, @part_two_solution} == AoC.run(2015, 1, :part_two)
