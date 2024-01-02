@@ -60,8 +60,6 @@ defmodule AdventOfCode.Y21.Day21 do
       Enum.group_by(state, &elem(&1, 0), &elem(&1, 1))
       |> Enum.map(fn {k, v} -> {k, Enum.sum(v)} end)
 
-    # state |> IO.inspect(label: "state")
-
     {state, wins} =
       Enum.flat_map(state, fn {{p1, p2}, univs} ->
         play_turn(p2, p1, univs) |> Enum.map(fn {{p2, p1}, univs} -> {{p1, p2}, univs} end)
@@ -77,8 +75,6 @@ defmodule AdventOfCode.Y21.Day21 do
     state =
       Enum.group_by(state, &elem(&1, 0), &elem(&1, 1))
       |> Enum.map(fn {k, v} -> {k, Enum.sum(v)} end)
-
-    # state |> IO.inspect(label: "state")
 
     case state do
       [] -> wins

@@ -83,7 +83,6 @@ defmodule AdventOfCode.Y20.Day11 do
     changes =
       Enum.reduce(map, [], fn {coords, val}, changes ->
         neighb_count = trace_rays(map, coords, max_x, max_y)
-        # neighb_count |> IO.inspect(label: "neighb_count")
 
         case {val, neighb_count} do
           {?L, 0} -> [{coords, ?#} | changes]

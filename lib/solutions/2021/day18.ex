@@ -16,7 +16,6 @@ defmodule AdventOfCode.Y21.Day18 do
     input
     |> Stream.map(&String.replace(&1, "[", "{"))
     |> Stream.map(&String.replace(&1, "]", "}"))
-    # |> Stream.map(&IO.inspect/1)
     |> Enum.map(&Code.string_to_quoted!(&1))
     |> Enum.map(&add_indices(&1))
   end
@@ -82,21 +81,15 @@ defmodule AdventOfCode.Y21.Day18 do
   # end
 
   defp redux(num) do
-    # IO.puts("redux: #{format(num)}")
-
     case find_too_deep(num) do
       {:ok, index, vleft, vright} ->
         num = explode_at(num, index, vleft, vright)
-        # IO.puts("exploded: #{format(num)}")
         redux(num)
 
       :error ->
         case find_split(num) do
           {:ok, index, value} ->
             num = split_at(num, index, value)
-            # num |> IO.inspect(label: "splitted")
-            # IO.puts("splitted: #{format(num)}")
-            # IO.puts("        : #{format_indices(num)}")
             redux(num)
 
           :error ->
@@ -176,7 +169,6 @@ defmodule AdventOfCode.Y21.Day18 do
   end
 
   defp find_too_deep({a, b}, dep) do
-    # {a, b} |> IO.inspect(label: "not too deep (#{dep})")
     find_too_deep(a, dep + 1)
     find_too_deep(b, dep + 1)
   end

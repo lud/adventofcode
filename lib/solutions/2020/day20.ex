@@ -216,11 +216,6 @@ defmodule AdventOfCode.Y20.Day20 do
     # we will flatten our pairs of coordinates : [{[x1, x2], y}] -> [{x1, y}, {x2, y}]
     middle_indexes = for {xs, y} <- middle_indexes, x <- xs, do: {x, y}
 
-    # case middle_indexes do
-    #   [] -> nil
-    #   mis -> IO.inspect(mis, label: "middle_indexes")
-    # end
-
     # now we need to validate our sea monsters. for each row/col index where we
     # found a middle-line sea monster, we must match for the other monster rows
 
@@ -264,7 +259,6 @@ defmodule AdventOfCode.Y20.Day20 do
   end
 
   defp match_middle([_skip | list], index, acc) do
-    # index |> IO.inspect(label: "noindex")
     match_middle(list, index + 1, acc)
   end
 

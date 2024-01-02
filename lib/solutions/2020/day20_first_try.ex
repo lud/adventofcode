@@ -16,7 +16,6 @@ defmodule AdventOfCode.Y20.Day20FirstTry do
     |> String.split(~r/\n{2,}/, trim: true)
     |> Enum.map(&parse_tile/1)
     |> Map.new()
-    |> IO.inspect(label: "map")
   end
 
   defdelegate stc(str), to: String, as: :to_charlist

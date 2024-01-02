@@ -43,8 +43,6 @@ defmodule AdventOfCode.Y21.Day23Test do
   #     |> Solution.read_file(:part_one)
   #     |> Solution.parse_input(:part_one)
 
-  #   world |> IO.inspect(label: "world")
-
   #   world = move(world, {4, 1}, {5, 0})
   #   assert world.nrj == 2
   #   Solution.print_world(world)
@@ -54,7 +52,6 @@ defmodule AdventOfCode.Y21.Day23Test do
 
   #   Enum.map(nexts, fn w ->
   #     Solution.print_world(w)
-  #     w |> IO.inspect(label: "w")
   #   end)
 
   #   # world = move(world, {2, 1}, {4, 1})

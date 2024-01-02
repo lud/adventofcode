@@ -75,22 +75,7 @@ defmodule AdventOfCode.Y21.Day23_Bad do
     end
   end
 
-  # defp reduce_map(map) do
-  #   min_nrj = Enum.min(Map.keys(map))
-  #   min_nrj |> IO.inspect(label: "min_nrj")
-  # end
-
-  defp reduce([{nrj, best} | rest] = all, seen) do
-    length(all) |> IO.inspect(label: "length(all)")
-
-    nrj |> IO.inspect(label: "best.nrj")
-
-    # if nrj > 50 do
-    #   print_world(best)
-    # end
-
-    best.moves |> IO.inspect(label: "best.moves")
-
+  defp reduce([{nrj, best} | rest] = _all, seen) do
     if is_win(best) do
       nrj
     else
@@ -111,8 +96,6 @@ defmodule AdventOfCode.Y21.Day23_Bad do
   end
 
   defp recurse(%{nrj: nrj} = world, depth) when nrj < 20_000 do
-    depth |> IO.inspect(label: "depth")
-    nrj |> IO.inspect(label: "nrj")
     if is_win(world), do: world.nrj, else: possible_nexts_rec(world, depth + 1)
   end
 
@@ -127,17 +110,9 @@ defmodule AdventOfCode.Y21.Day23_Bad do
 
     moves =
       for {pos, letter} <- grid, dest <- destinations_from(pos, letter, large?), dest != pos do
-        # pos |> IO.inspect(label: "pos")
-        # letter |> IO.inspect(label: "letter")
-        # dest |> IO.inspect(label: "dest")
-
         steps = calc_steps(pos, dest)
-        # steps |> IO.inspect(label: "steps")
-
-        # IO.puts("move #{letter} from #{inspect(pos)} to #{inspect(dest)}, for $#{energy}")
 
         if can_move?(steps, poses, letter, dest, grid, large?) do
-          # IO.puts(" => valid")
           energy = cost(letter) * length(steps)
           {w, pos, dest, steps, energy}
         else
@@ -156,25 +131,13 @@ defmodule AdventOfCode.Y21.Day23_Bad do
   def possible_nexts(%{nrj: _nrj, grid: grid, large: false = large?} = w) do
     poses = Map.keys(grid)
 
-    # grid |> IO.inspect(label: "grid")
-
     for {pos, letter} <- grid, dest <- destinations_from(pos, letter, large?), dest != pos do
-      # pos |> IO.inspect(label: "pos")
-      # letter |> IO.inspect(label: "letter")
-      # dest |> IO.inspect(label: "dest")
-
       steps = calc_steps(pos, dest)
 
-      # steps |> IO.inspect(label: "steps")
-
-      # IO.puts("move #{letter} from #{inspect(pos)} to #{inspect(dest)}, for $#{energy}")
-
       if can_move?(steps, poses, letter, dest, grid, large?) do
-        # IO.puts(" => valid")
         %{nrj: new_nrj} = new = move(w, pos, dest, steps)
         {new_nrj, new}
       else
-        # IO.puts("=> invalid")
         :invalid
       end
     end
@@ -190,8 +153,6 @@ defmodule AdventOfCode.Y21.Day23_Bad do
       |> Map.delete(pos)
       |> Map.put(dest, letter)
 
-    # energy |> IO.inspect(label: "add energy")
-
     %{world | grid: grid, nrj: nrj + energy, moves: n + 1}
   end
 
@@ -204,8 +165,6 @@ defmodule AdventOfCode.Y21.Day23_Bad do
   # end
 
   defp can_move?(move, poses, letter, {_, y} = _dest, grid, _large?) do
-    # move |> IO.inspect(label: "valid?")
-
     if valid_move?(move, poses) do
       cond do
         y > 0 and is_stranger(Map.get(grid, {x_for(letter), 1}), letter) -> false
@@ -343,21 +302,18 @@ defmodule AdventOfCode.Y21.Day23_Bad do
   def calc_steps({from_x, from_y}, {to_x, _to_y} = to) when from_y == 0 and from_x != to_x do
     # moving the x
     next = {next_coord(from_x, to_x), from_y}
-    # next |> IO.inspect(label: "next")
     [next | calc_steps(next, to)]
   end
 
   def calc_steps({from_x, from_y}, {to_x, _to_y} = to) when from_y > 0 and from_x != to_x do
     # moving the y UP
     next = {from_x, from_y - 1}
-    # next |> IO.inspect(label: "next")
     [next | calc_steps(next, to)]
   end
 
   def calc_steps({from_x, from_y}, {to_x, to_y} = to) when from_x == to_x do
     # moving the y DOWN
     next = {from_x, next_coord(from_y, to_y)}
-    # next |> IO.inspect(label: "next")
     [next | calc_steps(next, to)]
   end
 

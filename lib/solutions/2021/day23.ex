@@ -6,21 +6,18 @@ defmodule AdventOfCode.Y21.Day23.StepCompiler do
   def calc_steps({from_x, from_y}, {to_x, _} = to) when from_y == 0 and from_x != to_x do
     # moving the x
     next = {next_coord(from_x, to_x), from_y}
-    # next |> IO.inspect(label: "next")
     [next | calc_steps(next, to)]
   end
 
   def calc_steps({from_x, from_y}, {to_x, _} = to) when from_y > 0 and from_x != to_x do
     # moving the y UP
     next = {from_x, from_y - 1}
-    # next |> IO.inspect(label: "next")
     [next | calc_steps(next, to)]
   end
 
   def calc_steps({from_x, from_y}, {to_x, to_y} = to) when from_x == to_x do
     # moving the y DOWN
     next = {from_x, next_coord(from_y, to_y)}
-    # next |> IO.inspect(label: "next")
     [next | calc_steps(next, to)]
   end
 
@@ -179,7 +176,6 @@ defmodule AdventOfCode.Y21.Day23 do
   end
 
   def destinations(world, pos, letter, large?) do
-    # binding |> IO.inspect(label: "binding")
     free_hallways = free_hallways(world)
     yo = yo(large?)
 
@@ -267,7 +263,7 @@ defmodule AdventOfCode.Y21.Day23 do
     end
   end
 
-  defp room_clean?(_world, _x, _y = 0, _letter) do
+  defp room_clean?(_world, _x, 0 = _y, _letter) do
     true
   end
 

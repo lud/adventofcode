@@ -24,9 +24,6 @@ defmodule AdventOfCode.Y20.Day10 do
 
   def part_one({adapters, device}) do
     problem = Enum.sort([device | adapters])
-    # {:ok, chain} = find_chain(0, problem)
-
-    # chain |> IO.inspect(label: "chain")
     {a, b} = calc_differences([0 | problem], {0, 0})
     a * b
   end

@@ -121,7 +121,6 @@ defmodule AdventOfCode.Y22.Day19 do
     if can_build?(what, bot_bp, state) do
       state = rm_mats(state, bot_bp)
       state = add_bot(state, what)
-      # what |> IO.inspect(label: "built")
       [state | states]
     else
       states

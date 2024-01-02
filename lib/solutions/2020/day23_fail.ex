@@ -82,21 +82,9 @@ defmodule AdventOfCode.Y20.Day23Fail do
     cups
   end
 
-  # defp print_position_of(cups, n) do
-  #   cups
-  #   |> Enum.with_index()
-  #   |> List.keyfind(n, 0)
-  #   |> IO.inspect()
-
-  #   cups
-  # end
-
   defp move(cups, max_cup) do
     [cur, a, b, c | cups] = unpack(cups, 4)
     dest = to_dest(cur - 1, [a, b, c], max_cup)
-    # dest = find_destination(cur, cups, cups)
-    cur |> IO.inspect(label: "cur")
-    dest |> IO.inspect(label: "dest")
     _cups = rearrange(cups, dest, {a, b, c}, cur)
   end
 

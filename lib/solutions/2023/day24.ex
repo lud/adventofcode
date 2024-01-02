@@ -80,35 +80,16 @@ defmodule AdventOfCode.Y23.Day24 do
          {{px2, _, _}, {vx2, _, _}, {a2, b2}},
          mini..maxi
        ) do
-    # IO.puts("""
-    # Hailstone A: #{px1}, #{py1}, #{pz1} @ #{vx1}, #{vy1}, #{vz1}
-    # Hailstone B: #{px2}, #{py2}, #{pz2} @ #{vx2}, #{vy2}, #{vz2}
-    # """)
-
-    # {px1, py1, pz1} |> IO.inspect(label: ~S/{px1, py1, pz1}/)
-    # {px2, py2, pz2} |> IO.inspect(label: ~S/{px2, py2, pz2}/)
-
     # Intersection point
     x = (b2 - b1) / (a1 - a2)
     y = a1 * x + b1
 
-    # {x, y} |> IO.inspect(label: ~S/cross/)
-
     # Future?
     future? = ((px1 < x && vx1 >= 0) || (px1 > x && vx1 <= 0)) && ((px2 < x && vx2 >= 0) || (px2 > x && vx2 <= 0))
-    # future? |> IO.inspect(label: ~S/future?/)
 
     in_range? = x >= mini && x <= maxi && y >= mini && y <= maxi
 
-    # if in_range? && future? do
-    #   {x, y} |> IO.inspect(label: ~S/cross/)
-    # end
-
     does? = in_range? && future?
-
-    # if does? do
-    #   IO.puts("======> +1")
-    # end
 
     does?
   end

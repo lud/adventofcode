@@ -11,15 +11,11 @@ defmodule AdventOfCode.Y15.Day8 do
 
   def part_one(problem) do
     problem
-    |> Enum.map(&diff_chars/1)
+    |> Enum.map(&diff_p1/1)
     |> Enum.sum()
   end
 
-  # def part_two(problem) do
-  #   problem
-  # end
-
-  defp diff_chars(original = chars) do
+  defp diff_p1(original = chars) do
     [?" | chars] = chars
     [?" | chars] = :lists.reverse(chars)
     chars = :lists.reverse(chars)
@@ -53,4 +49,20 @@ defmodule AdventOfCode.Y15.Day8 do
   defp hexchar(?d), do: 13
   defp hexchar(?e), do: 14
   defp hexchar(?f), do: 15
+
+  def part_two(problem) do
+    problem
+    |> Enum.map(&diff_p2/1)
+    |> Enum.sum()
+  end
+
+  defp diff_p2(original = chars) do
+    chars = [?" | escape(chars)] ++ [?"]
+    length(chars) - length(original)
+  end
+
+  defp escape([?" | chars]), do: [?\\, ?" | escape(chars)]
+  defp escape([?\\ | chars]), do: [?\\, ?\\ | escape(chars)]
+  defp escape([c | chars]), do: [c | escape(chars)]
+  defp escape([]), do: []
 end

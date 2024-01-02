@@ -1,3 +1,4 @@
+# credo:disable-for-this-file Credo.Check.Warning.OperationWithConstantResult
 defmodule AdventOfCode.Y21.Day24Fail do
   alias AoC.Input, warn: false
 
@@ -116,9 +117,6 @@ defmodule AdventOfCode.Y21.Day24Fail do
   end
 
   defp expand(%{digits: digits, index: index, best: best} = state, program) do
-    index |> IO.inspect(label: "------------------ index")
-    best |> IO.inspect(label: "best        ")
-
     1..9
     |> Enum.map(fn d ->
       digits = List.replace_at(digits, index, d)
@@ -132,25 +130,17 @@ defmodule AdventOfCode.Y21.Day24Fail do
       # IO.puts("#{Integer.undigits(digits)} => #{z}")
       {z, d, digits}
     end)
-    # |> IO.inspect(label: "got ")
     |> Enum.filter(fn {z, _, _} ->
       z <= best
     end)
-    # |> IO.inspect(label: "kept")
     |> Enum.sort_by(fn {z, d, _digits} ->
       {z, -1 * d}
     end)
-    # |> IO.inspect(label: "sorted")
-    # |> Enum.map(&IO.inspect/1)
     |> case do
       [] ->
         :deadend
 
-      [{least_z, _, _least_digits} | _] = possibles ->
-        least_z |> IO.inspect(label: "least_z     ")
-
-        # least_digits |> IO.inspect(label: "least_digits")
-
+      [{_least_z, _, _least_digits} | _] = possibles ->
         # Process.sleep(1000)
 
         # if all_same_z(possibles, least_z) and least_z != 0 do
@@ -187,7 +177,6 @@ defmodule AdventOfCode.Y21.Day24Fail do
 
   def run([instr | rest], buf, state) do
     {buf, state} = call(instr, buf, state)
-    # state |> IO.inspect(label: "state")
     run(rest, buf, state)
   end
 
@@ -196,7 +185,7 @@ defmodule AdventOfCode.Y21.Day24Fail do
   end
 
   def putval(state, k, v) when k in ~w(w x y z)a,
-    do: Map.put(state, k, v) |> IO.inspect(label: "state")
+    do: Map.put(state, k, v)
 
   def value(state, k) when k in ~w(w x y z)a,
     do: Map.fetch!(state, k)
