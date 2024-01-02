@@ -25,6 +25,7 @@ defmodule AdventOfCode.MixProject do
     [
       # {:aoc, "~> 0.11"},
       {:aoc, path: "../aoc"},
+      {:jason, "~> 1.4"},
       {:credo, "~> 1.7", only: [:dev], runtime: false}
     ]
   end
