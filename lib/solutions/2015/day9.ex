@@ -23,7 +23,11 @@ defmodule AdventOfCode.Y15.Day9 do
     1..10
     |> Enum.reverse()
     |> permutations_stream()
-    |> Stream.map(fn i -> i |> IO.inspect(label: ~S/=========/) end)
+    |> Stream.map(fn perm ->
+      perm |> IO.inspect(label: ~S/=========/)
+      10 = length(perm)
+      perm
+    end)
     |> Enum.take(10)
   end
 
@@ -41,7 +45,7 @@ defmodule AdventOfCode.Y15.Day9 do
     stream = [{[], list}]
 
     count
-    |> Enum.reduce(stream, fn _iter, stream -> Stream.flat_map(stream, &permutations/1) end)
+    |> Enum.reduce(stream, fn _iter, stream -> Stream.flat_map(stream, &permutation_step/1) end)
     |> Stream.map(&unwrap_permutations/1)
   end
 
@@ -49,7 +53,7 @@ defmodule AdventOfCode.Y15.Day9 do
     []
   end
 
-  defp permutations({used, left}) do
+  defp permutation_step({used, left}) do
     Stream.map(left, fn item -> {[item | used], left -- [item]} end)
   end
 
