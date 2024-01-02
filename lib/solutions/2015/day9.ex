@@ -26,6 +26,18 @@ defmodule AdventOfCode.Y15.Day9 do
     |> Enum.min()
   end
 
+  def part_two(problem) do
+    # writing distances as tuples in alphabetical order as they are reciprocal
+    # and only defined once in the input
+    distances = Enum.reduce(problem, %{}, fn {from, to, distance}, acc -> put_distance(acc, from, to, distance) end)
+    cities = distances |> Map.keys() |> Enum.flat_map(fn {from, to} -> [from, to] end) |> Enum.uniq()
+
+    cities
+    |> AoC.Permutations.of()
+    |> Stream.map(fn path -> compute_total_distance(path, distances) end)
+    |> Enum.max()
+  end
+
   defp put_distance(map, from, to, distance) when from <= to do
     Map.put(map, {from, to}, distance)
   end

@@ -45,24 +45,19 @@ defmodule AdventOfCode.Y15.Day9Test do
     assert {:ok, @part_one_solution} == AoC.run(2015, 9, :part_one)
   end
 
-  # test "part two example" do
-  #   input = ~S"""
-  #   This is an
-  #   example input.
-  #   replace with
-  #   an example from
-  #   the AoC website.
-  #   """
-  #
-  #   assert CHANGE_ME == solve(input, :part_two)
-  # end
+  test "part two example" do
+    input = ~S"""
+    London to Dublin = 464
+    London to Belfast = 518
+    Dublin to Belfast = 141
+    """
 
-  # You may also implement a test to validate the part two to ensure that you
-  # did not broke your shared modules when implementing another problem.
+    assert 982 == solve(input, :part_two)
+  end
 
-  # @part_two_solution CHANGE_ME
-  #
-  # test "part two solution" do
-  #   assert {:ok, @part_two_solution} == AoC.run(2015, 9, :part_two)
-  # end
+  @part_two_solution 736
+
+  test "part two solution" do
+    assert {:ok, @part_two_solution} == AoC.run(2015, 9, :part_two)
+  end
 end
