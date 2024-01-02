@@ -13,12 +13,18 @@ defmodule AdventOfCode.Y15.Day11 do
     problem
     |> increment()
     |> Stream.iterate(&increment/1)
-
-    # |> Stream.map(&IO.inspect(&1, label: "??"))
     |> Stream.filter(&valid?/1)
-    # |> Stream.take(100)
-    # |> Enum.each(&IO.inspect(&1, label: "======="))
     |> Enum.take(1)
+    |> to_string()
+  end
+
+  def part_two(problem) do
+    problem
+    |> increment()
+    |> Stream.iterate(&increment/1)
+    |> Stream.filter(&valid?/1)
+    |> Enum.take(2)
+    |> List.last()
     |> to_string()
   end
 
