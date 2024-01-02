@@ -17,12 +17,15 @@ defmodule AdventOfCode.Y15.Day10 do
     part_one({problem, 40})
   end
 
+  def part_two(problem) when is_binary(problem) do
+    problem |> reduce(50) |> String.length()
+  end
+
   defp reduce(int, 0) do
     int
   end
 
   defp reduce(int, n) do
-    n |> IO.inspect(label: ~S/n/)
     int |> spell() |> reduce(n - 1)
   end
 
