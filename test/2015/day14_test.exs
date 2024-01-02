@@ -44,24 +44,19 @@ defmodule AdventOfCode.Y15.Day14Test do
     assert {:ok, @part_one_solution} == AoC.run(2015, 14, :part_one)
   end
 
-  # test "part two example" do
-  #   input = ~S"""
-  #   This is an
-  #   example input.
-  #   replace with
-  #   an example from
-  #   the AoC website.
-  #   """
-  #
-  #   assert CHANGE_ME == solve(input, :part_two)
-  # end
+  test "part two example" do
+    input = ~S"""
+    Comet can fly 14 km/s for 10 seconds, but then must rest for 127 seconds.
+    Dancer can fly 16 km/s for 11 seconds, but then must rest for 162 seconds.
+    """
 
-  # You may also implement a test to validate the part two to ensure that you
-  # did not broke your shared modules when implementing another problem.
+    assert 689 == solve(input, :part_two, 1000)
+  end
 
-  # @part_two_solution CHANGE_ME
-  #
-  # test "part two solution" do
-  #   assert {:ok, @part_two_solution} == AoC.run(2015, 14, :part_two)
-  # end
+
+  @part_two_solution 1059
+
+  test "part two solution" do
+    assert {:ok, @part_two_solution} == AoC.run(2015, 14, :part_two)
+  end
 end
