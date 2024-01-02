@@ -29,7 +29,27 @@ defmodule AdventOfCode.Y15.Day12 do
     acc
   end
 
-  # def part_two(problem) do
-  #   problem
-  # end
+  def part_two(problem) do
+    count_no_red(problem, 0)
+  end
+
+  defp count_no_red(map, acc) when is_map(map) do
+    if Enum.any?(map, fn {_, v} -> v == "red" end) do
+      acc
+    else
+      Enum.reduce(map, acc, fn {_, v}, acc -> count_no_red(v, acc) end)
+    end
+  end
+
+  defp count_no_red(int, acc) when is_integer(int) do
+    acc + int
+  end
+
+  defp count_no_red(list, acc) when is_list(list) do
+    Enum.reduce(list, acc, fn item, acc -> count_no_red(item, acc) end)
+  end
+
+  defp count_no_red(str, acc) when is_binary(str) do
+    acc
+  end
 end
