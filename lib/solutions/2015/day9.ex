@@ -2,62 +2,48 @@ defmodule AdventOfCode.Y15.Day9 do
   alias AoC.Input
 
   def read_file(file, _part) do
-    # Return each line
     Input.stream!(file, trim: true)
-    # Or return the whole file
-    # Input.read!(file)
   end
 
   def parse_input(input, _part) do
-    input
+    input |> Enum.map(&parse_line/1)
+  end
+
+  defp parse_line(line) do
+    [from, "to", to, "=", distance] = String.split(line, " ")
+    {from, to, String.to_integer(distance)}
   end
 
   def part_one(problem) do
-    problem
+    # writing distances as tuples in alphabetical order as they are reciprocal
+    # and only defined once in the input
+    distances = Enum.reduce(problem, %{}, fn {from, to, distance}, acc -> put_distance(acc, from, to, distance) end)
+    cities = distances |> Map.keys() |> Enum.flat_map(fn {from, to} -> [from, to] end) |> Enum.uniq()
 
-    [] |> show_perms()
-    [1] |> show_perms()
-    [1, 2] |> show_perms()
-    [1, 2, 3] |> show_perms()
-
-    1..10
-    |> Enum.reverse()
-    |> permutations_stream()
-    |> Stream.map(fn perm ->
-      perm |> IO.inspect(label: ~S/=========/)
-      10 = length(perm)
-      perm
-    end)
-    |> Enum.take(10)
+    cities
+    |> AoC.Permutations.of()
+    |> Stream.map(fn path -> compute_total_distance(path, distances) end)
+    |> Enum.min()
   end
 
-  defp show_perms(list) do
-    perms = list |> permutations_stream() |> Enum.to_list() |> Enum.sort()
-    list |> IO.inspect(label: ~S/list/)
-    perms |> IO.inspect(label: ~S/perms/)
+  defp put_distance(map, from, to, distance) when from <= to do
+    Map.put(map, {from, to}, distance)
   end
 
-  # def part_two(problem) do
-  #   problem
-  # end
-
-  def permutations_stream([_ | count] = list) do
-    stream = [{[], list}]
-
-    count
-    |> Enum.reduce(stream, fn _iter, stream -> Stream.flat_map(stream, &permutation_step/1) end)
-    |> Stream.map(&unwrap_permutations/1)
+  defp put_distance(map, from, to, distance) do
+    put_distance(map, to, from, distance)
   end
 
-  def permutations_stream([]) do
-    []
+  defp get_distance(map, from, to) when from <= to do
+    Map.fetch!(map, {from, to})
   end
 
-  defp permutation_step({used, left}) do
-    Stream.map(left, fn item -> {[item | used], left -- [item]} end)
+  defp get_distance(map, from, to) do
+    get_distance(map, to, from)
   end
 
-  defp unwrap_permutations({used, [last]}) do
-    [last | used]
+  defp compute_total_distance(path, distances) do
+    Enum.chunk_every(path, 2, 1, :discard)
+    |> Enum.reduce(0, fn [from, to], acc -> acc + get_distance(distances, from, to) end)
   end
 end

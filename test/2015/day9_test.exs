@@ -31,24 +31,19 @@ defmodule AdventOfCode.Y15.Day9Test do
 
   test "part one example" do
     input = ~S"""
-    This is an
-    example input.
-    replace with
-    an example from
-    the AoC website.
+    London to Dublin = 464
+    London to Belfast = 518
+    Dublin to Belfast = 141
     """
 
-    assert CHANGE_ME == solve(input, :part_one)
+    assert 605 == solve(input, :part_one)
   end
 
-  # Once your part one was successfully sumbitted, you may uncomment this test
-  # to ensure your implementation was not altered when you implement part two.
+  @part_one_solution 141
 
-  # @part_one_solution CHANGE_ME
-  #
-  # test "part one solution" do
-  #   assert {:ok, @part_one_solution} == AoC.run(2015, 9, :part_one)
-  # end
+  test "part one solution" do
+    assert {:ok, @part_one_solution} == AoC.run(2015, 9, :part_one)
+  end
 
   # test "part two example" do
   #   input = ~S"""
