@@ -18,7 +18,7 @@ defmodule AdventOfCode.Y20.Day3 do
   @spec part_one(problem) :: integer
   def part_one(problem) do
     solution = count_trees(problem, {3, 1})
-    # print_map(problem, {3, 1})
+    print_map(problem, {3, 1})
     solution
   end
 
@@ -64,23 +64,26 @@ defmodule AdventOfCode.Y20.Day3 do
     repeats = ceil(move_width / map_width(problem))
     IO.puts([IO.ANSI.light_white_background()])
 
+    term_width = 60
+
     problem
-    |> Enum.reduce(0, fn chars, pos ->
+    |> Enum.zip(Stream.iterate(0, &(&1 + right)))
+    |> Enum.each(fn {chars, pos} ->
       chars
       |> List.duplicate(repeats)
       |> List.flatten()
       |> Enum.with_index()
       |> Enum.map(
         &case &1 do
-          {?#, ^pos} -> "❌"
+          {?#, ^pos} -> [IO.ANSI.red(), "木", IO.ANSI.default_color()]
           {?., ^pos} -> [IO.ANSI.green(), "✔️", IO.ANSI.default_color()]
-          {?#, _} -> "🌲"
-          {?., _} -> ".."
+          {?#, _} -> [IO.ANSI.green(), "木", IO.ANSI.default_color()]
+          {?., _} -> " "
         end
       )
+      |> Enum.drop(div(pos, term_width) * term_width)
+      |> Enum.take(term_width)
       |> IO.puts()
-
-      pos + right
     end)
 
     IO.puts([IO.ANSI.reset()])

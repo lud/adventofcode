@@ -49,10 +49,7 @@ defmodule AdventOfCode.Y15.Day5 do
   defp valid?(str) do
     chars = String.graphemes(str)
 
-    with true <- pair?(chars),
-         true <- repeat?(chars) do
-      true
-    end
+    with true <- pair?(chars), do: repeat?(chars)
   end
 
   defp pair?([a, b | t]) do

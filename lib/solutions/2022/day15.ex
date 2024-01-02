@@ -45,10 +45,9 @@ defmodule AdventOfCode.Y22.Day15 do
       Enum.filter(data, fn {_, {_, y}} -> y == check_y end)
       |> Enum.map(&elem(&1, 1))
       |> Enum.uniq()
-      |> Enum.filter(fn {_, bcn_y} ->
+      |> Enum.count(fn {_, bcn_y} ->
         Enum.any?(ranges, &(bcn_y in &1))
       end)
-      |> Enum.count()
 
     coverage - subtract_beacons
   end
@@ -122,7 +121,7 @@ defmodule AdventOfCode.Y22.Day15 do
       covered? ->
         find_point(squares, rays)
 
-      is_point?(square) ->
+      point?(square) ->
         square_to_point(square)
 
       true ->
@@ -139,11 +138,11 @@ defmodule AdventOfCode.Y22.Day15 do
     end
   end
 
-  defp is_point?({xy, xy}) do
+  defp point?({xy, xy}) do
     true
   end
 
-  defp is_point?(_) do
+  defp point?(_) do
     false
   end
 

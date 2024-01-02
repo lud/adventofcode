@@ -98,7 +98,7 @@ defmodule AdventOfCode.Y21.Day23 do
 
   defp reduce([best | worlds], seen, large?) do
     {best_nrj, best_world} = best
-    if is_win(best_world, large?), do: throw({:win, best_nrj})
+    if win?(best_world, large?), do: throw({:win, best_nrj})
     # Process.sleep(100)
     nexts = possible_nexts(best, large?)
 
@@ -252,7 +252,7 @@ defmodule AdventOfCode.Y21.Day23 do
     end
   end
 
-  defp next_inroom(_world, _x, _y = 0, _letter) do
+  defp next_inroom(_world, _x, 0 = _y, _letter) do
     []
   end
 
@@ -292,7 +292,7 @@ defmodule AdventOfCode.Y21.Day23 do
   #   }
   # end
 
-  defp is_win(
+  defp win?(
          %{
            {2, 1} => :A,
            {2, 2} => :A,
@@ -308,7 +308,7 @@ defmodule AdventOfCode.Y21.Day23 do
     true
   end
 
-  defp is_win(
+  defp win?(
          %{
            {2, 1} => :A,
            {2, 2} => :A,
@@ -332,7 +332,7 @@ defmodule AdventOfCode.Y21.Day23 do
     true
   end
 
-  defp is_win(_, _), do: false
+  defp win?(_, _), do: false
 
   defp cost(:A), do: 1
   defp cost(:B), do: 10

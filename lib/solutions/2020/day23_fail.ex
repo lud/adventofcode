@@ -52,8 +52,7 @@ defmodule AdventOfCode.Y20.Day23Fail do
     {lasts, [1 | firsts]} = Enum.split_while(cups, &(&1 != 1))
 
     (firsts ++ lasts)
-    |> Enum.map(&to_string/1)
-    |> Enum.join("")
+    |> Enum.map_join("", &to_string/1)
 
     # |> :erlang.list_to_integer()
   end

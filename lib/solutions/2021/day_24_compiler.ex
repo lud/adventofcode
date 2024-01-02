@@ -9,8 +9,7 @@ defmodule D24Compiler do
       |> elem(0)
       |> :lists.flatten()
       |> then(&(&1 ++ ["  z\nend\n"]))
-      |> Enum.map(&("  " <> &1))
-      |> Enum.join("")
+      |> Enum.map_join("", &("  " <> &1))
 
     code = """
     defmodule AdventOfCode.Y21.Day24.Program do

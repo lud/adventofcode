@@ -47,8 +47,7 @@ defmodule AdventOfCode.Y20.Day4 do
   @spec part_two(problem) :: integer
   def part_two(problem) do
     problem
-    |> Enum.filter(&validate_passport_one/1)
-    |> Enum.filter(&validate_passport_two/1)
+    |> Enum.filter(fn a -> validate_passport_one(a) && validate_passport_two(a) end)
     |> length
   end
 

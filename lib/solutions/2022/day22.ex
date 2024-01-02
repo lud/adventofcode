@@ -159,7 +159,7 @@ defmodule AdventOfCode.Y22.Day22 do
     end
   end
 
-  # TODO no recursion is needed here
+  # no recursion is actually needed here
 
   defp wrap_pos({x, y}, {_xl, xh, _yl, _yh} = bounds) when x > xh do
     wrap_pos({1, y}, bounds)

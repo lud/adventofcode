@@ -76,9 +76,6 @@ defmodule AdventOfCode.Y21.Day24 do
   end
 
   defp run_index(index, states, _seen, bester) do
-    IO.puts("-------- index #{index}")
-    IO.puts("before: #{length(states)}")
-
     seens =
       Enum.map(1..9, fn w ->
         Task.async(fn ->

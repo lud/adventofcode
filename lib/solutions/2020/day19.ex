@@ -83,8 +83,7 @@ defmodule AdventOfCode.Y20.Day19 do
 
   defp assemble_rule([{:group, _} | _] = groups, map) do
     groups
-    |> Enum.map(fn {:group, group} -> assemble_rule(group, map) end)
-    |> Enum.join("|")
+    |> Enum.map_join("|", fn {:group, group} -> assemble_rule(group, map) end)
     |> wrap_parens
   end
 

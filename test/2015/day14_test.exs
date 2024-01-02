@@ -53,7 +53,6 @@ defmodule AdventOfCode.Y15.Day14Test do
     assert 689 == solve(input, :part_two, 1000)
   end
 
-
   @part_two_solution 1059
 
   test "part two solution" do

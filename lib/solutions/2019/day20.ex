@@ -73,7 +73,7 @@ defmodule AdventOfCode.Y19.Day20 do
           end
       end
 
-    tag_map = Map.filter(map, &is_tag_pair/1)
+    tag_map = Map.filter(map, &tag_pair?/1)
 
     # find the inner vertically written tags. we remove all cordinates of the
     # two top and two bottom rows. Then we keep all Y values that have a letter.
@@ -175,8 +175,8 @@ defmodule AdventOfCode.Y19.Day20 do
     {outer_warps, inner_warps}
   end
 
-  defp is_tag_pair({_, {:tag, _}}), do: true
-  defp is_tag_pair(_), do: false
+  defp tag_pair?({_, {:tag, _}}), do: true
+  defp tag_pair?(_), do: false
 
   defp filter_tags(map, filter_first_letters, filter_second_letters, gen_xy) do
     first_letters = Enum.filter(map, fn {xy, _} -> filter_first_letters.(xy) end) |> Enum.sort()

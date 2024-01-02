@@ -49,8 +49,7 @@ defmodule AdventOfCode.Y15.Day10 do
   defp rebuild(spells) do
     spells
     |> Enum.reverse()
-    |> Enum.map(fn {count, current} -> [count, current] end)
-    |> Enum.join()
+    |> Enum.map_join("", fn {count, current} -> [count, current] end)
   end
 
   # def part_two(problem) do

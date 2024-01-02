@@ -62,13 +62,13 @@ defmodule AdventOfCode.Y22.Day14 do
   def part_one(map) do
     yh = Map.keys(map) |> Enum.max_by(&elem(&1, 1)) |> elem(1)
     map = pour_sand(map, yh + 1)
-    map |> Map.values() |> Enum.filter(&(&1 == :sand)) |> Enum.count()
+    map |> Map.values() |> Enum.count(&(&1 == :sand))
   end
 
   def part_two_alt(map) do
     yh = Map.keys(map) |> Enum.max_by(&elem(&1, 1)) |> elem(1)
     map = pour_sand_2(map, yh + 2)
-    map |> Map.values() |> Enum.filter(&(&1 == :sand)) |> Enum.count()
+    map |> Map.values() |> Enum.count(&(&1 == :sand))
   end
 
   defp pour_sand(map, void) do

@@ -67,12 +67,12 @@ defmodule AdventOfCode.Y15.Day14 do
     run_deer(deer, :rest, dist + speed * fly_time, seconds - fly_time)
   end
 
-  defp run_deer(%{rest_time: rest_time} = deer, :rest, dist, seconds) when rest_time > seconds do
+  defp run_deer(%{rest_time: rest_time}, :rest, dist, seconds) when rest_time > seconds do
     dist
   end
 
   defp run_deer(deer, :rest, dist, seconds) do
-    %{rest_time: rest_time, fly_time: fly_time} = deer
+    %{rest_time: rest_time} = deer
     run_deer(deer, :fly, dist, seconds - rest_time)
   end
 
@@ -87,7 +87,7 @@ defmodule AdventOfCode.Y15.Day14 do
     part_two({deers, 2503})
   end
 
-  defp reduce(deers, seconds, score, max_seconds) when seconds > max_seconds do
+  defp reduce(_deers, seconds, score, max_seconds) when seconds > max_seconds do
     score
   end
 
@@ -96,17 +96,14 @@ defmodule AdventOfCode.Y15.Day14 do
     best_distance = Enum.max_by(deers, & &1.distance).distance
     winners = deers |> Enum.filter(fn deer -> deer.distance == best_distance end) |> Enum.map(& &1.name)
     score = Enum.reduce(winners, score, fn name, score -> Map.update!(score, name, &(&1 + 1)) end)
-    second |> IO.inspect(label: ~S/second/)
-    deers |> dbg()
-    score |> dbg()
     reduce(deers, second + 1, score, max_seconds)
   end
 
-  defp run_second(%{status: :rest, distance: d, seconds: 1} = deer) do
+  defp run_second(%{status: :rest, seconds: 1} = deer) do
     %{deer | status: :fly, seconds: deer.fly_time}
   end
 
-  defp run_second(%{status: :rest, distance: d, seconds: secs} = deer) when secs > 1 do
+  defp run_second(%{status: :rest, seconds: secs} = deer) when secs > 1 do
     %{deer | seconds: secs - 1}
   end
 

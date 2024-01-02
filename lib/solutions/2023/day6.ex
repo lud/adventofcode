@@ -42,9 +42,9 @@ defmodule AdventOfCode.Y23.Day6 do
     |> length()
   end
 
-  defp hold_time_to_distance(hold = speed, time) do
+  defp hold_time_to_distance(hold, time) do
     duration = time - hold
-    _distance = speed * duration
+    _distance = hold * duration
   end
 
   def part_two({time, distance_record}) do

@@ -15,8 +15,8 @@ defmodule AdventOfCode.Y15.Day8 do
     |> Enum.sum()
   end
 
-  defp diff_p1(original = chars) do
-    [?" | chars] = chars
+  defp diff_p1(original) do
+    [?" | chars] = original
     [?" | chars] = :lists.reverse(chars)
     chars = :lists.reverse(chars)
     chars = unescape(chars)
@@ -56,8 +56,8 @@ defmodule AdventOfCode.Y15.Day8 do
     |> Enum.sum()
   end
 
-  defp diff_p2(original = chars) do
-    chars = [?" | escape(chars)] ++ [?"]
+  defp diff_p2(original) do
+    chars = [?" | escape(original)] ++ [?"]
     length(chars) - length(original)
   end
 
