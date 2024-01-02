@@ -17,12 +17,6 @@ defmodule AdventOfCode.Y21.Day24Test do
   #     {:ok, path} = Input.resolve(2021, 24, "sample-1")
   #
 
-  @sample_1 """
-  This is
-  A Fake
-  Data file
-  """
-
   # test "verify 2021/24 part_one - samples" do
   #   problem =
   #     @sample_1

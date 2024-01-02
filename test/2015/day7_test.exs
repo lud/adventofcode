@@ -68,8 +68,6 @@ defmodule AdventOfCode.Y15.Day7Test do
 
     for a_name <- Map.keys(expected) do
       input = make_input.(a_name)
-      IO.puts("----------- as #{a_name} -----------")
-      IO.puts(input)
       assert Map.fetch!(expected, a_name) == solve(input, :part_one)
     end
   end

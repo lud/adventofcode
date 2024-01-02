@@ -29,16 +29,6 @@ defmodule AdventOfCode.Y23.Day24Test do
     apply(Solution, part, [{problem, range}])
   end
 
-  defp solve(input, part) do
-    problem =
-      input
-      |> Input.as_file()
-      |> Solution.read_file(part)
-      |> Solution.parse_input(part)
-
-    apply(Solution, part, [problem])
-  end
-
   test "part one example" do
     input = ~S"""
     19, 13, 30 @ -2, 1, -2

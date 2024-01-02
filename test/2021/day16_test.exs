@@ -18,10 +18,6 @@ defmodule AdventOfCode.Y21.Day16Test do
   #     {:ok, path} = Input.resolve(2021, 16, "sample-1")
   #
 
-  @sample_1 """
-  38006F45291200
-  """
-
   test "decode litteral packet" do
     input = "D2FE28"
     decoded = Solution.decode_hex(input)

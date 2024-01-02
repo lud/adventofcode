@@ -10,7 +10,6 @@ defmodule AdventOfCode.Y15.Day7 do
   end
 
   defp parse_line(line) do
-    line |> IO.inspect(label: ~S/line/)
     [input, output] = String.split(line, " -> ")
     {parse_sigin(input), parse_sigout(output)}
   end
@@ -59,7 +58,6 @@ defmodule AdventOfCode.Y15.Day7 do
     problem
     |> reduce([], %{})
     |> Map.fetch!("a")
-    |> dbg()
     |> :binary.decode_unsigned()
   end
 
@@ -77,14 +75,11 @@ defmodule AdventOfCode.Y15.Day7 do
   end
 
   defp reduce([{inp, out} = wire | t], postponed, signals) do
-    inp |> IO.inspect(label: ~S/inp/)
-
     case build_sig(inp, signals) do
       :error ->
         reduce(t, [wire | postponed], signals)
 
       {:ok, val} ->
-        IO.puts("register #{inspect(out)}: #{inspect(val)}")
         signals = register(signals, out, val)
         reduce(t, postponed, signals)
     end
@@ -174,7 +169,7 @@ defmodule AdventOfCode.Y15.Day7 do
   defp rshift(int, 0), do: int
 
   defp rshift(int, z) do
-    <<a::1, b::1, c::1, d::1, e::1, f::1, g::1, h::1, i::1, j::1, k::1, l::1, m::1, n::1, o::1, p::1>> = int
+    <<a::1, b::1, c::1, d::1, e::1, f::1, g::1, h::1, i::1, j::1, k::1, l::1, m::1, n::1, o::1, _::1>> = int
     new = <<0::1, a::1, b::1, c::1, d::1, e::1, f::1, g::1, h::1, i::1, j::1, k::1, l::1, m::1, n::1, o::1>>
     rshift(new, z - 1)
   end
