@@ -18,7 +18,7 @@ defmodule AdventOfCode.Y20.Day3 do
   @spec part_one(problem) :: integer
   def part_one(problem) do
     solution = count_trees(problem, {3, 1})
-    print_map(problem, {3, 1})
+    # print_map(problem, {3, 1})
     solution
   end
 
