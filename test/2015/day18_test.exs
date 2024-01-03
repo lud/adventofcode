@@ -48,24 +48,22 @@ defmodule AdventOfCode.Y15.Day18Test do
     assert {:ok, @part_one_solution} == AoC.run(2015, 18, :part_one)
   end
 
-  # test "part two example" do
-  #   input = ~S"""
-  #   This is an
-  #   example input.
-  #   replace with
-  #   an example from
-  #   the AoC website.
-  #   """
-  #
-  #   assert CHANGE_ME == solve(input, :part_two)
-  # end
+  test "part two example" do
+    input = ~S"""
+    .#.#.#
+    ...##.
+    #....#
+    ..#...
+    #.#..#
+    ####..
+    """
 
-  # You may also implement a test to validate the part two to ensure that you
-  # did not broke your shared modules when implementing another problem.
+    assert 17 == solve(input, :part_two, 5)
+  end
 
-  # @part_two_solution CHANGE_ME
-  #
-  # test "part two solution" do
-  #   assert {:ok, @part_two_solution} == AoC.run(2015, 18, :part_two)
-  # end
+  @part_two_solution 1006
+
+  test "part two solution" do
+    assert {:ok, @part_two_solution} == AoC.run(2015, 18, :part_two)
+  end
 end
