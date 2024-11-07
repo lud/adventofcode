@@ -27,8 +27,6 @@ aoe-*.tar
 /tmp
 
 /.api-cache/
-/priv/input/
-/t.exs
 
 config/secret.exs
 .aoc.defaults
