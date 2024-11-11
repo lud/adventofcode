@@ -3,7 +3,7 @@ defmodule AdventOfCode.Y20.Day17 do
   import Enum, only: [with_index: 1]
 
   @type input_path :: binary
-  @type file :: input_path | %AoC.Input.FakeFile{}
+  @type file :: input_path | %AoC.Input.TestInput{}
   @type part :: :part_one | :part_two
   @type input :: binary | File.Stream.t()
   @type problem :: any

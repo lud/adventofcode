@@ -3,7 +3,7 @@ defmodule AdventOfCode.Y21.Day24 do
   alias AdventOfCode.Y21.Day24.Program
 
   @type input_path :: binary
-  @type file :: input_path | %AoC.Input.FakeFile{}
+  @type file :: input_path | %AoC.Input.TestInput{}
   @type part :: :part_one | :part_two
   @type input :: binary | File.Stream.t()
   @type problem :: any

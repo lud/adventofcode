@@ -2,7 +2,7 @@ defmodule AdventOfCode.Y20.Day14 do
   alias AoC.Input, warn: false
 
   @type input_path :: binary
-  @type file :: input_path | %AoC.Input.FakeFile{}
+  @type file :: input_path | %AoC.Input.TestInput{}
   @type part :: :part_one | :part_two
   @type input :: binary | File.Stream.t()
   @type problem :: any
