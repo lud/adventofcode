@@ -99,7 +99,7 @@ defmodule AdventOfCode.Y15.Day18 do
   end
 
   def print_grid(grid) do
-    Grid.print_map(grid, fn
+    Grid.print(grid, fn
       1 -> "#"
       0 -> "."
     end)

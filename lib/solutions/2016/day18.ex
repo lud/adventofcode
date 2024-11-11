@@ -23,7 +23,7 @@ defmodule AdventOfCode.Y16.Day18 do
   defp print_cell({:door, a}), do: <<a>>
 
   def part_one(map) do
-    Grid.print_map(map, &print_cell/1)
+    Grid.print(map, &print_cell/1)
   end
 
   def part_two(problem) do
