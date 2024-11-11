@@ -8,9 +8,9 @@ defmodule Tool do
         short = year - 2000
         {:"Elixir.Aoe.Y#{short}", "test/#{year}"}
       end
-      Modkit.Mount.define!(solutions_mounts)
-  end
 
+    Modkit.Mount.define!(solutions_mounts)
+  end
 
   def run do
     Path.wildcard(Path.join(File.cwd!(), "test/**/*test.exs"))

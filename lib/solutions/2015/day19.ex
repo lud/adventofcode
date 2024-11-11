@@ -43,7 +43,7 @@ defmodule AdventOfCode.Y15.Day19 do
     results
   end
 
-  defp split_molecule(<<>>, replacements, parts) do
+  defp split_molecule(<<>>, _replacements, parts) do
     :lists.reverse(parts)
   end
 
