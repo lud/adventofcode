@@ -34,7 +34,7 @@ defmodule AdventOfCode.MixProject do
     solutions_mounts =
       for year <- 2015..DateTime.utc_now().year do
         short = year - 2000
-        {:"Elixir.AdventOfCode.Y#{short}", "lib/solutions/#{year}"}
+        {:"Elixir.AdventOfCode.Solutions.Y#{short}", "lib/solutions/#{year}"}
       end
 
     [

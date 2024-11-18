@@ -1,4 +1,4 @@
-defmodule AdventOfCode.Y20.Day10 do
+defmodule AdventOfCode.Solutions.Y20.Day10 do
   alias AoC.Input, warn: false
   require ExUnit.Assertions
 

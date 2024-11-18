@@ -1,3 +1,3 @@
 import Config
 
-config :aoc, prefix: AdventOfCode
+config :aoc, prefix: AdventOfCode.Solutions

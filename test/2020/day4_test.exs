@@ -1,7 +1,7 @@
-defmodule AdventOfCode.Y20.Day4Test do
+defmodule AdventOfCode.Solutions.Y20.Day4Test do
   use ExUnit.Case, async: true
 
-  alias AdventOfCode.Y20.Day4, as: Solution, warn: false
+  alias AdventOfCode.Solutions.Y20.Day4, as: Solution, warn: false
   alias AoC.Input, warn: false
 
   # To run the test, run the following command:

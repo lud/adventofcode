@@ -1,7 +1,7 @@
-defmodule AdventOfCode.Y20.Day1Test do
+defmodule AdventOfCode.Solutions.Y20.Day1Test do
   use ExUnit.Case, async: true
 
-  alias AdventOfCode.Y20.Day1, as: Solution, warn: false
+  alias AdventOfCode.Solutions.Y20.Day1, as: Solution, warn: false
   alias AoC.Input, warn: false
 
   test "verify 2020/1 - sample 1" do

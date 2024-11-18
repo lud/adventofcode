@@ -1,4 +1,4 @@
-defmodule AdventOfCode.Y22.Day24 do
+defmodule AdventOfCode.Solutions.Y22.Day24 do
   alias AoC.Input, warn: false
 
   @type input_path :: binary

@@ -1,4 +1,4 @@
-defmodule AdventOfCode.Y15.Day1 do
+defmodule AdventOfCode.Solutions.Y15.Day1 do
   alias AoC.Input, warn: false
 
   def read_file(file, _part) do

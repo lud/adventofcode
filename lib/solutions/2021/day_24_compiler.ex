@@ -12,7 +12,7 @@ defmodule D24Compiler do
       |> Enum.map_join("", &("  " <> &1))
 
     code = """
-    defmodule AdventOfCode.Y21.Day24.Program do
+    defmodule AdventOfCode.Solutions.Y21.Day24.Program do
       #{code}
 
       defp eql(same, same), do: 1

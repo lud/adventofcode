@@ -1,4 +1,4 @@
-defmodule AdventOfCode.Y21.Day23.StepCompiler do
+defmodule AdventOfCode.Solutions.Y21.Day23.StepCompiler do
   def calc_steps({same_x, same_y}, {same_x, same_y}) do
     []
   end
@@ -25,7 +25,7 @@ defmodule AdventOfCode.Y21.Day23.StepCompiler do
   defp next_coord(a, b) when a > b, do: a - 1
 end
 
-defmodule AdventOfCode.Y21.Day23 do
+defmodule AdventOfCode.Solutions.Y21.Day23 do
   alias AoC.Input, warn: false
 
   @type input_path :: binary
@@ -372,7 +372,7 @@ defmodule AdventOfCode.Y21.Day23 do
   ]
 
   for start <- @poses, dest <- @poses, start != dest do
-    path = AdventOfCode.Y21.Day23.StepCompiler.calc_steps(start, dest)
+    path = AdventOfCode.Solutions.Y21.Day23.StepCompiler.calc_steps(start, dest)
 
     defp get_path(unquote(start), unquote(dest)), do: unquote(path)
   end

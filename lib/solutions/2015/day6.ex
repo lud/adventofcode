@@ -1,4 +1,4 @@
-defmodule AdventOfCode.Y15.Day6 do
+defmodule AdventOfCode.Solutions.Y15.Day6 do
   alias AoC.Input, warn: false
   alias AdventOfCode.Rect
 

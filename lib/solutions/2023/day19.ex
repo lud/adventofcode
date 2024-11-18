@@ -1,4 +1,4 @@
-defmodule AdventOfCode.Y23.Day19 do
+defmodule AdventOfCode.Solutions.Y23.Day19 do
   alias AoC.Input, warn: false
 
   @re_part ~r/{x=([0-9]+),m=([0-9]+),a=([0-9]+),s=([0-9]+)}/

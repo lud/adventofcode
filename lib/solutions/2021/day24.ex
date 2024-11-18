@@ -1,6 +1,6 @@
-defmodule AdventOfCode.Y21.Day24 do
+defmodule AdventOfCode.Solutions.Y21.Day24 do
   alias AoC.Input, warn: false
-  alias AdventOfCode.Y21.Day24.Program
+  alias AdventOfCode.Solutions.Y21.Day24.Program
 
   @type input_path :: binary
   @type file :: input_path | %AoC.Input.TestInput{}

@@ -1,7 +1,7 @@
-defmodule AdventOfCode.Y21.Day16Test do
+defmodule AdventOfCode.Solutions.Y21.Day16Test do
   use ExUnit.Case, async: true
 
-  alias AdventOfCode.Y21.Day16, as: Solution, warn: false
+  alias AdventOfCode.Solutions.Y21.Day16, as: Solution, warn: false
   alias AoC.Input, warn: false
   import Solution
 

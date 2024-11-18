@@ -1,4 +1,4 @@
-defmodule AdventOfCode.Y15.Day18 do
+defmodule AdventOfCode.Solutions.Y15.Day18 do
   alias AoC.Input
   alias AdventOfCode.Grid
 

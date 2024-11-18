@@ -1,4 +1,4 @@
-defmodule AdventOfCode.Y19.Day22 do
+defmodule AdventOfCode.Solutions.Y19.Day22 do
   alias AoC.Input, warn: false
 
   # DISCLAIMER

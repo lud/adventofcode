@@ -1,4 +1,4 @@
-defmodule AdventOfCode.Y23.Day21 do
+defmodule AdventOfCode.Solutions.Y23.Day21 do
   alias AoC.Input, warn: false
   alias AdventOfCode.Grid
 
