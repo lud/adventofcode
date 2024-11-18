@@ -1,5 +1,5 @@
 defmodule AdventOfCode.Y19.Day20 do
-  alias AoC.Grid
+  alias AdventOfCode.Grid
   alias AoC.Input, warn: false
 
   def read_file(file, _part) do

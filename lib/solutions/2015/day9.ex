@@ -33,7 +33,7 @@ defmodule AdventOfCode.Y15.Day9 do
     cities = distances |> Map.keys() |> Enum.flat_map(fn {from, to} -> [from, to] end) |> Enum.uniq()
 
     cities
-    |> AoC.Permutations.of()
+    |> AdventOfCode.Permutations.of()
     |> Stream.map(fn path -> compute_total_distance(path, distances) end)
   end
 

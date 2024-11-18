@@ -6,7 +6,7 @@ defmodule AdventOfCode.Y23.Day3 do
   end
 
   def parse_input(input, _part) do
-    AoC.Grid.parse_stream(input, &parse_char/1)
+    AdventOfCode.Grid.parse_stream(input, &parse_char/1)
   end
 
   defp parse_char(<<n>>) when n in ?0..?9, do: {:ok, n - ?0}
@@ -24,11 +24,11 @@ defmodule AdventOfCode.Y23.Day3 do
   end
 
   defp sym_neighbour?(grid, xy) do
-    xy |> AoC.Grid.cardinal8() |> Enum.any?(fn txy -> Map.get(grid, txy) in [:sym, :gear] end)
+    xy |> AdventOfCode.Grid.cardinal8() |> Enum.any?(fn txy -> Map.get(grid, txy) in [:sym, :gear] end)
   end
 
   defp first_digit(grid, xy) do
-    west_xy = AoC.Grid.translate(xy, :w)
+    west_xy = AdventOfCode.Grid.translate(xy, :w)
 
     case Map.get(grid, west_xy) do
       n when is_integer(n) -> first_digit(grid, west_xy)
@@ -41,7 +41,7 @@ defmodule AdventOfCode.Y23.Day3 do
   end
 
   defp collect_number(grid, xy, acc) do
-    east_xy = AoC.Grid.translate(xy, :e)
+    east_xy = AdventOfCode.Grid.translate(xy, :e)
 
     case Map.get(grid, east_xy) do
       n when is_integer(n) -> collect_number(grid, east_xy, [n | acc])
@@ -86,6 +86,6 @@ defmodule AdventOfCode.Y23.Day3 do
   end
 
   defp gear_neighbour(grid, xy) do
-    xy |> AoC.Grid.cardinal8() |> Enum.find(fn txy -> Map.get(grid, txy) == :gear end)
+    xy |> AdventOfCode.Grid.cardinal8() |> Enum.find(fn txy -> Map.get(grid, txy) == :gear end)
   end
 end

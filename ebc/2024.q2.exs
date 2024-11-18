@@ -834,9 +834,9 @@ defmodule Quest2 do
 
     words = Enum.uniq(words)
 
-    base_grid = AoC.Grid.parse_stream(phrases, &{:ok, &1})
-    left_grid = Map.new(base_grid, fn {xy, c} -> {AoC.Grid.translate(xy, :w, width), c} end)
-    right_grid = Map.new(base_grid, fn {xy, c} -> {AoC.Grid.translate(xy, :e, width), c} end)
+    base_grid = AdventOfCode.Grid.parse_stream(phrases, &{:ok, &1})
+    left_grid = Map.new(base_grid, fn {xy, c} -> {AdventOfCode.Grid.translate(xy, :w, width), c} end)
+    right_grid = Map.new(base_grid, fn {xy, c} -> {AdventOfCode.Grid.translate(xy, :e, width), c} end)
 
     full_grid = Map.merge(Map.merge(base_grid, left_grid), right_grid)
 
@@ -883,18 +883,18 @@ defmodule Quest2 do
   # Repeat matching patterns for each possible word size
   #
   #    defp coord_stream(start, <<a, b>>, direction) do
-  #      [start, AoC.Grid.translate(start, direction)]
+  #      [start, AdventOfCode.Grid.translate(start, direction)]
   #    end
   #
   #    defp coord_stream(start, <<a, b, c>>, direction) do
-  #      [start, AoC.Grid.translate(start, direction), AoC.Grid.translate(start, direction, 2)]
+  #      [start, AdventOfCode.Grid.translate(start, direction), AdventOfCode.Grid.translate(start, direction, 2)]
   #    end
   #
   #
   # So we do not have to rely on slow Stream.iterate:
   #
   #   defp coord_stream(start, _word, direction) do
-  #     Stream.iterate(start, &AoC.Grid.translate(&1, direction))
+  #     Stream.iterate(start, &AdventOfCode.Grid.translate(&1, direction))
   #   end
   #
 
@@ -904,7 +904,7 @@ defmodule Quest2 do
     trans_splats =
       Enum.map(1..numchars, fn n ->
         quote do
-          AoC.Grid.translate(var!(start), var!(direction), unquote(n))
+          AdventOfCode.Grid.translate(var!(start), var!(direction), unquote(n))
         end
       end)
 

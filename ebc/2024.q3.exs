@@ -1,5 +1,5 @@
 defmodule Quest3 do
-  alias AoC.Grid
+  alias AdventOfCode.Grid
 
   defp input1(:test) do
     """

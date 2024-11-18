@@ -28,7 +28,7 @@ defmodule AdventOfCode.Y15.Day13 do
 
   def part_one(problem) do
     names = Enum.map(problem, fn {{name1, _name2}, _} -> name1 end) |> Enum.uniq()
-    perms = AoC.Permutations.of(names) |> Enum.to_list()
+    perms = AdventOfCode.Permutations.of(names) |> Enum.to_list()
 
     perms
     |> Stream.map(&happiness(&1, problem))

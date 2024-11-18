@@ -17,10 +17,9 @@ defmodule AdventOfCode.Y15.Day19 do
   end
 
   def part_one({replacements, molecule}) do
-    binding() |> IO.inspect(label: ~S/binding()/)
     parts = split_molecule(molecule, replacements, [])
 
-    reduce(parts, [], replacements, %{}) |> map_size() |> dbg()
+    reduce(parts, [], replacements, %{}) |> map_size()
   end
 
   defp reduce([h | t], prefix, replacements, results) when is_map_key(replacements, h) do
@@ -49,8 +48,7 @@ defmodule AdventOfCode.Y15.Day19 do
 
   defp split_molecule(molecule, replacements, parts) do
     found =
-      Enum.find(replacements, fn {from, tos} ->
-        binding() |> IO.inspect(label: ~S/binding()/)
+      Enum.find(replacements, fn {from, _tos} ->
         String.starts_with?(molecule, from)
       end)
 

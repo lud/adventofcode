@@ -1,6 +1,6 @@
 defmodule AdventOfCode.Y15.Day18 do
   alias AoC.Input
-  alias AoC.Grid
+  alias AdventOfCode.Grid
 
   @on 1
   @off 0
