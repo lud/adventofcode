@@ -6,7 +6,7 @@ defmodule Tool do
     solutions_mounts =
       for year <- 2015..DateTime.utc_now().year do
         short = year - 2000
-        {:"Elixir.Aoe.Y#{short}", "test/#{year}"}
+        {:"Elixir.AdventOfCode.Solutions.Y#{short}", "test/#{year}"}
       end
 
     Modkit.Mount.define!(solutions_mounts)
