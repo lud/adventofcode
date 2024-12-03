@@ -30,3 +30,5 @@ aoe-*.tar
 
 config/secret.exs
 .aoc.defaults
+
+share.sh

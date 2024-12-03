@@ -1,10 +1,10 @@
 play:
   mix aoc.create | rg '\.ex' | rg -v Compiling | xargs code
   mix format
-  firefox $(mix aoc.url | rg "https")
+  nohup firefox $(mix aoc.url | rg "https") >/dev/null 2>&1 &
 
 benchmark:
   mix aoc.run -b
 
 repo:
-  firefox https://github.com/lud/adventofcode/
+  nohup firefox https://github.com/lud/adventofcode/ >/dev/null 2>&1 &
