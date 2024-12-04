@@ -153,6 +153,9 @@ defmodule AdventOfCode.Grid do
     ]
   end
 
+  def directions(4), do: [:n, :s, :w, :e]
+  def directions(8), do: [:n, :s, :w, :e, :ne, :nw, :se, :sw]
+
   def translate(xy, direction, n \\ 1)
   def translate({x, y}, :n, n), do: {x, y - n}
   def translate({x, y}, :ne, n), do: {x + n, y - n}
