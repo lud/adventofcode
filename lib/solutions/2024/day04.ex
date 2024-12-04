@@ -10,7 +10,8 @@ defmodule AdventOfCode.Solutions.Y24.Day04 do
 
   def part_one(grid) do
     grid
-    |> Map.keys()
+    |> Enum.filter(fn {_, c} -> c == ?X end)
+    |> Enum.map(&elem(&1, 0))
     |> Enum.map(&count_xmas(&1, grid))
     |> Enum.sum()
   end
@@ -26,9 +27,7 @@ defmodule AdventOfCode.Solutions.Y24.Day04 do
   end
 
   defp to_word(coords, grid) do
-    coords
-    |> Enum.map(&Map.get(grid, &1))
-    |> Enum.reject(&is_nil/1)
+    Enum.map(coords, &Map.get(grid, &1))
   end
 
   def part_two(grid) do
