@@ -52,15 +52,9 @@ defmodule AdventOfCode.Solutions.Y24.Day05 do
     |> Enum.sum()
   end
 
-  defp reorder([h | t], pairs) do
-    reorder(t, [h], pairs)
+  defp reorder(bad_list, pairs) do
+    Enum.reduce(bad_list, [], fn n, ordered -> insert(ordered, n, pairs) end)
   end
-
-  defp reorder([h | t], ordered, pairs) do
-    reorder(t, insert(ordered, h, pairs), pairs)
-  end
-
-  defp reorder([], ordered, _), do: ordered
 
   defp insert([h | t], n, pairs) do
     if {h, n} in pairs,
