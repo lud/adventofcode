@@ -47,22 +47,8 @@ defmodule AdventOfCode.Solutions.Y24.Day05 do
   def part_two({pairs, updates}) do
     updates
     |> Enum.filter(&(not good_update?(&1, pairs)))
-    |> Enum.map(&reorder(&1, pairs))
+    |> Enum.map(fn list -> Enum.sort(list, &({&1, &2} in pairs)) end)
     |> Enum.map(&at_middle/1)
     |> Enum.sum()
-  end
-
-  defp reorder(bad_list, pairs) do
-    Enum.reduce(bad_list, [], fn n, ordered -> insert(ordered, n, pairs) end)
-  end
-
-  defp insert([h | t], n, pairs) do
-    if {h, n} in pairs,
-      do: [h | insert(t, n, pairs)],
-      else: [n, h | t]
-  end
-
-  defp insert([], n, _) do
-    [n]
   end
 end
