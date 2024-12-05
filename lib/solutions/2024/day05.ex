@@ -19,10 +19,8 @@ defmodule AdventOfCode.Solutions.Y24.Day05 do
     updates =
       updates
       |> String.split("\n")
-      |> dbg()
       |> Enum.map(fn line ->
         String.split(line, ",")
-        |> dbg()
         |> Enum.map(&String.to_integer/1)
       end)
 
@@ -58,7 +56,33 @@ defmodule AdventOfCode.Solutions.Y24.Day05 do
     Enum.at(list, div(length(list), 2)) |> dbg()
   end
 
-  # def part_two(problem) do
-  #   problem
-  # end
+  def part_two(problem) do
+    {pairs, updates} = problem
+
+    updates
+    |> Enum.filter(&(not good_update?(&1, pairs)))
+    |> Enum.map(&reorder(&1, pairs))
+    |> Enum.map(&at_middle/1)
+    |> Enum.sum()
+  end
+
+  defp reorder([h | t], pairs) do
+    reorder(t, [h], pairs)
+  end
+
+  defp reorder([h | t], ordered, pairs) do
+    reorder(t, insert(ordered, h, pairs), pairs)
+  end
+
+  defp reorder([], ordered, _), do: ordered
+
+  defp insert([h | t], n, pairs) do
+    if {h, n} in pairs,
+      do: [h | insert(t, n, pairs)],
+      else: [n, h | t]
+  end
+
+  defp insert([], n, pairs) do
+    [n]
+  end
 end
