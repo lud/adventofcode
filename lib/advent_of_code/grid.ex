@@ -1,5 +1,7 @@
 defmodule AdventOfCode.Grid do
-  def parse_stream(lines, char_parser) when is_function(char_parser, 1) do
+  def parse_stream(lines, char_parser)
+      when is_function(char_parser, 1)
+      when is_function(char_parser, 2) do
     lines
     |> Enum.with_index()
     |> Enum.flat_map(&parse_line(&1, char_parser))
@@ -17,8 +19,21 @@ defmodule AdventOfCode.Grid do
     []
   end
 
-  defp parse_cell({cell, x}, y, char_parser) do
+  defp parse_cell({cell, x}, y, char_parser) when is_function(char_parser, 1) do
     case char_parser.(cell) do
+      :ignore ->
+        []
+
+      {:ok, value} ->
+        [{{x, y}, value}]
+
+      other ->
+        raise "Invalid return value from parser function in AdventOfCode.Grid.parse_stream/2, expected {:ok, value} or :ignore, got: #{inspect(other)}"
+    end
+  end
+
+  defp parse_cell({cell, x}, y, char_parser) when is_function(char_parser, 2) do
+    case char_parser.({x, y}, cell) do
       :ignore ->
         []
 
