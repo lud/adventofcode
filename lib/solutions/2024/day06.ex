@@ -7,36 +7,45 @@ defmodule AdventOfCode.Solutions.Y24.Day06 do
       input
       |> Input.stream!()
       |> Grid.parse_stream(fn
-        _, "." ->
-          {:ok, :floor}
-
         _, "#" ->
           {:ok, :obst}
 
         {x, y}, "^" ->
           Process.put(:start_pos, {x, y})
           {:ok, :n}
+
+        _, _ ->
+          :ignore
       end)
 
     start = Process.get(:start_pos)
     Process.delete(:start_pos)
 
-    {grid, start, :n}
+    {0, xo, 0, yo} = Grid.bounds(grid)
+    {grid, start, :n, {xo, yo}}
   end
 
-  def part_one({grid, start, dir}) do
+  def part_one({grid, start, dir, {xo, yo}}) do
     grid
-    |> loop_until_quits(start, dir, %{start => true})
+    |> loop_until_quits(start, dir, {xo, yo}, %{start => true})
     |> map_size()
   end
 
-  defp loop_until_quits(grid, pos, dir, acc) do
-    next_pos = Grid.translate(pos, dir, 1)
+  defp loop_until_quits(grid, pos, dir, {xo, yo}, acc) do
+    {x, y} = next_pos = Grid.translate(pos, dir, 1)
 
     case Map.get(grid, next_pos) do
-      :obst -> loop_until_quits(grid, pos, rotate(dir), acc)
-      nil -> acc
-      _ -> loop_until_quits(grid, next_pos, dir, Map.put(acc, next_pos, true))
+      :obst ->
+        loop_until_quits(grid, pos, rotate(dir), {xo, yo}, acc)
+
+      nil when x in 0..xo//1 and y in 0..yo//1 ->
+        loop_until_quits(grid, next_pos, dir, {xo, yo}, Map.put(acc, next_pos, true))
+
+      nil ->
+        acc
+
+      _ ->
+        loop_until_quits(grid, next_pos, dir, {xo, yo}, Map.put(acc, next_pos, true))
     end
   end
 
@@ -45,44 +54,46 @@ defmodule AdventOfCode.Solutions.Y24.Day06 do
   defp rotate(:s), do: :w
   defp rotate(:w), do: :n
 
-  def part_two({grid, start, dir}) do
+  def part_two({grid, start, dir, {xo, yo}}) do
     candidates =
       grid
-      |> loop_until_quits(start, dir, %{})
+      |> loop_until_quits(start, dir, {xo, yo}, %{})
       |> Map.keys()
 
     :persistent_term.put(:grid, grid)
 
-    this = self()
+    parent = self()
 
     candidates
     |> Enum.map(
       &spawn_link(fn ->
-        send(this, looping?(:persistent_term.get(:grid), start, dir, &1))
+        grid = Map.put(:persistent_term.get(:grid), &1, :obst)
+        one_or_zero = loop_value(grid, start, dir, {xo, yo})
+        send(parent, one_or_zero)
       end)
     )
     |> Enum.reduce(0, fn _, acc ->
       receive do
-        true -> acc + 1
-        false -> acc
+        n -> acc + n
       end
     end)
   end
 
-  defp looping?(grid, pos, dir, obst) do
-    next_pos = Grid.translate(pos, dir, 1)
+  defp loop_value(grid, pos, dir, {xo, yo}) do
+    {x, y} = next_pos = Grid.translate(pos, dir, 1)
 
-    next_value =
-      case next_pos do
-        ^obst -> :obst
-        _ -> Map.get(grid, next_pos)
-      end
+    case Map.get(grid, next_pos) do
+      :obst ->
+        loop_value(grid, pos, rotate(dir), {xo, yo})
 
-    case next_value do
-      :obst -> looping?(grid, pos, rotate(dir), obst)
-      ^dir -> true
-      nil -> false
-      _ -> looping?(Map.put(grid, next_pos, dir), next_pos, dir, obst)
+      ^dir ->
+        1
+
+      _ when x in 0..xo//1 and y in 0..yo//1 ->
+        loop_value(Map.put(grid, next_pos, dir), next_pos, dir, {xo, yo})
+
+      nil ->
+        0
     end
   end
 end
