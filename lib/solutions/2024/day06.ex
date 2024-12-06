@@ -14,33 +14,29 @@ defmodule AdventOfCode.Solutions.Y24.Day06 do
           {:ok, :obst}
 
         {x, y}, "^" ->
-          send(self(), {:start_pos, {x, y}})
+          Process.put(:start_pos, {x, y})
           {:ok, :n}
       end)
 
-    start =
-      receive do
-        {:start_pos, {x, y}} -> {x, y}
-      end
+    start = Process.get(:start_pos)
+    Process.delete(:start_pos)
 
     {grid, start, :n}
   end
 
   def part_one({grid, start, dir}) do
-    grid = loop_until_quits(grid, start, dir)
-    Enum.count(grid, fn {_, v} -> v == :n end)
+    grid
+    |> loop_until_quits(start, dir, %{start => true})
+    |> map_size()
   end
 
-  defp loop_until_quits(grid, pos, dir) do
+  defp loop_until_quits(grid, pos, dir, acc) do
     next_pos = Grid.translate(pos, dir, 1)
 
-    # In part1, always use :n to mean "visited"
-
     case Map.get(grid, next_pos) do
-      :obst -> loop_until_quits(grid, pos, rotate(dir))
-      :floor -> loop_until_quits(Map.put(grid, next_pos, :n), next_pos, dir)
-      :n -> loop_until_quits(grid, next_pos, dir)
-      nil -> grid
+      :obst -> loop_until_quits(grid, pos, rotate(dir), acc)
+      nil -> acc
+      _ -> loop_until_quits(grid, next_pos, dir, Map.put(acc, next_pos, true))
     end
   end
 
@@ -50,36 +46,31 @@ defmodule AdventOfCode.Solutions.Y24.Day06 do
   defp rotate(:w), do: :n
 
   def part_two({grid, start, dir}) do
+    candidates =
+      grid
+      |> loop_until_quits(start, dir, %{})
+      |> Map.keys()
+
     :persistent_term.put(:grid, grid)
 
-    grid
-    |> Enum.filter(fn {_, v} -> v == :floor end)
-    |> Enum.map(&elem(&1, 0))
-    |> Task.async_stream(fn pos ->
-      grid = :persistent_term.get(:grid)
+    this = self()
 
-      if looping?(grid, start, dir, pos) do
-        {true, pos}
-      else
-        false
+    candidates
+    |> Enum.map(
+      &spawn_link(fn ->
+        send(this, looping?(:persistent_term.get(:grid), start, dir, &1))
+      end)
+    )
+    |> Enum.reduce(0, fn _, acc ->
+      receive do
+        true -> acc + 1
+        false -> acc
       end
     end)
-    |> Enum.flat_map(fn
-      {:ok, false} -> []
-      {:ok, {true, p}} -> [p]
-    end)
-    |> length()
-
-    # |> Enum.reduce(grid, fn p, g -> Map.put(g, p, :O) end)
-    # |> print()
-    # |>
   end
 
   defp looping?(grid, pos, dir, obst) do
     next_pos = Grid.translate(pos, dir, 1)
-    # print(grid)
-    next_dir = rotate(dir)
-    # In part1, always use :n to mean "visited"
 
     next_value =
       case next_pos do
@@ -88,94 +79,10 @@ defmodule AdventOfCode.Solutions.Y24.Day06 do
       end
 
     case next_value do
-      :obst ->
-        looping?(grid, pos, next_dir, obst)
-
-      :floor ->
-        looping?(Map.put(grid, next_pos, dir), next_pos, dir, obst)
-
-      ^dir ->
-        # print(grid)
-
-        true
-
-      nil ->
-        false
-
-      _ ->
-        looping?(Map.put(grid, next_pos, dir), next_pos, dir, obst)
+      :obst -> looping?(grid, pos, rotate(dir), obst)
+      ^dir -> true
+      nil -> false
+      _ -> looping?(Map.put(grid, next_pos, dir), next_pos, dir, obst)
     end
   end
-
-  # def part_two({grid, start, dir}) do
-  #   {grid, acc} = loop_find_new(grid, start, dir, [])
-  #   grid = Enum.reduce(acc, grid, fn p, g -> Map.put(g, p, :O) end)
-  #   print(grid)
-  #   length(acc)
-  # end
-
-  defp print(grid) do
-    Grid.print(grid, &print_part/1)
-  end
-
-  defp print_part(part) do
-    case part do
-      :obst -> "#"
-      :floor -> "."
-      :n -> "|"
-      :e -> "-"
-      :s -> "|"
-      :w -> "-"
-      :O -> "O"
-      [t, :floor] -> print_part(t)
-      [_ | _] -> "+"
-    end
-  end
-
-  # defp loop_find_new(grid, pos, dir, acc) do
-  #   # print(grid)
-  #   # grid |> dbg()
-
-  #   next_pos = Grid.translate(pos, dir, 1)
-
-  #   case Map.get(grid, next_pos) do
-  #     :obst ->
-  #       loop_find_new(grid, pos, rotate(dir), acc)
-
-  #     nil ->
-  #       {grid, acc}
-
-  #     _ ->
-  #       case cast_ray(grid, next_pos, rotate(dir)) do
-  #         :looping -> loop_find_new(visit(grid, next_pos, dir), next_pos, dir, [Grid.translate(next_pos, dir) | acc])
-  #         :nope -> loop_find_new(visit(grid, next_pos, dir), next_pos, dir, acc)
-  #       end
-  #   end
-  # end
-
-  # defp visit(grid, pos, dir) do
-  #   Map.update(grid, pos, [dir], &[dir | List.wrap(&1)])
-  # end
-
-  # defp cast_ray(grid, pos, dir) do
-  #   e =
-  #     Stream.iterate(0, &(&1 + 1))
-  #     |> Stream.map(&Grid.translate(pos, dir, &1))
-  #     |> Stream.map(&Map.get(grid, &1))
-  #     |> Stream.flat_map(fn
-  #       nil -> [nil]
-  #       x -> List.wrap(x)
-  #     end)
-  #     |> Enum.take_while(&(&1 not in [:obst, nil]))
-  #     |> dbg()
-
-  #   length(e) |> dbg()
-
-  #   e
-  #   |> Enum.any?(&(&1 == dir))
-  #   |> case do
-  #     true -> :looping
-  #     false -> :nope
-  #   end
-  # end
 end
