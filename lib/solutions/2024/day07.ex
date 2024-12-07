@@ -18,14 +18,22 @@ defmodule AdventOfCode.Solutions.Y24.Day07 do
   end
 
   def part_one(problem) do
+    solve(problem, [:*, :+])
+  end
+
+  def part_two(problem) do
+    solve(problem, [:*, :+, :||])
+  end
+
+  defp solve(problem, operators) do
     problem
-    |> Enum.filter(&can_be_computed?/1)
+    |> Enum.filter(&can_be_computed?(&1, operators))
     |> Enum.map(&elem(&1, 0))
     |> Enum.sum()
   end
 
-  defp can_be_computed?({result, operands}) do
-    operators_combins = Combinations.of([:+, :*], length(operands) - 1)
+  defp can_be_computed?({result, operands}, operators) do
+    operators_combins = Combinations.of(operators, length(operands) - 1)
     Enum.any?(operators_combins, fn c -> result == compute(operands, c) end)
   end
 
@@ -33,10 +41,11 @@ defmodule AdventOfCode.Solutions.Y24.Day07 do
     Enum.reduce(Enum.zip(operators, operands), h, fn
       {:+, n}, acc -> acc + n
       {:*, n}, acc -> acc * n
+      {:||, n}, acc -> cat(acc, n)
     end)
   end
 
-  # def part_two(problem) do
-  #   problem
-  # end
+  defp cat(a, b) do
+    Integer.undigits(Integer.digits(a) ++ Integer.digits(b))
+  end
 end
