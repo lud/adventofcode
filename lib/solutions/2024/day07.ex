@@ -18,11 +18,11 @@ defmodule AdventOfCode.Solutions.Y24.Day07 do
   end
 
   def part_one(problem) do
-    solve(problem, [:*, :+])
+    solve(problem, [:+, :*])
   end
 
   def part_two(problem) do
-    solve(problem, [:*, :+, :||])
+    solve(problem, [:||, :+, :*])
   end
 
   defp solve(problem, operators) do
@@ -33,7 +33,7 @@ defmodule AdventOfCode.Solutions.Y24.Day07 do
   end
 
   defp can_be_computed?({result, operands}, operators) do
-    operators_combins = Combinations.of(operators, length(operands) - 1)
+    operators_combins = mem_combinations(operators, length(operands) - 1)
     Enum.any?(operators_combins, fn c -> result == compute(operands, c) end)
   end
 
@@ -45,7 +45,21 @@ defmodule AdventOfCode.Solutions.Y24.Day07 do
     end)
   end
 
-  defp cat(a, b) do
-    Integer.undigits(Integer.digits(a) ++ Integer.digits(b))
+  defp cat(a, b) when b < 10, do: a * 10 + b
+  defp cat(a, b) when b < 100, do: a * 100 + b
+  defp cat(a, b) when b < 1000, do: a * 1000 + b
+
+  defp mem_combinations(operators, len) do
+    pkey = {__MODULE__, operators, len}
+
+    case Process.get(pkey, nil) do
+      nil ->
+        combis = Enum.to_list(Combinations.of(operators, len))
+        Process.put(pkey, combis)
+        combis
+
+      found ->
+        found
+    end
   end
 end
