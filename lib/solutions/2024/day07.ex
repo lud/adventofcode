@@ -1,5 +1,4 @@
 defmodule AdventOfCode.Solutions.Y24.Day07 do
-  alias AdventOfCode.Combinations
   alias AoC.Input
 
   def parse(input, _part) do
@@ -18,48 +17,37 @@ defmodule AdventOfCode.Solutions.Y24.Day07 do
   end
 
   def part_one(problem) do
-    solve(problem, [:+, :*])
+    solve(problem, false)
   end
 
   def part_two(problem) do
-    solve(problem, [:||, :+, :*])
+    solve(problem, true)
   end
 
-  defp solve(problem, operators) do
+  defp solve(problem, concat?) do
     problem
-    |> Enum.filter(&can_be_computed?(&1, operators))
+    |> Enum.filter(&can_be_computed?(&1, concat?))
     |> Enum.map(&elem(&1, 0))
     |> Enum.sum()
   end
 
-  defp can_be_computed?({result, operands}, operators) do
-    operators_combins = mem_combinations(operators, length(operands) - 1)
-    Enum.any?(operators_combins, fn c -> result == compute(operands, c) end)
+  defp can_be_computed?({result, [h | operands]}, concat?) do
+    compute(operands, h, result, concat?)
   end
 
-  defp compute([h | operands], operators) do
-    Enum.reduce(Enum.zip(operators, operands), h, fn
-      {:+, n}, acc -> acc + n
-      {:*, n}, acc -> acc * n
-      {:||, n}, acc -> cat(acc, n)
-    end)
+  defp compute([h], acc, expected, concat?) do
+    acc + h == expected ||
+      acc * h == expected ||
+      (concat? && cat(acc, h) == expected)
+  end
+
+  defp compute([h | t], acc, expected, concat?) do
+    compute(t, acc + h, expected, concat?) ||
+      compute(t, acc * h, expected, concat?) ||
+      (concat? && compute(t, cat(acc, h), expected, concat?))
   end
 
   defp cat(a, b) when b < 10, do: a * 10 + b
   defp cat(a, b) when b < 100, do: a * 100 + b
   defp cat(a, b) when b < 1000, do: a * 1000 + b
-
-  defp mem_combinations(operators, len) do
-    pkey = {__MODULE__, operators, len}
-
-    case Process.get(pkey, nil) do
-      nil ->
-        combis = Enum.to_list(Combinations.of(operators, len))
-        Process.put(pkey, combis)
-        combis
-
-      found ->
-        found
-    end
-  end
 end
