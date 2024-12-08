@@ -18,10 +18,8 @@ defmodule AdventOfCode.Grid do
 
   def parse_lines(lines, char_parser) when is_function(char_parser, 2) do
     {max_x, max_y, rows} =
-      grid =
       lines
       |> Enum.with_index()
-      |> dbg()
       |> Enum.reduce({0, 0, []}, fn
         {<<>>, _}, acc ->
           acc
@@ -38,8 +36,6 @@ defmodule AdventOfCode.Grid do
     {high_x, pairs} =
       for <<c::utf8 <- string>>, c != ?\n, reduce: {0, []} do
         {x, row} ->
-          {x, c} |> IO.inspect(label: "{x,c}")
-
           case call_parser(parse_char, {x, y}, c) do
             :ignore ->
               {x + 1, row}

@@ -34,10 +34,10 @@ defmodule AdventOfCode.Solutions.Y24.Day04 do
     grid
     |> Enum.filter(fn {_, c} -> c == ?A end)
     |> Enum.map(&elem(&1, 0))
-    |> Enum.count(&is_cross(&1, grid))
+    |> Enum.count(&cross?(&1, grid))
   end
 
-  defp is_cross(pos, grid) do
+  defp cross?(pos, grid) do
     nw = Map.get(grid, Grid.translate(pos, :nw))
     se = Map.get(grid, Grid.translate(pos, :se))
     sw = Map.get(grid, Grid.translate(pos, :sw))
