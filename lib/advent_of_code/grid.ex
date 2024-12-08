@@ -1,18 +1,69 @@
 defmodule AdventOfCode.Grid do
+  @deprecated "use parse_lines/2"
   def parse_stream(lines, char_parser)
       when is_function(char_parser, 1)
       when is_function(char_parser, 2) do
     lines
     |> Enum.with_index()
-    |> Enum.flat_map(&parse_line(&1, char_parser))
+    |> Enum.flat_map(&parse_stream_line(&1, char_parser))
     |> Map.new()
   end
 
-  defp parse_line({string, y}, char_parser) do
+  defp parse_stream_line({string, y}, char_parser) do
     string
     |> String.graphemes()
     |> Enum.with_index()
     |> Enum.flat_map(&parse_cell(&1, y, char_parser))
+  end
+
+  def parse_lines(lines, char_parser) when is_function(char_parser, 2) do
+    {max_x, max_y, rows} =
+      grid =
+      lines
+      |> Enum.with_index()
+      |> dbg()
+      |> Enum.reduce({0, 0, []}, fn
+        {<<>>, _}, acc ->
+          acc
+
+        {line, y}, {max_x, _max_y, acc} ->
+          {best_x, pairs} = parse_bin_line(line, y, char_parser)
+          {max(max_x, best_x), y, [pairs | acc]}
+      end)
+
+    {Map.new(:lists.flatten(rows)), {0, max_x, 0, max_y}}
+  end
+
+  defp parse_bin_line(string, y, parse_char) do
+    {high_x, pairs} =
+      for <<c::utf8 <- string>>, c != ?\n, reduce: {0, []} do
+        {x, row} ->
+          {x, c} |> IO.inspect(label: "{x,c}")
+
+          case call_parser(parse_char, {x, y}, c) do
+            :ignore ->
+              {x + 1, row}
+
+            {:ok, v} ->
+              {x + 1, [{{x, y}, v} | row]}
+
+            other ->
+              raise "Invalid return value from parser function in AdventOfCode.Grid.parse_stream/2, expected {:ok, value} or :ignore, got: #{inspect(other)}"
+          end
+      end
+
+    {high_x - 1, pairs}
+  end
+
+  defp call_parser(parser, xy, c) do
+    parser.(xy, c)
+  rescue
+    _ in FunctionClauseError ->
+      reraise RuntimeError,
+              [
+                message: "grid parser did not accept the arguments (#{inspect(xy)}, ?#{<<c::utf8>>})"
+              ],
+              __STACKTRACE__
   end
 
   defp parse_cell({"\n", _x}, _y, _char_parser) do
