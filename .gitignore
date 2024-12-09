@@ -32,3 +32,4 @@ config/secret.exs
 .aoc.defaults
 
 share.sh
+.env

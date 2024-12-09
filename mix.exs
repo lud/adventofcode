@@ -23,6 +23,8 @@ defmodule AdventOfCode.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      {:nvir, "~> 0.9.4"},
+
       # {:aoc, "~> 0.11"},
       {:cli_mate, path: "../cli_mate", runtime: false, override: true},
       {:aoc, path: "../aoc"},
