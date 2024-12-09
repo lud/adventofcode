@@ -10,11 +10,11 @@ defmodule AdventOfCode.Solutions.Y15.Day18 do
   end
 
   def parse_input(input, _part) do
-    input |> Grid.parse_stream(&parse_char/1)
+    input |> Grid.parse_lines(&parse_char/1) |> elem(0)
   end
 
-  defp parse_char("#"), do: {:ok, @on}
-  defp parse_char("."), do: {:ok, @off}
+  defp parse_char(?#), do: {:ok, @on}
+  defp parse_char(?.), do: {:ok, @off}
 
   def part_one(problem, steps \\ 100) do
     solve(problem, steps, fn xy, val, grid ->

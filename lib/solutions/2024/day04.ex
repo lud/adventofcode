@@ -5,7 +5,8 @@ defmodule AdventOfCode.Solutions.Y24.Day04 do
   def parse(input, _part) do
     input
     |> Input.stream!(trim: true)
-    |> Grid.parse_stream(fn <<c>> -> {:ok, c} end)
+    |> Grid.parse_lines(fn c -> {:ok, c} end)
+    |> elem(0)
   end
 
   def part_one(grid) do

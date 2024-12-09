@@ -7,7 +7,7 @@ defmodule AdventOfCode.Solutions.Y23.Day16 do
   end
 
   def parse_input(input, _part) do
-    input |> Grid.parse_stream(fn <<c>> -> {:ok, c} end)
+    input |> Grid.parse_lines(fn c -> {:ok, c} end) |> elem(0)
   end
 
   def part_one(grid) do

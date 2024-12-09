@@ -8,30 +8,32 @@ defmodule AdventOfCode.Solutions.Y23.Day23 do
 
   def parse_input(input, :part_one) do
     input
-    |> Grid.parse_stream(fn
-      "#" -> :ignore
-      o -> {:ok, o}
+    |> Grid.parse_lines(fn
+      ?# -> :ignore
+      c -> {:ok, c}
     end)
+    |> elem(0)
   end
 
   def parse_input(input, :part_two) do
     input
-    |> Grid.parse_stream(fn
-      "#" -> :ignore
-      _ -> {:ok, "."}
+    |> Grid.parse_lines(fn
+      ?# -> :ignore
+      _ -> {:ok, ?.}
     end)
+    |> elem(0)
   end
 
   def part_one(grid) do
     start_xy = {1, 0}
-    "." = Map.fetch!(grid, start_xy)
+    ?. = Map.fetch!(grid, start_xy)
     {_, xo, _, yo} = Grid.bounds(grid)
 
     # use Xo as we did not parse the walls, so the right border is not included
     target_xy = {xo, yo}
-    "." = Map.fetch!(grid, target_xy)
+    ?. = Map.fetch!(grid, target_xy)
 
-    init = [{start_xy, ".", grid, 0}]
+    init = [{start_xy, ?., grid, 0}]
     loop_longest(init, target_xy, 0)
   end
 
@@ -71,18 +73,18 @@ defmodule AdventOfCode.Solutions.Y23.Day23 do
     end
   end
 
-  defp possible_neighs(xy, "."), do: Grid.cardinal4(xy)
-  defp possible_neighs(xy, "v"), do: [Grid.translate(xy, :s)]
-  defp possible_neighs(xy, ">"), do: [Grid.translate(xy, :e)]
+  defp possible_neighs(xy, ?.), do: Grid.cardinal4(xy)
+  defp possible_neighs(xy, ?v), do: [Grid.translate(xy, :s)]
+  defp possible_neighs(xy, ?>), do: [Grid.translate(xy, :e)]
 
   def part_two(grid) do
     start_xy = {1, 0}
-    "." = Map.fetch!(grid, start_xy)
+    ?. = Map.fetch!(grid, start_xy)
     {_, xo, _, yo} = Grid.bounds(grid)
 
     # use Xo as we did not parse the walls, so the right border is not included
     target_xy = {xo, yo}
-    "." = Map.fetch!(grid, target_xy)
+    ?. = Map.fetch!(grid, target_xy)
 
     graph = explore_nodes([start_xy, target_xy], start_xy, target_xy, %{}, %{}, grid)
 
@@ -156,7 +158,7 @@ defmodule AdventOfCode.Solutions.Y23.Day23 do
     |> Grid.cardinal4()
     |> Enum.flat_map(fn next_xy ->
       case Map.fetch(grid, next_xy) do
-        {:ok, "."} -> [next_xy]
+        {:ok, ?.} -> [next_xy]
         :error -> []
       end
     end)

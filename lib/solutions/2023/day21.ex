@@ -7,7 +7,7 @@ defmodule AdventOfCode.Solutions.Y23.Day21 do
   end
 
   def parse_input(input, _part) do
-    Grid.parse_stream(input, &{:ok, &1})
+    Grid.parse_lines(input, &{:ok, &1}) |> elem(0)
   end
 
   def part_one(grid) when is_map(grid) do
@@ -21,11 +21,11 @@ defmodule AdventOfCode.Solutions.Y23.Day21 do
     # those that can be reached after exactly 64 steps.
     pos =
       Enum.find_value(grid, fn
-        {xy, "S"} -> xy
+        {xy, ?S} -> xy
         _ -> false
       end)
 
-    grid = Map.put(grid, pos, ".")
+    grid = Map.put(grid, pos, ?.)
 
     positions = loop([pos], 1, max_steps, grid)
     length(positions)
@@ -43,9 +43,9 @@ defmodule AdventOfCode.Solutions.Y23.Day21 do
         |> Enum.filter(fn
           xy ->
             case Map.get(grid, xy) do
-              "S" -> true
-              "." -> true
-              "#" -> false
+              ?S -> true
+              ?. -> true
+              ?# -> false
               nil -> false
             end
         end)
@@ -66,7 +66,7 @@ defmodule AdventOfCode.Solutions.Y23.Day21 do
     {x_start, y_start} =
       start_pos =
       Enum.find_value(grid, fn
-        {xy, "S"} -> xy
+        {xy, ?S} -> xy
         _ -> false
       end)
 

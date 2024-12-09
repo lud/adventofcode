@@ -7,7 +7,7 @@ defmodule AdventOfCode.Solutions.Y23.Day17 do
   end
 
   def parse_input(input, _part) do
-    input |> Grid.parse_stream(fn x -> {:ok, String.to_integer(x)} end)
+    input |> Grid.parse_lines(fn x -> {:ok, String.to_integer(<<x>>)} end) |> elem(0)
   end
 
   def part_one(problem), do: solve(problem, :part_one)

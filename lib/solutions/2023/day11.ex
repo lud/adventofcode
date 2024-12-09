@@ -8,10 +8,11 @@ defmodule AdventOfCode.Solutions.Y23.Day11 do
 
   def parse_input(input, _part) do
     input
-    |> Grid.parse_stream(fn
-      "." -> :ignore
-      "#" -> {:ok, :galaxy}
+    |> Grid.parse_lines(fn
+      ?. -> :ignore
+      ?# -> {:ok, :galaxy}
     end)
+    |> elem(0)
     |> Map.keys()
   end
 

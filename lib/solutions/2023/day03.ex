@@ -6,13 +6,13 @@ defmodule AdventOfCode.Solutions.Y23.Day03 do
   end
 
   def parse_input(input, _part) do
-    AdventOfCode.Grid.parse_stream(input, &parse_char/1)
+    AdventOfCode.Grid.parse_lines(input, &parse_char/1) |> elem(0)
   end
 
-  defp parse_char(<<n>>) when n in ?0..?9, do: {:ok, n - ?0}
-  defp parse_char(<<?.>>), do: :ignore
-  defp parse_char(<<?*>>), do: {:ok, :gear}
-  defp parse_char(<<_>>), do: {:ok, :sym}
+  defp parse_char(n) when n in ?0..?9, do: {:ok, n - ?0}
+  defp parse_char(?.), do: :ignore
+  defp parse_char(?*), do: {:ok, :gear}
+  defp parse_char(_), do: {:ok, :sym}
 
   def part_one(grid) do
     grid

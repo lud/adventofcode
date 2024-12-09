@@ -6,17 +6,18 @@ defmodule AdventOfCode.Solutions.Y24.Day06 do
     grid =
       input
       |> Input.stream!()
-      |> Grid.parse_stream(fn
-        _, "#" ->
+      |> Grid.parse_lines(fn
+        _, ?# ->
           {:ok, :obst}
 
-        {x, y}, "^" ->
+        {x, y}, ?^ ->
           Process.put(:start_pos, {x, y})
           {:ok, :n}
 
         _, _ ->
           :ignore
       end)
+      |> elem(0)
 
     start = Process.get(:start_pos)
     Process.delete(:start_pos)

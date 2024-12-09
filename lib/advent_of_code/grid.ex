@@ -1,22 +1,7 @@
 defmodule AdventOfCode.Grid do
-  @deprecated "use parse_lines/2"
-  def parse_stream(lines, char_parser)
+  def parse_lines(lines, char_parser)
       when is_function(char_parser, 1)
       when is_function(char_parser, 2) do
-    lines
-    |> Enum.with_index()
-    |> Enum.flat_map(&parse_stream_line(&1, char_parser))
-    |> Map.new()
-  end
-
-  defp parse_stream_line({string, y}, char_parser) do
-    string
-    |> String.graphemes()
-    |> Enum.with_index()
-    |> Enum.flat_map(&parse_cell(&1, y, char_parser))
-  end
-
-  def parse_lines(lines, char_parser) when is_function(char_parser, 2) do
     {max_x, max_y, rows} =
       lines
       |> Enum.with_index()
@@ -44,14 +29,14 @@ defmodule AdventOfCode.Grid do
               {x + 1, [{{x, y}, v} | row]}
 
             other ->
-              raise "Invalid return value from parser function in AdventOfCode.Grid.parse_stream/2, expected {:ok, value} or :ignore, got: #{inspect(other)}"
+              raise "Invalid return value from parser function in AdventOfCode.Grid.parse_lines/2, expected {:ok, value} or :ignore, got: #{inspect(other)}"
           end
       end
 
     {high_x - 1, pairs}
   end
 
-  defp call_parser(parser, xy, c) do
+  defp call_parser(parser, xy, c) when is_function(parser, 2) do
     parser.(xy, c)
   rescue
     _ in FunctionClauseError ->
@@ -62,34 +47,15 @@ defmodule AdventOfCode.Grid do
               __STACKTRACE__
   end
 
-  defp parse_cell({"\n", _x}, _y, _char_parser) do
-    []
-  end
-
-  defp parse_cell({cell, x}, y, char_parser) when is_function(char_parser, 1) do
-    case char_parser.(cell) do
-      :ignore ->
-        []
-
-      {:ok, value} ->
-        [{{x, y}, value}]
-
-      other ->
-        raise "Invalid return value from parser function in AdventOfCode.Grid.parse_stream/2, expected {:ok, value} or :ignore, got: #{inspect(other)}"
-    end
-  end
-
-  defp parse_cell({cell, x}, y, char_parser) when is_function(char_parser, 2) do
-    case char_parser.({x, y}, cell) do
-      :ignore ->
-        []
-
-      {:ok, value} ->
-        [{{x, y}, value}]
-
-      other ->
-        raise "Invalid return value from parser function in AdventOfCode.Grid.parse_stream/2, expected {:ok, value} or :ignore, got: #{inspect(other)}"
-    end
+  defp call_parser(parser, _xy, c) when is_function(parser, 1) do
+    parser.(c)
+  rescue
+    _ in FunctionClauseError ->
+      reraise RuntimeError,
+              [
+                message: "grid parser did not accept the arguments (?#{<<c::utf8>>})"
+              ],
+              __STACKTRACE__
   end
 
   def min_x(list) when is_list(list), do: Enum.reduce(list, &min_x/2)

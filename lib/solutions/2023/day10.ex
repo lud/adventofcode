@@ -7,19 +7,19 @@ defmodule AdventOfCode.Solutions.Y23.Day10 do
   end
 
   def parse_input(lines, _part) do
-    Grid.parse_stream(lines, &parse_char/1)
+    Grid.parse_lines(lines, &parse_char/1) |> elem(0)
   end
 
   @pipes [:S, :F, :"7", :J, :|, :L, :-]
 
-  defp parse_char("."), do: :ignore
-  defp parse_char("S"), do: {:ok, :S}
-  defp parse_char("F"), do: {:ok, :F}
-  defp parse_char("7"), do: {:ok, :"7"}
-  defp parse_char("J"), do: {:ok, :J}
-  defp parse_char("|"), do: {:ok, :|}
-  defp parse_char("L"), do: {:ok, :L}
-  defp parse_char("-"), do: {:ok, :-}
+  defp parse_char(?.), do: :ignore
+  defp parse_char(?S), do: {:ok, :S}
+  defp parse_char(?F), do: {:ok, :F}
+  defp parse_char(?7), do: {:ok, :"7"}
+  defp parse_char(?J), do: {:ok, :J}
+  defp parse_char(?|), do: {:ok, :|}
+  defp parse_char(?L), do: {:ok, :L}
+  defp parse_char(?-), do: {:ok, :-}
 
   def part_one(grid) do
     {start_xy, :S} = Enum.find(grid, fn {_, v} -> v == :S end)
