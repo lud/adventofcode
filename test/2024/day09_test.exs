@@ -26,21 +26,17 @@ defmodule AdventOfCode.Solutions.Y24.Day09Test do
     assert {:ok, @part_one_solution} == AoC.run(2024, 9, :part_one)
   end
 
-  # test "part two example" do
-  #   input = ~S"""
-  #   This is an
-  #   example input.
-  #   replace with
-  #   an example from
-  #   the AoC website.
-  #   """
-  #
-  #   assert CHANGE_ME == solve(input, :part_two)
-  # end
+  test "part two example" do
+    input = ~S"""
+    2333133121414131402
+    """
 
-  # @part_two_solution CHANGE_ME
-  #
-  # test "part two solution" do
-  #   assert {:ok, @part_two_solution} == AoC.run(2024, 9, :part_two)
-  # end
+    assert 2858 == solve(input, :part_two)
+  end
+
+  @part_two_solution 6_511_178_035_564
+
+  test "part two solution" do
+    assert {:ok, @part_two_solution} == AoC.run(2024, 9, :part_two)
+  end
 end
