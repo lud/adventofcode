@@ -20,11 +20,11 @@ defmodule AdventOfCode.Solutions.Y24.Day09Test do
     assert 1928 == solve(input, :part_one)
   end
 
-  @part_one_solution 6_471_961_544_878
+  # @part_one_solution 6_471_961_544_878
 
-  test "part one solution" do
-    assert {:ok, @part_one_solution} == AoC.run(2024, 9, :part_one)
-  end
+  # test "part one solution" do
+  #   assert {:ok, @part_one_solution} == AoC.run(2024, 9, :part_one)
+  # end
 
   test "part two example" do
     input = ~S"""

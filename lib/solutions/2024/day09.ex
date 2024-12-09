@@ -10,9 +10,9 @@ defmodule AdventOfCode.Solutions.Y24.Day09 do
   end
 
   def part_one(problem) do
-    {blocks, max_block} = build_disk(problem)
-    max_block = last_occupied(blocks, max_block)
-    blocks = compress(blocks, 0, max_block)
+    rev_blocks = build_disk(problem)
+    blocks = :lists.reverse(rev_blocks)
+    blocks = compress(blocks, Enum.filter(rev_blocks, fn {_, v} -> v != :free end), [])
     hash(blocks)
   end
 
@@ -36,47 +36,20 @@ defmodule AdventOfCode.Solutions.Y24.Day09 do
     build_disk([h - 1 | t], :free, block_id + 1, file_id, [{block_id, :free} | acc])
   end
 
-  defp build_disk([], _, block_id, _, acc) do
-    {Map.new(acc), block_id - 1}
+  defp build_disk([], _, _, _, acc) do
+    acc
   end
 
-  defp last_occupied(blocks, index) when is_integer(:erlang.map_get(index, blocks)) do
-    index
+  defp compress([{bid, :free} | blocks], [{fbid, file_id} | movables], acc) when bid <= fbid do
+    compress(blocks, movables, [{bid, file_id} | acc])
   end
 
-  defp last_occupied(blocks, index) when index > 0 do
-    last_occupied(blocks, index - 1)
+  defp compress([{bid, file_id} | blocks], [{fbid, _} | _] = movables, acc) when bid <= fbid do
+    compress(blocks, movables, [{bid, file_id} | acc])
   end
 
-  defp last_occupied(_, -1) do
-    nil
-  end
-
-  defp compress(blocks, current, last_occup) when :erlang.map_get(current, blocks) == :free do
-    {file_id, blocks} = Map.pop(blocks, last_occup)
-    blocks = Map.put(blocks, current, file_id)
-    compress(blocks, current + 1, last_occupied(blocks, last_occup))
-  end
-
-  defp compress(blocks, current, last_occup) when last_occup > current do
-    compress(blocks, current + 1, last_occup)
-  end
-
-  defp compress(blocks, _, _) do
-    blocks
-  end
-
-  defp print(blocks) do
-    blocks
-    |> Map.to_list()
-    |> Enum.sort()
-    |> Enum.map(fn
-      {_, :free} -> ?.
-      {_, v} -> Integer.to_string(v)
-    end)
-    |> IO.puts()
-
-    blocks
+  defp compress(_blocks, _movables, acc) do
+    acc
   end
 
   defp hash(blocks) do
@@ -87,72 +60,66 @@ defmodule AdventOfCode.Solutions.Y24.Day09 do
   end
 
   def part_two(problem) do
-    {blocks, max_block} = build_disk(problem)
-    max_block = last_occupied(blocks, max_block)
-    blocks = defrag(blocks, 0, max_block)
-    hash(blocks)
-  end
+    rev_blocks = build_disk(problem)
 
-  defp defrag(blocks, _, nil) do
-    blocks
-  end
-
-  defp defrag(blocks, search_start, last_occup) do
-    {file_id, [start_at | _] = block_ids} = last_block(blocks, last_occup)
-    block_size = length(block_ids)
-
-    {blocks, search_start} =
-      case find_space(blocks, block_size, search_start, start_at - block_size) do
-        nil ->
-          {blocks, search_start}
-
-        new_start ->
-          blocks = rewrite_file(blocks, file_id, block_ids, range(new_start, block_size))
-          search_start = first_free_index(blocks, search_start)
-          {blocks, search_start}
-      end
-
-    defrag(blocks, search_start, last_occupied(blocks, start_at - 1))
-  end
-
-  defp last_block(blocks, last_occup) when is_integer(last_occup) do
-    file_id = Map.fetch!(blocks, last_occup)
-
-    block_ids =
-      last_occup
-      |> Stream.iterate(&(&1 - 1))
-      |> Enum.take_while(&(&1 >= 0 && Map.get(blocks, &1) == file_id))
+    {free_chunks, files_chunks} =
+      rev_blocks
       |> :lists.reverse()
+      |> Enum.chunk_by(fn {_, v} -> v end)
+      |> Enum.map(fn [{_, fid_or_free} | _] = list ->
+        {Enum.map(list, &elem(&1, 0)), fid_or_free}
+      end)
+      |> Enum.split_with(fn {_, id} -> id == :free end)
 
-    {file_id, block_ids}
+    free_chunks = Enum.map(free_chunks, fn {bids, :free} -> {bids, length(bids)} end)
+    rev_files_chunks = :lists.reverse(files_chunks)
+    blocks = defrag(rev_files_chunks, free_chunks, [])
+    hash2(blocks)
   end
 
-  defp find_space(blocks, size, min_start, max_start) when min_start <= max_start do
-    Enum.find(min_start..max_start, fn start -> free_span?(blocks, start, size) end)
+  defp defrag([{[low_bid | _] = bids, file_id} = h | rev_files_chunks], [{[high_free | _], _} | _] = free_chunks, acc)
+       when high_free < low_bid do
+    space = take_space(free_chunks, bids)
+
+    [bid | _] = bids
+
+    case space do
+      {[free_bid | _] = free_bids, free_chunks} when free_bid < bid ->
+        defrag(rev_files_chunks, free_chunks, [{free_bids, file_id} | acc])
+
+      _ ->
+        defrag(rev_files_chunks, free_chunks, [h | acc])
+    end
   end
 
-  defp find_space(_, _, _, _) do
+  defp defrag(rest, _, acc) do
+    rest ++ acc
+  end
+
+  defp take_space(free_chunks, bids) do
+    take_space(free_chunks, length(bids), [])
+  end
+
+  defp take_space([{vids, larger_len} | rest], len, skipped) when len < larger_len do
+    {vids_used, vids_rest} = Enum.split(vids, len)
+    {vids_used, :lists.reverse(skipped, [{vids_rest, larger_len - len} | rest])}
+  end
+
+  defp take_space([{vids, same_len} | rest], same_len, skipped) do
+    {vids, :lists.reverse(skipped, rest)}
+  end
+
+  defp take_space([skip | rest], len, skipped) do
+    take_space(rest, len, [skip | skipped])
+  end
+
+  defp take_space([], _, _) do
     nil
   end
 
-  defp free_span?(blocks, i, size) when size > 0 do
-    Map.get(blocks, i) == :free && free_span?(blocks, i + 1, size - 1)
-  end
-
-  defp free_span?(_, _, 0) do
-    true
-  end
-
-  defp range(_, 0), do: []
-  defp range(x, n), do: [x | range(x + 1, n - 1)]
-
-  defp rewrite_file(blocks, file_id, block_ids, new_block_ids) do
-    blocks
-    |> Map.drop(block_ids)
-    |> Map.merge(Map.new(new_block_ids, &{&1, file_id}))
-  end
-
-  defp first_free_index(blocks, search_start) do
-    Enum.find(search_start..(map_size(blocks) - search_start), &(Map.get(blocks, &1) == :free))
+  defp hash2(blocks) do
+    Enum.reduce(blocks, 0, fn
+      {bids, f}, acc when is_integer(f) -> Enum.reduce(bids, acc, fn b, acc -> acc + b * f end)
+    end)
   end
 end
