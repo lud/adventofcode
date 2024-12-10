@@ -49,14 +49,8 @@ defmodule AdventOfCode.Solutions.Y24.Day10 do
     scores =
       for h <- heads(grid), s <- summits(grid), reduce: %{} do
         scores ->
-          case Grid.bfs_path(grid, h, s, &uphill_neighbors/2) do
-            {:error, :no_path} ->
-              scores
-
-            {:ok, _} ->
-              rating = rating(grid, h, s)
-              Map.update(scores, h, rating, &(&1 + rating))
-          end
+          rating = rating(grid, h, s)
+          Map.update(scores, h, rating, &(&1 + rating))
       end
 
     scores |> Map.values() |> Enum.sum()
