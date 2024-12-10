@@ -13,16 +13,13 @@ defmodule AdventOfCode.Solutions.Y24.Day10 do
   end
 
   def part_one(grid) do
-    scores =
-      for h <- heads(grid), s <- summits(grid), reduce: %{} do
-        scores ->
-          case Grid.bfs_path(grid, h, s, &uphill_neighbors/2) do
-            {:error, :no_path} -> scores
-            {:ok, _} -> Map.update(scores, h, 1, &(&1 + 1))
-          end
-      end
-
-    scores |> Map.values() |> Enum.sum()
+    for h <- heads(grid), s <- summits(grid), reduce: 0 do
+      acc ->
+        case Grid.bfs_path(grid, h, s, &uphill_neighbors/2) do
+          {:error, :no_path} -> acc
+          {:ok, _} -> acc + 1
+        end
+    end
   end
 
   defp heads(grid), do: keys_for_altitude(grid, 0)
@@ -46,14 +43,9 @@ defmodule AdventOfCode.Solutions.Y24.Day10 do
   end
 
   def part_two(grid) do
-    scores =
-      for h <- heads(grid), s <- summits(grid), reduce: %{} do
-        scores ->
-          rating = rating(grid, h, s)
-          Map.update(scores, h, rating, &(&1 + rating))
-      end
-
-    scores |> Map.values() |> Enum.sum()
+    for h <- heads(grid), s <- summits(grid), reduce: 0 do
+      acc -> acc + rating(grid, h, s)
+    end
   end
 
   defp rating(grid, head, summit) do
