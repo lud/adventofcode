@@ -35,18 +35,21 @@ defmodule AdventOfCode.Solutions.Y19.Day20 do
     start_pos = Map.fetch!(outer_warps, :start)
     end_pos = Map.fetch!(outer_warps, :exit)
 
-    Grid.bfs_path(map, start_pos, end_pos, fn {_, _} = xy, map ->
-      base = xy |> Grid.cardinal4() |> Enum.filter(&(Map.get(map, &1) == :floor))
+    {:ok, len} =
+      Grid.bfs_path(map, start_pos, end_pos, fn {_, _} = xy, map ->
+        base = xy |> Grid.cardinal4() |> Enum.filter(&(Map.get(map, &1) == :floor))
 
-      case Map.get(outer_warps, xy) do
-        nil -> []
-        {:outer_warp, _, neigh} -> [neigh]
-      end ++
-        case Map.get(inner_warps, xy) do
+        case Map.get(outer_warps, xy) do
           nil -> []
-          {:inner_warp, _, neigh} -> [neigh]
-        end ++ base
-    end)
+          {:outer_warp, _, neigh} -> [neigh]
+        end ++
+          case Map.get(inner_warps, xy) do
+            nil -> []
+            {:inner_warp, _, neigh} -> [neigh]
+          end ++ base
+      end)
+
+    len
   end
 
   defp compute_portals(map) do
@@ -192,28 +195,31 @@ defmodule AdventOfCode.Solutions.Y19.Day20 do
     {sx, sy} = Map.fetch!(outer_warps, :start)
     {ex, ey} = Map.fetch!(outer_warps, :exit)
 
-    Grid.bfs_path(map, {sx, sy, 0}, {ex, ey, 0}, fn {x, y, z}, map ->
-      base =
-        {x, y}
-        |> Grid.cardinal4()
-        |> Enum.filter(&(Map.get(map, &1) == :floor))
-        |> Enum.map(fn {nx, ny} -> {nx, ny, z} end)
+    {:ok, len} =
+      Grid.bfs_path(map, {sx, sy, 0}, {ex, ey, 0}, fn {x, y, z}, map ->
+        base =
+          {x, y}
+          |> Grid.cardinal4()
+          |> Enum.filter(&(Map.get(map, &1) == :floor))
+          |> Enum.map(fn {nx, ny} -> {nx, ny, z} end)
 
-      if z > 0 do
-        case Map.get(outer_warps, {x, y}) do
-          nil -> []
-          {:outer_warp, _, {nx, ny}} -> [{nx, ny, z - 1}]
-        end
-      else
-        []
-      end ++
-        case Map.get(inner_warps, {x, y}) do
-          nil ->
-            []
+        if z > 0 do
+          case Map.get(outer_warps, {x, y}) do
+            nil -> []
+            {:outer_warp, _, {nx, ny}} -> [{nx, ny, z - 1}]
+          end
+        else
+          []
+        end ++
+          case Map.get(inner_warps, {x, y}) do
+            nil ->
+              []
 
-          {:inner_warp, _, {nx, ny}} ->
-            [{nx, ny, z + 1}]
-        end ++ base
-    end)
+            {:inner_warp, _, {nx, ny}} ->
+              [{nx, ny, z + 1}]
+          end ++ base
+      end)
+
+    len
   end
 end

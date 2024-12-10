@@ -136,7 +136,8 @@ defmodule AdventOfCode.Grid do
       _seen = %{start_pos => true}
     )
   catch
-    {:found, x} -> x
+    {:found, path} -> {:ok, path}
+    :not_found -> {:error, :no_path}
   end
 
   defp bfs_path(map, [_ | _] = open, end_pos, get_neighs, round, seen) do
