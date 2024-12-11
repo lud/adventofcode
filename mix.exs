@@ -24,10 +24,9 @@ defmodule AdventOfCode.MixProject do
   defp deps do
     [
       {:nvir, "~> 0.9.4"},
-
-      # {:aoc, "~> 0.11"},
+      {:aoc, "~> 0.11"},
       {:cli_mate, path: "../cli_mate", runtime: false, override: true},
-      {:aoc, path: "../aoc"},
+      # {:aoc, path: "../aoc"},
       {:jason, "~> 1.4"},
       {:credo, "~> 1.7", only: [:dev], runtime: false}
     ]
