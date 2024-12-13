@@ -160,7 +160,7 @@ defmodule AdventOfCode.Solutions.Y23.Day19 do
 
   Enum.each([:s, :m, :x, :a], fn k ->
     defp do_split(state, {unquote(k), :lt, n}) do
-      a..b = Map.fetch!(state, unquote(k))
+      a..b//1 = Map.fetch!(state, unquote(k))
 
       # this is always true
       # true = a < n && b > n do
@@ -171,7 +171,7 @@ defmodule AdventOfCode.Solutions.Y23.Day19 do
     end
 
     defp do_split(state, {unquote(k), :gt, n}) do
-      a..b = Map.fetch!(state, unquote(k))
+      a..b//1 = Map.fetch!(state, unquote(k))
 
       # this is always true
       # true = a < n && b > n do
@@ -194,7 +194,7 @@ defmodule AdventOfCode.Solutions.Y23.Day19 do
     %{state | wk: :accepted}
   end
 
-  defp count_combinations(%{s: sa..sz, m: ma..mz, a: aa..az, x: xa..xz}) do
+  defp count_combinations(%{s: sa..sz//1, m: ma..mz//1, a: aa..az//1, x: xa..xz//1}) do
     Range.size(sa..sz) * Range.size(ma..mz) * Range.size(aa..az) * Range.size(xa..xz)
   end
 end

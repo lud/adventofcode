@@ -7,14 +7,14 @@ defmodule AdventOfCode.Solutions.Y16.Day18 do
   end
 
   def parse_input(input, _part) do
-    Grid.parse_stream(input, &parse_char/1)
+    Grid.parse_lines(input, &parse_char/1)
   end
 
-  defp parse_char("#"), do: {:ok, :wall}
-  defp parse_char("."), do: {:ok, :floor}
-  defp parse_char("@"), do: {:ok, :start}
-  defp parse_char(<<a>>) when a in ?a..?z, do: {:ok, {:key, a}}
-  defp parse_char(<<a>>) when a in ?A..?Z, do: {:ok, {:door, a}}
+  defp parse_char(?#), do: {:ok, :wall}
+  defp parse_char(?.), do: {:ok, :floor}
+  defp parse_char(?@), do: {:ok, :start}
+  defp parse_char(a) when a in ?a..?z, do: {:ok, {:key, a}}
+  defp parse_char(a) when a in ?A..?Z, do: {:ok, {:door, a}}
 
   defp print_cell(:wall), do: "#"
   defp print_cell(:floor), do: "."

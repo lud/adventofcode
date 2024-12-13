@@ -92,19 +92,19 @@ defmodule AdventOfCode.Solutions.Y22.Day15 do
     acc
   end
 
-  defp merge_range(al..ah, bl..bh) when bl >= al and bl <= ah and bh > ah do
+  defp merge_range(al..ah//1, bl..bh//1) when bl >= al and bl <= ah and bh > ah do
     al..bh
   end
 
-  defp merge_range(al..ah, bl..bh) when al >= bl and al <= bh and ah > bh do
+  defp merge_range(al..ah//1, bl..bh//1) when al >= bl and al <= bh and ah > bh do
     bl..ah
   end
 
-  defp merge_range(al..ah, bl..bh) when bl >= al and bh <= ah do
+  defp merge_range(al..ah//1, bl..bh//1) when bl >= al and bh <= ah do
     al..ah
   end
 
-  defp merge_range(al..ah, bl..bh) when al >= bl and ah <= bh do
+  defp merge_range(al..ah//1, bl..bh//1) when al >= bl and ah <= bh do
     bl..bh
   end
 

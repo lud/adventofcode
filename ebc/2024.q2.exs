@@ -834,7 +834,7 @@ defmodule Quest2 do
 
     words = Enum.uniq(words)
 
-    base_grid = AdventOfCode.Grid.parse_stream(phrases, &{:ok, &1})
+    base_grid = AdventOfCode.Grid.parse_lines(phrases, &{:ok, <<&1>>})
     left_grid = Map.new(base_grid, fn {xy, c} -> {AdventOfCode.Grid.translate(xy, :w, width), c} end)
     right_grid = Map.new(base_grid, fn {xy, c} -> {AdventOfCode.Grid.translate(xy, :e, width), c} end)
 

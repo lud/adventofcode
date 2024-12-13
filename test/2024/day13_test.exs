@@ -37,7 +37,7 @@ defmodule AdventOfCode.Solutions.Y24.Day13Test do
   @part_one_solution 25629
 
   test "part one solution" do
-    assert {:ok, @part_one_solution} == AoC.run(2024, 13, :part_one) |> dbg()
+    assert {:ok, @part_one_solution} == AoC.run(2024, 13, :part_one)
   end
 
   @part_two_solution 107_487_112_929_999

@@ -98,11 +98,11 @@ defmodule AdventOfCode.Solutions.Y20.Day23Fail do
     cups
   end
 
-  defp unpack([rbeg..rend | cups], amount) when rbeg == rend do
+  defp unpack([rbeg..rend//1 | cups], amount) when rbeg == rend do
     unpack([rbeg | cups], amount)
   end
 
-  defp unpack([rbeg..rend | cups], amount) do
+  defp unpack([rbeg..rend//1 | cups], amount) do
     [rbeg | unpack([range_or_num(rbeg + 1, rend)] ++ cups, amount - 1)]
   end
 
@@ -119,7 +119,7 @@ defmodule AdventOfCode.Solutions.Y20.Day23Fail do
   # defp find_destination(cur, [_ | cups], pool), do: find_destination(cur, cups, pool)
   # defp find_destination(cur, [], pool), do: find_destination(cur - 1, pool, pool)
 
-  defp rearrange([rbeg..rend | cups], dest, {a, b, c}, last) when dest >= rbeg and dest <= rend do
+  defp rearrange([rbeg..rend//1 | cups], dest, {a, b, c}, last) when dest >= rbeg and dest <= rend do
     insert_in_range(rbeg, rend, dest, [a, b, c]) ++ put_last(cups, last)
   end
 

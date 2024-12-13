@@ -24,7 +24,7 @@ defmodule AdventOfCode.Solutions.Y15.Day04 do
     # initial state for the iteration. That top stream streams ranges, not
     # integers.
     1..@range_width
-    |> Stream.iterate(fn _..max -> (max + 1)..(max + @range_width) end)
+    |> Stream.iterate(fn _..max//1 -> (max + 1)..(max + @range_width) end)
     |> Task.async_stream(&find_match(seed, &1, matcher))
     |> Enum.find_value(fn
       {:ok, nil} -> nil

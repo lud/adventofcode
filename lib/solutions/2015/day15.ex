@@ -106,7 +106,7 @@ defmodule AdventOfCode.Solutions.Y15.Day15 do
 
     # the first ingredient initialises the teaspoons permutation with a number
     # between 0 and 100, in a list
-    stream = Stream.map(100..0, &[&1])
+    stream = Stream.map(100..0//-1, &[&1])
 
     # then for each ingredient in the middle, we flat map the stream with 0 to
     # N-1 possible remaining teaspoons. This does not happen in the test example

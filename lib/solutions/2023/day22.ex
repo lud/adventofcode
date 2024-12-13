@@ -78,14 +78,14 @@ defmodule AdventOfCode.Solutions.Y23.Day22 do
                zfin == zbotfin + 1 or
                zdeb == zbotfin + 1 or
                zfin == zbotdeb + 1) and
-              (xdeb in xbotdeb..xbotfin or
-                 xfin in xbotdeb..xbotfin or
-                 xbotdeb in xdeb..xfin or
-                 xbotfin in xdeb..xfin) and
-              (ydeb in ybotdeb..ybotfin or
-                 yfin in ybotdeb..ybotfin or
-                 ybotdeb in ydeb..yfin or
-                 ybotfin in ydeb..yfin) do
+              (xdeb in xbotdeb..xbotfin//1 or
+                 xfin in xbotdeb..xbotfin//1 or
+                 xbotdeb in xdeb..xfin//1 or
+                 xbotfin in xdeb..xfin//1) and
+              (ydeb in ybotdeb..ybotfin//1 or
+                 yfin in ybotdeb..ybotfin//1 or
+                 ybotdeb in ydeb..yfin//1 or
+                 ybotfin in ydeb..yfin//1) do
     true
   end
 

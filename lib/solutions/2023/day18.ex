@@ -69,8 +69,8 @@ defmodule AdventOfCode.Solutions.Y23.Day18 do
       horizontals
       # Keep them sorted by top position (y min)
       |> Enum.sort_by(fn
-        {_, _..y, _} -> y
-        {_.._, y, _} -> y
+        {_, _..y//_, _} -> y
+        {_.._//_, y, _} -> y
       end)
       # Reverse the negative ranges
       |> Enum.map(fn
@@ -95,6 +95,7 @@ defmodule AdventOfCode.Solutions.Y23.Day18 do
   end
 
   def part_two(problem) do
+    # Difference for part 2 is in parsing
     part_one(problem)
   end
 
@@ -114,32 +115,32 @@ defmodule AdventOfCode.Solutions.Y23.Day18 do
   end
 
   # covered
-  defp check_split({xa..xo, ya..yo}, [{cxa..cxo, cya..cyo} | _])
+  defp check_split({xa..xo//1, ya..yo//1}, [{cxa..cxo//1, cya..cyo//1} | _])
        when cxa <= xa and cxo >= xo and cya <= ya and cyo >= yo do
     {:split, []}
   end
 
   # top-left corner splits the rectangle
-  defp check_split({xa..xo, ya..yo} = rect, [{cxa.._cxo, cya.._cyo} | _])
-       when cxa in xa..xo and cya in ya..yo do
+  defp check_split({xa..xo//1, ya..yo//1} = rect, [{cxa.._cxo//1, cya.._cyo//1} | _])
+       when cxa in xa..xo//1 and cya in ya..yo//1 do
     {:split, split_rect(rect, {cxa, cya})}
   end
 
   # top-right corner splits the rectangle
-  defp check_split({xa..xo, ya..yo} = rect, [{_cxa..cxo, cya.._cyo} | _])
-       when cxo in xa..xo and cya in ya..yo do
+  defp check_split({xa..xo//1, ya..yo//1} = rect, [{_cxa..cxo//1, cya.._cyo//1} | _])
+       when cxo in xa..xo//1 and cya in ya..yo//1 do
     {:split, split_rect(rect, {cxo, cya})}
   end
 
   # bottom-left corner splits the rectangle
-  defp check_split({xa..xo, ya..yo} = rect, [{cxa.._cxo, _cya..cyo} | _])
-       when cxa in xa..xo and cyo in ya..yo do
+  defp check_split({xa..xo//1, ya..yo//1} = rect, [{cxa.._cxo//1, _cya..cyo//1} | _])
+       when cxa in xa..xo//1 and cyo in ya..yo//1 do
     {:split, split_rect(rect, {cxa, cyo})}
   end
 
   # bottom-right corner splits the rectangle
-  defp check_split({xa..xo, ya..yo} = rect, [{_cxa..cxo, _cya..cyo} | _])
-       when cxo in xa..xo and cyo in ya..yo do
+  defp check_split({xa..xo//1, ya..yo//1} = rect, [{_cxa..cxo//1, _cya..cyo//1} | _])
+       when cxo in xa..xo//1 and cyo in ya..yo//1 do
     {:split, split_rect(rect, {cxo, cyo})}
   end
 
@@ -151,7 +152,7 @@ defmodule AdventOfCode.Solutions.Y23.Day18 do
     :nosplit
   end
 
-  defp split_rect({xa..xo, ya..yo}, {x, y}) do
+  defp split_rect({xa..xo//1, ya..yo//1}, {x, y}) do
     xaos = split_range_at(xa..xo, x)
     yaos = split_range_at(ya..yo, y)
 
@@ -163,21 +164,21 @@ defmodule AdventOfCode.Solutions.Y23.Day18 do
     result
   end
 
-  defp split_range_at(a..b, a) do
+  defp split_range_at(a..b//1, a) do
     case b do
       ^a -> [a..a]
       _ -> [a..a, (a + 1)..b]
     end
   end
 
-  defp split_range_at(a..b, b) do
+  defp split_range_at(a..b//1, b) do
     case a do
       ^b -> [b..b]
       _ -> [a..(b - 1), b..b]
     end
   end
 
-  defp split_range_at(a..b, n) do
+  defp split_range_at(a..b//1, n) do
     [a..n, (n + 1)..b]
   end
 
@@ -193,7 +194,7 @@ defmodule AdventOfCode.Solutions.Y23.Day18 do
     (xo - xa + 1) * (yo - ya + 1)
   end
 
-  defp gen_rects([{xa..xo, y, kind} = range | ranges], bottoms, rects) when kind in [:regular, :goofy] do
+  defp gen_rects([{xa..xo//1, y, kind} = range | ranges], bottoms, rects) when kind in [:regular, :goofy] do
     {bottoms_parts, _} = find_bottoms([xa..xo], y, bottoms, bottoms, []) |> Enum.unzip()
 
     rects = compute_rects(range, bottoms_parts, rects)
@@ -207,18 +208,24 @@ defmodule AdventOfCode.Solutions.Y23.Day18 do
     rects
   end
 
-  defp compute_rects({_.._, ya, kind} = orig, [{xa..xo, yo} | bottoms], acc) when kind in [:regular, :goofy] do
+  defp compute_rects({_.._//1, ya, kind} = orig, [{xa..xo//1, yo} | bottoms], acc) when kind in [:regular, :goofy] do
     acc = [{xa..xo//1, ya..yo//1} | acc]
     compute_rects(orig, bottoms, acc)
   end
 
-  defp compute_rects({_.._, _, _}, [], acc) do
+  defp compute_rects({_.._//_, _, _}, [], acc) do
     acc
   end
 
-  defp find_bottoms([xa..xo = current | todo], top_y, [{x1..x2 = found_xr, found_y, _} = bottom | _], all_bottoms, acc)
-       when (xa in x1..x2 or
-               xo in x1..x2) and found_y > top_y do
+  defp find_bottoms(
+         [xa..xo//1 = current | todo],
+         top_y,
+         [{x1..x2//1 = found_xr, found_y, _} = bottom | _],
+         all_bottoms,
+         acc
+       )
+       when (xa in x1..x2//1 or
+               xo in x1..x2//1) and found_y > top_y do
     case split_range(current, found_xr) do
       {[subpart | []], rest} ->
         todo = rest ++ todo
@@ -245,12 +252,12 @@ defmodule AdventOfCode.Solutions.Y23.Day18 do
           true = yend == ystart
           kind = if horiz == prev_hdir, do: last_kind, else: other_kind(last_kind)
 
-          range = {xstart..xend, ystart, kind}
+          range = {new_range(xstart, xend), ystart, kind}
           {range, horiz, kind}
 
         vert when vert in [:n, :s] ->
           true = xend == xstart
-          range = {xstart, ystart..yend, :vertical}
+          range = {xstart, new_range(ystart, yend), :vertical}
           {range, prev_hdir, last_kind}
       end
 
@@ -260,6 +267,9 @@ defmodule AdventOfCode.Solutions.Y23.Day18 do
     {end_pos, new_ranges, new_prev_hdir, new_last_kind}
   end
 
+  defp new_range(ystart, yend) when yend < ystart, do: ystart..yend//-1
+  defp new_range(ystart, yend), do: ystart..yend//1
+
   defp other_kind(:regular), do: :goofy
   defp other_kind(:goofy), do: :regular
 
@@ -268,19 +278,19 @@ defmodule AdventOfCode.Solutions.Y23.Day18 do
   def translate({x, y}, :w, n), do: {x - n, y}
   def translate({x, y}, :e, n), do: {x + n, y}
 
-  def split_range(ra..rz = range, sa..sz) when sa <= ra and sz >= rz do
+  def split_range(ra..rz//1 = range, sa..sz//1) when sa <= ra and sz >= rz do
     {[range], []}
   end
 
-  def split_range(ra..rz, sa..sz) when sa >= ra and sz >= rz do
+  def split_range(ra..rz//1, sa..sz//1) when sa >= ra and sz >= rz do
     {[sa..rz], [ra..(sa - 1)]}
   end
 
-  def split_range(ra..rz, sa..sz) when sa <= ra and sz <= rz do
+  def split_range(ra..rz//1, sa..sz//1) when sa <= ra and sz <= rz do
     {[ra..sz], [(sz + 1)..rz]}
   end
 
-  def split_range(ra..rz, sa..sz) when sa >= ra and sz <= rz do
+  def split_range(ra..rz//1, sa..sz//1) when sa >= ra and sz <= rz do
     {[sa..sz], [ra..(sa - 1), (sz + 1)..rz]}
   end
 end

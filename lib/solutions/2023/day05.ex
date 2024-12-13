@@ -135,27 +135,27 @@ defmodule AdventOfCode.Solutions.Y23.Day05 do
 
   def split_range(range, source)
 
-  def split_range(ra.._rz = range, _sa..sz) when sz < ra do
+  def split_range(ra.._rz//1 = range, _sa..sz//1) when sz < ra do
     {nil, [range]}
   end
 
-  def split_range(_ra..rz = range, sa.._sz) when sa > rz do
+  def split_range(_ra..rz//1 = range, sa.._sz//1) when sa > rz do
     {nil, [range]}
   end
 
-  def split_range(ra..rz = range, sa..sz) when sa <= ra and sz >= rz do
+  def split_range(ra..rz//1 = range, sa..sz//1) when sa <= ra and sz >= rz do
     {[range], nil}
   end
 
-  def split_range(ra..rz, sa..sz) when sa >= ra and sz >= rz do
+  def split_range(ra..rz//1, sa..sz//1) when sa >= ra and sz >= rz do
     {[sa..rz], [ra..(sa - 1)]}
   end
 
-  def split_range(ra..rz, sa..sz) when sa <= ra and sz <= rz do
+  def split_range(ra..rz//1, sa..sz//1) when sa <= ra and sz <= rz do
     {[ra..sz], [(sz + 1)..rz]}
   end
 
-  def split_range(ra..rz, sa..sz) when sa >= ra and sz <= rz do
+  def split_range(ra..rz//1, sa..sz//1) when sa >= ra and sz <= rz do
     {[sa..sz], [ra..(sa - 1), (sz + 1)..rz]}
   end
 end

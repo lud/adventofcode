@@ -26,7 +26,7 @@ defmodule AdventOfCode.Solutions.Y23.Day24 do
     part_one({paths, @min..@max})
   end
 
-  def part_one({paths, rmin..rmax}) do
+  def part_one({paths, rmin..rmax//1}) do
     paths
     |> Enum.map(&with_equation/1)
     |> count_intersects(rmin..rmax, 0)
@@ -78,7 +78,7 @@ defmodule AdventOfCode.Solutions.Y23.Day24 do
   defp intersect_in_future_range?(
          {{px1, _, _}, {vx1, _, _}, {a1, b1}},
          {{px2, _, _}, {vx2, _, _}, {a2, b2}},
-         mini..maxi
+         mini..maxi//1
        ) do
     # Intersection point
     x = (b2 - b1) / (a1 - a2)
