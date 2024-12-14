@@ -47,9 +47,8 @@ defmodule AdventOfCode.Solutions.Y24.Day14 do
   def part_two(robots, room_dimensions \\ {101, 103}) do
     Enum.reduce_while(1..10000, nil, fn sec, _ ->
       positions = Enum.map(robots, &simulate(&1, room_dimensions, sec))
-      map = Map.new(positions, &{&1, true})
 
-      if Enum.all?([{43, 57}, {42, 58}, {43, 58}, {44, 58}], &Map.has_key?(map, &1)) do
+      if Enum.all?([{43, 57}, {42, 58}, {43, 58}, {44, 58}], &(&1 in positions)) do
         {:halt, sec}
       else
         {:cont, nil}
