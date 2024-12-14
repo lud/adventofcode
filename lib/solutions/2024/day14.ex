@@ -1,5 +1,4 @@
 defmodule AdventOfCode.Solutions.Y24.Day14 do
-  alias AdventOfCode.Grid
   alias AoC.Input
 
   def parse(input, _part) do
@@ -13,7 +12,6 @@ defmodule AdventOfCode.Solutions.Y24.Day14 do
     |> :lists.flatten()
     |> Enum.map(&String.to_integer/1)
     |> then(fn [a, b, c, d] -> {{a, b}, {c, d}} end)
-    |> dbg()
   end
 
   def part_one(robots, room_dimensions \\ {101, 103})
@@ -23,31 +21,22 @@ defmodule AdventOfCode.Solutions.Y24.Day14 do
     {w, h} = room_dimensions
     centers = {div(w, 2), div(h, 2)}
 
-    positions =
-      robots
-      |> Enum.map(&simulate(&1, room_dimensions, 100))
-      |> Enum.group_by(&which_quadrant(&1, centers))
-      |> Map.delete(:center)
-      |> Enum.product_by(fn {_, poses} -> length(poses) end)
-  end
-
-  defp simulate({{px, py}, {vx, vy}}, {mx, my}, 0) do
-    {px, py}
+    robots
+    |> Enum.map(&simulate(&1, room_dimensions, 100))
+    |> Enum.group_by(&which_quadrant(&1, centers))
+    |> Map.delete(:center)
+    |> Enum.product_by(fn {_, poses} -> length(poses) end)
   end
 
   defp simulate({{px, py}, {vx, vy}}, {mx, my}, seconds) do
-    x = (px + vx * seconds) |> dbg()
-    y = (py + vy * seconds) |> dbg()
+    x = px + vx * seconds
+    y = py + vy * seconds
 
-    x = mod(x, mx) |> dbg()
-    y = mod(y, my) |> dbg()
+    x = Integer.mod(x, mx)
+    y = Integer.mod(y, my)
 
     {x, y}
   end
-
-  defp mod(0, _), do: 0
-  defp mod(n, m) when n < 0, do: mod(m + n, m)
-  defp mod(n, m), do: rem(n, m)
 
   def which_quadrant({x, y}, {cx, cy}) when x < cx and y < cy, do: :top_left
   def which_quadrant({x, y}, {cx, cy}) when x < cx and y > cy, do: :bottom_left
@@ -55,7 +44,16 @@ defmodule AdventOfCode.Solutions.Y24.Day14 do
   def which_quadrant({x, y}, {cx, cy}) when x > cx and y > cy, do: :bottom_right
   def which_quadrant(_, _), do: :center
 
-  # def part_two(robots) do
-  #   robots
-  # end
+  def part_two(robots, room_dimensions \\ {101, 103}) do
+    Enum.reduce_while(1..10000, nil, fn sec, _ ->
+      positions = Enum.map(robots, &simulate(&1, room_dimensions, sec))
+      map = Map.new(positions, &{&1, true})
+
+      if Enum.all?([{43, 57}, {42, 58}, {43, 58}, {44, 58}], &Map.has_key?(map, &1)) do
+        {:halt, sec}
+      else
+        {:cont, nil}
+      end
+    end)
+  end
 end
