@@ -165,38 +165,58 @@ defmodule AdventOfCode.Grid do
   end
 
   defp lowest_path(map, [_ | _] = open, target, callback, costs) do
-    Process.sleep(1000)
-
     {new_open, costs} =
       open
       |> Enum.flat_map(fn {pos_state, prev_cost} -> neighbors_with_costs(pos_state, prev_cost, map, callback) end)
-      |> Enum.uniq()
-      |> Enum.reduce({[], costs}, fn {pos_state, {prev, cost}}, {new_open, costs} ->
-        pos_state |> IO.inspect(label: "pos_state")
-        prev |> IO.inspect(label: "prev")
-        cost |> IO.inspect(label: "cost")
-
+      |> Enum.sort_by(fn {pos_state, {prev, cost}} -> cost end)
+      |> Enum.reduce({[], costs}, fn {pos_state, {prev, cost}} = arg, {new_open, costs} ->
         {_new_open, _costs} =
+          result =
           case costs do
-            %{^pos_state => {p, c}} when c < cost -> {new_open, %{costs | pos_state => {prev, cost}}}
-            %{^pos_state => {p, c}} when c >= cost -> {new_open, costs}
-            _ -> {[{pos_state, cost} | new_open], Map.put(costs, pos_state, {prev, cost})}
+            %{^pos_state => {p, prev_cost}} when cost < prev_cost ->
+              # In this case we have already seen that neighbor, but we found it
+              # with a better cost. We should update all other positions that
+              # have it as their "prev" so reduce their cost by the difference,
+              # recursively.
+              #
+              # For now we will just put it again on the open list and let the
+              # algorithm start over from those positions.
+              IO.puts("replace #{inspect(pos_state)} with cost #{inspect(cost)}")
+              {[{pos_state, cost} | new_open], %{costs | pos_state => {prev, cost}}}
+
+            %{^pos_state => {p, prev_cost}} when cost >= prev_cost ->
+              {new_open, costs}
+
+            _ ->
+              {[{pos_state, cost} | new_open], Map.put(costs, pos_state, {prev, cost})}
           end
+
+        result
       end)
 
-    new_open |> dbg()
-    costs |> dbg()
     lowest_path(map, new_open, target, callback, costs)
   end
 
   defp lowest_path(map, [] = open, target, callback, costs) do
-    print(Map.merge(map, Map.new(costs, fn {{{x, y}, dir}, {_, cost}} -> {{x, y}, dir} end)), &dir_char/1)
-
     costs
     |> Enum.filter(fn {pos_state, {prev, cost}} -> target?(pos_state, target, callback) end)
     |> dbg()
-    |> Enum.map(&rebuild_cost(&1, costs))
-    |> Enum.sort_by(fn {pos_state, {prev, cost}} -> cost end)
+    |> Enum.map(fn {pos_state, {_, cost}} = target -> {pos_state, cost, rebuild_path(target, costs)} end)
+    |> dbg()
+    |> Enum.sort_by(fn {pos_state, cost, _path} -> cost end)
+  end
+
+  defp rebuild_path({pos_state, {prev, cost}}, costs) do
+    [pos_state | do_rebuild_path(prev, costs)]
+  end
+
+  defp do_rebuild_path(:start, costs) do
+    []
+  end
+
+  defp do_rebuild_path(pos_state, costs) do
+    {prev, _} = Map.fetch!(costs, pos_state)
+    [pos_state | do_rebuild_path(prev, costs)]
   end
 
   defp rebuild_cost({p, {prev, cost}}, costs) do
@@ -204,8 +224,6 @@ defmodule AdventOfCode.Grid do
   end
 
   defp do_rebuild_cost(pos_state, costs) do
-    pos_state |> IO.inspect(label: "pos_state")
-
     case Map.fetch!(costs, pos_state) do
       {:start, initial_cost} -> initial_cost
       {prev, cost} -> cost + do_rebuild_cost(prev, costs)
@@ -220,10 +238,8 @@ defmodule AdventOfCode.Grid do
   defp dir_char(nil), do: ?.
 
   defp neighbors_with_costs(pos_state, prev_cost, map, callback) do
-    {{_, _}, _} = pos_state |> dbg()
-    neighs = callback.(:neighbors, pos_state, map) |> dbg()
-    # Enum.map(neighs, fn {neight_state, cost} -> {neight_state, {pos_state, cost + prev_cost}} end)
-    Enum.map(neighs, fn {neight_state, cost} -> {neight_state, {pos_state, cost}} end)
+    neighs = callback.(:neighbors, pos_state, map)
+    Enum.map(neighs, fn {neight_state, cost} -> {neight_state, {pos_state, cost + prev_cost}} end)
   end
 
   defp target?(pos_state, target, callback) do

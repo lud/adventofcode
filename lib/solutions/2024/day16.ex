@@ -31,7 +31,8 @@ defmodule AdventOfCode.Solutions.Y24.Day16 do
 
   def part_one({grid, start, target}) do
     {grid, start, target}
-    Grid.lowest_path(grid, {start, :e}, target, &explorer/3)
+    [{_, cost, _} | _] = Grid.lowest_path(grid, {start, :e}, target, &explorer/3)
+    cost
   end
 
   defp explorer(:neighbors, {xy, dir}, map) do

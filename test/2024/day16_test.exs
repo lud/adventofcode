@@ -34,11 +34,11 @@ defmodule AdventOfCode.Solutions.Y24.Day16Test do
     assert 7036 == solve(input, :part_one)
   end
 
-  # @part_one_solution CHANGE_ME
-  #
-  # test "part one solution" do
-  #   assert {:ok, @part_one_solution} == AoC.run(2024, 16, :part_one)
-  # end
+  @part_one_solution 107_468
+
+  test "part one solution" do
+    assert {:ok, @part_one_solution} == AoC.run(2024, 16, :part_one)
+  end
 
   # test "part two example" do
   #   input = ~S"""
