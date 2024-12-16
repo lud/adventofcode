@@ -160,6 +160,76 @@ defmodule AdventOfCode.Grid do
     throw(:not_found)
   end
 
+  def lowest_path(map, start_state, target_pos, callback) do
+    lowest_path(map, [{start_state, 0}], target_pos, callback, _costs = %{start_state => {:start, 0}})
+  end
+
+  defp lowest_path(map, [_ | _] = open, target, callback, costs) do
+    Process.sleep(1000)
+
+    {new_open, costs} =
+      open
+      |> Enum.flat_map(fn {pos_state, prev_cost} -> neighbors_with_costs(pos_state, prev_cost, map, callback) end)
+      |> Enum.uniq()
+      |> Enum.reduce({[], costs}, fn {pos_state, {prev, cost}}, {new_open, costs} ->
+        pos_state |> IO.inspect(label: "pos_state")
+        prev |> IO.inspect(label: "prev")
+        cost |> IO.inspect(label: "cost")
+
+        {_new_open, _costs} =
+          case costs do
+            %{^pos_state => {p, c}} when c < cost -> {new_open, %{costs | pos_state => {prev, cost}}}
+            %{^pos_state => {p, c}} when c >= cost -> {new_open, costs}
+            _ -> {[{pos_state, cost} | new_open], Map.put(costs, pos_state, {prev, cost})}
+          end
+      end)
+
+    new_open |> dbg()
+    costs |> dbg()
+    lowest_path(map, new_open, target, callback, costs)
+  end
+
+  defp lowest_path(map, [] = open, target, callback, costs) do
+    print(Map.merge(map, Map.new(costs, fn {{{x, y}, dir}, {_, cost}} -> {{x, y}, dir} end)), &dir_char/1)
+
+    costs
+    |> Enum.filter(fn {pos_state, {prev, cost}} -> target?(pos_state, target, callback) end)
+    |> dbg()
+    |> Enum.map(&rebuild_cost(&1, costs))
+    |> Enum.sort_by(fn {pos_state, {prev, cost}} -> cost end)
+  end
+
+  defp rebuild_cost({p, {prev, cost}}, costs) do
+    {p, cost + do_rebuild_cost(prev, costs)}
+  end
+
+  defp do_rebuild_cost(pos_state, costs) do
+    pos_state |> IO.inspect(label: "pos_state")
+
+    case Map.fetch!(costs, pos_state) do
+      {:start, initial_cost} -> initial_cost
+      {prev, cost} -> cost + do_rebuild_cost(prev, costs)
+    end
+  end
+
+  defp dir_char(:n), do: ?^
+  defp dir_char(:e), do: ?>
+  defp dir_char(:w), do: ?<
+  defp dir_char(:s), do: ?v
+  defp dir_char(:wall), do: ?#
+  defp dir_char(nil), do: ?.
+
+  defp neighbors_with_costs(pos_state, prev_cost, map, callback) do
+    {{_, _}, _} = pos_state |> dbg()
+    neighs = callback.(:neighbors, pos_state, map) |> dbg()
+    # Enum.map(neighs, fn {neight_state, cost} -> {neight_state, {pos_state, cost + prev_cost}} end)
+    Enum.map(neighs, fn {neight_state, cost} -> {neight_state, {pos_state, cost}} end)
+  end
+
+  defp target?(pos_state, target, callback) do
+    callback.(:target?, pos_state, target)
+  end
+
   def cardinal4(xy) do
     [
       translate(xy, :n),
@@ -194,4 +264,13 @@ defmodule AdventOfCode.Grid do
   def translate({x, y}, :sw, n), do: {x - n, y + n}
   def translate({x, y}, :w, n), do: {x - n, y}
   def translate({x, y}, :e, n), do: {x + n, y}
+
+  def rotate_clockwise(:n), do: :e
+  def rotate_clockwise(:e), do: :s
+  def rotate_clockwise(:s), do: :w
+  def rotate_clockwise(:w), do: :n
+  def rotate_counter_clockwise(:n), do: :w
+  def rotate_counter_clockwise(:w), do: :s
+  def rotate_counter_clockwise(:s), do: :e
+  def rotate_counter_clockwise(:e), do: :n
 end

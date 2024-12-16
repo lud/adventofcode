@@ -147,7 +147,6 @@ defmodule AdventOfCode.Solutions.Y24.Day15 do
              {:ok, changes2} <- check_move_2(grid, direction, other_half_pos) do
           {:ok, [{pos, {next, value}} | merge_changes(changes, changes2)]}
         end
-
     end
   end
 
