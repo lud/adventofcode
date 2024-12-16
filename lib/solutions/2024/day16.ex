@@ -1,4 +1,5 @@
 defmodule AdventOfCode.Solutions.Y24.Day16 do
+  alias AdventOfCode.PathFinder.Multi
   alias AdventOfCode.Grid
   alias AoC.Input
 
@@ -31,13 +32,11 @@ defmodule AdventOfCode.Solutions.Y24.Day16 do
 
   def part_one({grid, start, target}) do
     {grid, start, target}
-    [{_, cost, _} | _] = Grid.lowest_path(grid, {start, :e}, target, &explorer/3)
+    {[{_, cost} | _], _} = Multi.best_paths(grid, {start, :e}, target, &explorer/3)
     cost
   end
 
   defp explorer(:neighbors, {xy, dir}, map) do
-    xy |> IO.inspect(label: "xy")
-    dir |> IO.inspect(label: "dir")
     forward = Grid.translate(xy, dir)
 
     rotations = [
@@ -55,28 +54,34 @@ defmodule AdventOfCode.Solutions.Y24.Day16 do
   defp explorer(:target?, _, _), do: false
 
   def part_two({grid, start, target}) do
-    [{_target_state, best_cost, path} | _] =
-      best_paths = Grid.lowest_path(grid, {start, :e}, target, &explorer/3) |> dbg()
+    {[{best_target, best_cost} | _] = bests_found, costs} =
+      Multi.best_paths(grid, {start, :e}, target, &explorer/3)
 
-    best_cost |> dbg()
+    # In my input there is only one target with the best path. (For
+    # this excercise, a target is xy+direction). I suspect it is
+    # the case for anyone. But that target can be reached in multiple ways. .
+    [_single] = Enum.filter(bests_found, fn {_, cost} -> cost == best_cost end)
 
-    # In my input there is only one best path. I suspect it is the case for anyone
-    [_single] = Enum.filter(best_paths, fn {_, cost, _} -> cost == best_cost end)
+    parents =
+      costs
+      |> Multi.all_parents(best_target)
+      |> Enum.uniq_by(fn {xy, _} -> xy end)
+      |> length()
 
-    grid
-    |> Map.merge(Map.new(path, fn {{x, y}, _} -> {{x, y}, :o} end))
-    |> Grid.print(fn
-      :n -> ?^
-      :e -> ?>
-      :w -> ?<
-      :s -> ?v
-      :wall -> ?#
-      nil -> ?.
-      :o -> ?o
-    end)
+    # grid
+    # |> Map.merge(Map.new(path, fn {{x, y}, _} -> {{x, y}, :o} end))
+    # |> Grid.print(fn
+    #   :n -> ?^
+    #   :e -> ?>
+    #   :w -> ?<
+    #   :s -> ?v
+    #   :wall -> ?#
+    #   nil -> ?.
+    #   :o -> ?o
+    # end)
 
-    path
-    |> Enum.uniq_by(fn {xy, _dir} -> xy end)
-    |> length()
+    # path
+    # |> Enum.uniq_by(fn {xy, _dir} -> xy end)
+    # |> length()
   end
 end
