@@ -161,7 +161,7 @@ defmodule AdventOfCode.Grid do
   end
 
   def lowest_path(map, start_state, target_pos, callback) do
-    lowest_path(map, [{start_state, 0}], target_pos, callback, _costs = %{start_state => {:start, 0}})
+    lowest_path(map, [{start_state, 0}], target_pos, callback, _costs = %{start_state => {:start@gridlowestpath, 0}})
   end
 
   defp lowest_path(map, [_ | _] = open, target, callback, costs) do
@@ -170,10 +170,12 @@ defmodule AdventOfCode.Grid do
       |> Enum.flat_map(fn {pos_state, prev_cost} -> neighbors_with_costs(pos_state, prev_cost, map, callback) end)
       |> Enum.sort_by(fn {pos_state, {prev, cost}} -> cost end)
       |> Enum.reduce({[], costs}, fn {pos_state, {prev, cost}} = arg, {new_open, costs} ->
+
+
         {_new_open, _costs} =
           result =
-          case costs do
-            %{^pos_state => {p, prev_cost}} when cost < prev_cost ->
+          case Map.get(costs, pos_state) do
+            {p, prev_cost} when cost < prev_cost ->
               # In this case we have already seen that neighbor, but we found it
               # with a better cost. We should update all other positions that
               # have it as their "prev" so reduce their cost by the difference,
@@ -184,10 +186,10 @@ defmodule AdventOfCode.Grid do
               IO.puts("replace #{inspect(pos_state)} with cost #{inspect(cost)}")
               {[{pos_state, cost} | new_open], %{costs | pos_state => {prev, cost}}}
 
-            %{^pos_state => {p, prev_cost}} when cost >= prev_cost ->
+            {p, prev_cost} when cost > prev_cost ->
               {new_open, costs}
 
-            _ ->
+            nil ->
               {[{pos_state, cost} | new_open], Map.put(costs, pos_state, {prev, cost})}
           end
 
@@ -201,33 +203,18 @@ defmodule AdventOfCode.Grid do
     costs
     |> Enum.filter(fn {pos_state, {prev, cost}} -> target?(pos_state, target, callback) end)
     |> dbg()
-    |> Enum.map(fn {pos_state, {_, cost}} = target -> {pos_state, cost, rebuild_path(target, costs)} end)
+    |> Enum.map(fn {pos_state, {prev, cost}} = target -> {pos_state, cost, rebuild_path(prev, costs, [pos_state])} end)
     |> dbg()
     |> Enum.sort_by(fn {pos_state, cost, _path} -> cost end)
   end
 
-  defp rebuild_path({pos_state, {prev, cost}}, costs) do
-    [pos_state | do_rebuild_path(prev, costs)]
+  defp rebuild_path(:start@gridlowestpath, costs, acc) do
+    acc
   end
 
-  defp do_rebuild_path(:start, costs) do
-    []
-  end
-
-  defp do_rebuild_path(pos_state, costs) do
+  defp rebuild_path(pos_state, costs, acc) do
     {prev, _} = Map.fetch!(costs, pos_state)
-    [pos_state | do_rebuild_path(prev, costs)]
-  end
-
-  defp rebuild_cost({p, {prev, cost}}, costs) do
-    {p, cost + do_rebuild_cost(prev, costs)}
-  end
-
-  defp do_rebuild_cost(pos_state, costs) do
-    case Map.fetch!(costs, pos_state) do
-      {:start, initial_cost} -> initial_cost
-      {prev, cost} -> cost + do_rebuild_cost(prev, costs)
-    end
+    rebuild_path(prev, costs, [pos_state | acc])
   end
 
   defp dir_char(:n), do: ?^
