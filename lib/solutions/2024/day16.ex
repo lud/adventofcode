@@ -62,26 +62,9 @@ defmodule AdventOfCode.Solutions.Y24.Day16 do
     # the case for anyone. But that target can be reached in multiple ways. .
     [_single] = Enum.filter(bests_found, fn {_, cost} -> cost == best_cost end)
 
-    parents =
-      costs
-      |> Multi.all_parents(best_target)
-      |> Enum.uniq_by(fn {xy, _} -> xy end)
-      |> length()
-
-    # grid
-    # |> Map.merge(Map.new(path, fn {{x, y}, _} -> {{x, y}, :o} end))
-    # |> Grid.print(fn
-    #   :n -> ?^
-    #   :e -> ?>
-    #   :w -> ?<
-    #   :s -> ?v
-    #   :wall -> ?#
-    #   nil -> ?.
-    #   :o -> ?o
-    # end)
-
-    # path
-    # |> Enum.uniq_by(fn {xy, _dir} -> xy end)
-    # |> length()
+    costs
+    |> Multi.all_parents(best_target)
+    |> Enum.uniq_by(fn {xy, _} -> xy end)
+    |> length()
   end
 end

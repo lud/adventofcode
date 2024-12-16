@@ -11,12 +11,10 @@ defmodule AdventOfCode.PathFinder.Multi do
     {new_open, costs} =
       open
       |> Enum.flat_map(fn {pos_state, prev_cost} -> neighbors_with_costs(pos_state, prev_cost, map, callback) end)
-      |> Enum.sort_by(fn {pos_state, {prev, cost}} -> cost end)
-      |> Enum.reduce({[], costs}, fn {pos_state, {prev, cost}} = arg, {new_open, costs} ->
+      |> Enum.reduce({[], costs}, fn {pos_state, {prev, cost}}, {new_open, costs} ->
         {_new_open, _costs} =
-          result =
           case Map.get(costs, pos_state) do
-            [{p, prev_cost} | _] when cost < prev_cost ->
+            [{_, prev_cost} | _] when cost < prev_cost ->
               # In this case we have already seen that neighbor, but we found it
               # with a better cost. We should update all other positions that
               # have it as their "prev" so reduce their cost by the difference,
@@ -27,10 +25,9 @@ defmodule AdventOfCode.PathFinder.Multi do
               #
               # Also we store a list of previous points, since multiple paths
               # can be the lowest path.
-              IO.puts("replace #{inspect(pos_state)} with cost #{inspect(cost)}")
               {[{pos_state, cost} | new_open], %{costs | pos_state => [{prev, cost}]}}
 
-            [{p, prev_cost} | _] when cost > prev_cost ->
+            [{_, prev_cost} | _] when cost > prev_cost ->
               {new_open, costs}
 
             [{p, prev_cost} | _] = keep when cost == prev_cost and p != prev ->
@@ -41,19 +38,17 @@ defmodule AdventOfCode.PathFinder.Multi do
             nil ->
               {[{pos_state, cost} | new_open], Map.put(costs, pos_state, [{prev, cost}])}
           end
-
-        result
       end)
 
     best_paths(map, new_open, target, callback, costs)
   end
 
-  defp best_paths(map, [] = open, target, callback, costs) do
+  defp best_paths(_map, [] = _open, target, callback, costs) do
     bests =
       costs
       |> Enum.filter(fn {pos_state, _} -> target?(pos_state, target, callback) end)
-      |> Enum.map(fn {pos_state, [{_, cost} | _] = prevs} = target -> {pos_state, cost} end)
-      |> Enum.sort_by(fn {pos_state, cost} -> cost end)
+      |> Enum.map(fn {pos_state, [{_, cost} | _]} -> {pos_state, cost} end)
+      |> Enum.sort_by(fn {_pos_state, cost} -> cost end)
 
     {bests, costs}
   end
