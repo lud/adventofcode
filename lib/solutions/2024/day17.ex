@@ -71,20 +71,15 @@ defmodule AdventOfCode.Solutions.Y24.Day17 do
   def run_once(prog, state, pos) do
     case Map.fetch(prog, pos) do
       :error ->
-        # IO.puts("no index #{inspect(pos)}")
         :halt
 
       {:ok, {instr, arg}} ->
-        # print(instr,arg)
-        # IO.puts("EXEC #{inspect(instr)} #{inspect(arg)}")
-
         result =
           case exec(instr, arg, state) do
             {:next, state} -> {state, pos + 2}
             {:jump, next_pos, state} -> {state, next_pos}
           end
 
-        # IO.puts("  => #{inspect(result)}")
         result
     end
   end
@@ -139,7 +134,6 @@ defmodule AdventOfCode.Solutions.Y24.Day17 do
   defp dv(dest, arg, state) do
     numerator = state.a
     divisor = 2 ** get_combo(state, arg)
-
     value = div(numerator, divisor)
     state = putv(state, dest, value)
     {:next, state}
@@ -153,7 +147,6 @@ defmodule AdventOfCode.Solutions.Y24.Day17 do
   def get_lit({v, _}), do: v
 
   defp putv(state, :a, v) do
-    # IO.puts("UPDATE A !!!!! #{state.a} => #{v}")
     %{state | a: v}
   end
 
@@ -162,7 +155,6 @@ defmodule AdventOfCode.Solutions.Y24.Day17 do
   defp output(state, value), do: %{state | stdout: [value | state.stdout]}
 
   def part_two(vm) do
-
     # This may only work with my program...
     #
     #     B = A mod 8
@@ -246,7 +238,6 @@ defmodule AdventOfCode.Solutions.Y24.Day17 do
   defp loop_find(inputs, _index, _max_pow, _targets, _call) do
     inputs
   end
-
 
   # Unused but helpful !
 
