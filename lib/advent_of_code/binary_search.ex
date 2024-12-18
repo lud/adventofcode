@@ -9,8 +9,31 @@ defmodule AdventOfCode.BinarySearch do
     {:found, n} -> n
   end
 
-  def search(ask, min, max) do
+  def search(_ask, min, max) when min > max do
+    throw({:binary_search_tie, max, min})
+  end
+
+  def search(ask, min, max) when max == min + 1 do
+    {min, max} |> IO.inspect(label: "{min,max}")
+
     n = div(min + max, 2)
+    n |> IO.inspect(label: "n")
+
+    case ask.(min) do
+      :eq ->
+        min
+
+      :lt ->
+        case ask.(max) do
+          :eq -> max
+          :gt -> throw({:binary_search_tie, min, max})
+        end
+    end
+  end
+
+  def search(ask, min, max) do
+    {min, max} |> IO.inspect(label: "{min,max}")
+    n = div(min + max, 2) |> dbg()
 
     case ask.(n) do
       # n is lower than the answer
