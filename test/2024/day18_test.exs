@@ -1,5 +1,4 @@
 defmodule AdventOfCode.Solutions.Y24.Day18Test do
-  alias AdventOfCode.BinarySearch
   alias AoC.Input, warn: false
   alias AdventOfCode.Solutions.Y24.Day18, as: Solution, warn: false
   use ExUnit.Case, async: true
@@ -53,7 +52,7 @@ defmodule AdventOfCode.Solutions.Y24.Day18Test do
 
   test "part two example" do
     input = ~S"""
-     5,4
+    5,4
     4,2
     4,5
     3,0

@@ -1,4 +1,5 @@
 defmodule AdventOfCode.Solutions.Y24.Day18 do
+  alias AdventOfCode.BinarySearch
   alias AdventOfCode.Grid
   alias AoC.Input
 
@@ -16,19 +17,10 @@ defmodule AdventOfCode.Solutions.Y24.Day18 do
     grid = problem |> Enum.take(prefall) |> Map.new(fn xy -> {xy, :wall} end)
     xstart..xend//1 = ystart..yend//1 = coord_range
 
-    start = {xstart, ystart} |> dbg()
-    target = {xend, yend} |> dbg()
+    start = {xstart, ystart}
+    target = {xend, yend}
     :error = Map.fetch(grid, start)
     :error = Map.fetch(grid, target)
-
-    grid
-    |> Map.put(start, ?S)
-    |> Map.put(target, ?E)
-    |> Grid.print(fn
-      :wall -> ?#
-      nil -> ?.
-      c -> c
-    end)
 
     {:ok, cost} = get_cost(grid, start, target, coord_range)
 
@@ -43,28 +35,36 @@ defmodule AdventOfCode.Solutions.Y24.Day18 do
     end)
   end
 
-  defp in_range({x, y}, min..max//1 = range) do
+  defp in_range({x, y}, range) do
     x in range && y in range
   end
 
   def part_two(problem, coord_range \\ 0..70, prefall \\ 1024) do
     already_fell = Enum.take(problem, prefall)
     rest_to_fall = Enum.drop(problem, prefall)
-    grid = Map.new(already_fell, fn xy -> {xy, :wall} end)
+
+    base_grid = Map.new(already_fell, fn xy -> {xy, :wall} end)
+
     xstart..xend//1 = ystart..yend//1 = coord_range
-    start = {xstart, ystart} |> dbg()
-    target = {xend, yend} |> dbg()
+    start = {xstart, ystart}
+    target = {xend, yend}
 
-    {x, y} =
-      Enum.reduce_while(rest_to_fall, grid, fn new_wall, grid ->
-        grid = Map.put(grid, new_wall, :wall)
+    try_wall = fn n_walls ->
+      new_walls =
+        rest_to_fall
+        |> Enum.take(n_walls)
+        |> Map.new(fn xy -> {xy, :wall} end)
 
-        case get_cost(grid, start, target, coord_range) do
-          {:ok, _} -> {:cont, grid}
-          {:error, :no_path} -> {:halt, new_wall}
-        end
-      end)
+      grid = Map.merge(base_grid, new_walls)
 
+      case get_cost(grid, start, target, coord_range) do
+        {:ok, _} -> :lt
+        {:error, :no_path} -> :gt
+      end
+    end
+
+    {:error, {:tie, min, _}} = BinarySearch.search(try_wall, 1, length(rest_to_fall))
+    {x, y} = Enum.at(rest_to_fall, min)
     "#{x},#{y}"
   end
 end
