@@ -82,4 +82,17 @@ defmodule AdventOfCode.Solutions.Y24.Day17Test do
   test "part two solution" do
     assert {:ok, @part_two_solution} == AoC.run(2024, 17, :part_two)
   end
+
+  test "reddit input example" do
+    input = ~S"""
+    Register A: 12345678
+    Register B: 0
+    Register C: 0
+
+    Program: 2,4,1,0,7,5,1,5,0,3,4,5,5,5,3,0
+    """
+
+    assert "6,0,4,5,4,5,2,0" == solve(input, :part_one)
+    assert 202_797_954_918_051 == solve(input, :part_two)
+  end
 end
