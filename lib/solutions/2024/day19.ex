@@ -15,23 +15,15 @@ defmodule AdventOfCode.Solutions.Y24.Day19 do
     length(targets)
   end
 
-  # remove towel that can be constructed with other towels
+  # remove towels that can be constructed with other towels
   defp reduce_towels(towels) do
-    uniqs = Enum.uniq(towels)
-    true = uniqs == towels
-    cases = Enum.map(towels, fn t -> {t, towels -- [t]} end)
-    {_composable, primitive} = Enum.split_with(cases, fn {{text, _}, others} -> possible_target?(text, others) end)
-    primitive = Enum.map(primitive, &elem(&1, 0))
-
-    if length(towels) != length(primitive) do
-      reduce_towels(primitive)
-    else
-      primitive
+    case Enum.split_with(towels, fn {text, _} = t -> possible_target?(text, towels -- [t]) end) do
+      {[], all_primitives} -> all_primitives
+      {_composable, primitives} -> reduce_towels(primitives)
     end
   end
 
   defp filter_possible_targets(targets, towels) do
-    # Enum.filter(targets, &possible_target?(&1, towels))
     targets
     |> Task.async_stream(&{possible_target?(&1, towels), &1}, ordered: false, timeout: :infinity)
     |> Enum.flat_map(fn
@@ -50,32 +42,25 @@ defmodule AdventOfCode.Solutions.Y24.Day19 do
   defp possible_target?(target, [{h, b} | t], towels) do
     sub_match? =
       case target do
-        <<^h::binary-size(b), rest::binary>> ->
-          possible_target?(rest, towels, towels)
-
-        _ ->
-          false
+        <<^h::binary-size(b), rest::binary>> -> possible_target?(rest, towels, towels)
+        _ -> false
       end
 
-    if sub_match? do
-      true
-    else
-      possible_target?(target, t, towels)
-    end
+    sub_match? || possible_target?(target, t, towels)
   end
 
   def part_two({towels, targets}) do
     primitives = reduce_towels(towels)
-    targets = filter_possible_targets(targets, primitives)
 
-    Enum.reduce(targets, 0, fn t, acc ->
-      acc + count_combs(t, towels)
-    end)
+    targets
+    |> filter_possible_targets(primitives)
+    |> Task.async_stream(&count_combinations(&1, towels), ordered: false, timeout: :infinity)
+    |> Enum.reduce(0, fn {:ok, n}, acc -> acc + n end)
   end
 
-  defp count_combs(target, towels) do
-    matching_towels = Enum.filter(towels, fn {text, _} -> String.contains?(target, text) end)
-    do_count(%{target => 1}, matching_towels, 0)
+  defp count_combinations(target, towels) do
+    possible_towels = Enum.filter(towels, fn {text, _} -> String.contains?(target, text) end)
+    do_count(%{target => 1}, possible_towels, 0)
   end
 
   defp do_count(target_suffixes, _towels, count) when map_size(target_suffixes) == 0 do
@@ -92,9 +77,12 @@ defmodule AdventOfCode.Solutions.Y24.Day19 do
           end
       end
 
-    target_suffixes = Enum.reduce(new_suffixes, %{}, fn {sufx, cpt}, acc -> Map.update(acc, sufx, cpt, &(&1 + cpt)) end)
+    {target_suffixes, finished_count} =
+      Enum.reduce(new_suffixes, {%{}, 0}, fn
+        {"", cpt}, {map, finished_count} -> {map, finished_count + cpt}
+        {sufx, cpt}, {map, finished_count} -> {Map.update(map, sufx, cpt, &(&1 + cpt)), finished_count}
+      end)
 
-    {adds, target_suffixes} = Map.pop(target_suffixes, "", 0)
-    do_count(target_suffixes, towels, count + adds)
+    do_count(target_suffixes, towels, count + finished_count)
   end
 end
