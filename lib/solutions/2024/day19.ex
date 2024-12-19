@@ -67,14 +67,14 @@ defmodule AdventOfCode.Solutions.Y24.Day19 do
 
   defp count_combinations(target, towels) do
     possible_towels = Enum.filter(towels, fn {text, _} -> String.contains?(target, text) end)
-    do_count([{target, 1}], possible_towels, 0)
+    do_count([{target, 1}], possible_towels)
   end
 
-  defp do_count([{"", count}], _, _) do
+  defp do_count([{"", count}], _) do
     count
   end
 
-  defp do_count([longest | target_suffixes], towels, count) do
+  defp do_count([longest | target_suffixes], towels) do
     {target_suffix, suffix_score} = longest
 
     new_suffixes =
@@ -87,7 +87,7 @@ defmodule AdventOfCode.Solutions.Y24.Day19 do
 
     target_suffixes = insert_all(target_suffixes, new_suffixes)
 
-    do_count(target_suffixes, towels, count)
+    do_count(target_suffixes, towels)
   end
 
   defp insert_all(target_suffixes, [h | t]), do: insert_all(insert(target_suffixes, h), t)
