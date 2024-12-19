@@ -58,31 +58,50 @@ defmodule AdventOfCode.Solutions.Y24.Day19 do
     |> Enum.reduce(0, fn {:ok, n}, acc -> acc + n end)
   end
 
+  # Optimization, in order to count possible sub patterns only once for each
+  # suffix, we need to keep an ordered list of suffixes with the longest
+  # suffixes on top. So when that longest suffix is cut with a towel, the
+  # remainder can be found in the shorter suffixes and the count can be added to
+  # it. When we will arrive at that shorter suffix, all longer suffixes that
+  # could lead to it will have been checked.
+
   defp count_combinations(target, towels) do
     possible_towels = Enum.filter(towels, fn {text, _} -> String.contains?(target, text) end)
-    do_count(%{target => 1}, possible_towels, 0)
+    do_count([{target, 1}], possible_towels, 0)
   end
 
-  defp do_count(target_suffixes, _towels, count) when map_size(target_suffixes) == 0 do
+  defp do_count([{"", count}], _, _) do
     count
   end
 
-  defp do_count(target_suffixes, towels, count) do
-    new_suffixes =
-      for {t, count} <- target_suffixes, {h, b} <- towels, reduce: [] do
-        sufxs ->
-          case t do
-            <<^h::binary-size(b), rest::binary>> -> [{rest, count} | sufxs]
-            _ -> sufxs
-          end
-      end
+  defp do_count([longest | target_suffixes], towels, count) do
+    {target_suffix, suffix_score} = longest
 
-    {target_suffixes, finished_count} =
-      Enum.reduce(new_suffixes, {%{}, 0}, fn
-        {"", cpt}, {map, finished_count} -> {map, finished_count + cpt}
-        {sufx, cpt}, {map, finished_count} -> {Map.update(map, sufx, cpt, &(&1 + cpt)), finished_count}
+    new_suffixes =
+      Enum.flat_map(towels, fn {h, b} ->
+        case target_suffix do
+          <<^h::binary-size(b), rest::binary>> -> [{rest, suffix_score}]
+          _ -> []
+        end
       end)
 
-    do_count(target_suffixes, towels, count + finished_count)
+    target_suffixes = insert_all(target_suffixes, new_suffixes)
+
+    do_count(target_suffixes, towels, count)
+  end
+
+  defp insert_all(target_suffixes, [h | t]), do: insert_all(insert(target_suffixes, h), t)
+  defp insert_all(target_suffixes, []), do: target_suffixes
+
+  defp insert([{longest, _} = top | t], {text, _} = new) when byte_size(text) < byte_size(longest) do
+    [top | insert(t, new)]
+  end
+
+  defp insert([{same, count} | t], {same, add}) do
+    [{same, count + add} | t]
+  end
+
+  defp insert(t, new) do
+    [new | t]
   end
 end

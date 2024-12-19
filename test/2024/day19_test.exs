@@ -85,6 +85,23 @@ defmodule AdventOfCode.Solutions.Y24.Day19Test do
     assert 6 == solve(input, :part_two)
   end
 
+  test "part two elixirforum" do
+    input = ~S"""
+    b, r, br, w, u, wu
+
+    brwu
+    """
+
+    # possible splits
+
+    # b  | r | w | u
+    # b  | r | wu
+    # br | w | u
+    # br | wu
+
+    assert 4 == solve(input, :part_two)
+  end
+
   test "part two example" do
     input = ~S"""
     r, wr, b, g, bwu, rb, gb, br
