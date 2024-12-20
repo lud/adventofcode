@@ -29,7 +29,7 @@ defmodule AdventOfCode.Solutions.Y24.Day20 do
       nil -> "#"
     end)
 
-    shortcuts = find_shortcuts(track)
+    shortcuts = find_small_shortcuts(track)
 
     Enum.count(shortcuts, fn {_, _, saved} -> saved >= save_at_least end)
   end
@@ -47,12 +47,12 @@ defmodule AdventOfCode.Solutions.Y24.Day20 do
     compute_path(grid, next, pos, finish, index + 1, [{pos, {index, next}} | acc])
   end
 
-  defp find_shortcuts(track) do
-    Enum.flat_map(track, fn {pos, _} -> find_shortcuts(pos, track) end)
+  defp find_small_shortcuts(track) do
+    Enum.flat_map(track, fn {pos, _} -> find_small_shortcuts(pos, track) end)
   end
 
-  defp find_shortcuts(activation_pos, track) do
-    # for each carndial4 neighbor of pos that is not on the track, check if they
+  defp find_small_shortcuts(activation_pos, track) do
+    # for each cardinal4 neighbor of pos that is not on the track, check if they
     # lead to an other position of the track
 
     {activation_index, normal_next} = Map.fetch!(track, activation_pos)
@@ -70,7 +70,7 @@ defmodule AdventOfCode.Solutions.Y24.Day20 do
         next_pos ->
           case Map.fetch(track, next_pos) do
             {:ok, {dest_index, _}} when dest_index > activation_index + 2 ->
-              # `2` because activation/next pos are still walked
+              # 2 is the cheat duration
               saved = dest_index - activation_index - 2
               [{activation_pos, next_pos, saved}]
 
@@ -84,7 +84,56 @@ defmodule AdventOfCode.Solutions.Y24.Day20 do
     end)
   end
 
-  # def part_two(problem) do
-  #   problem
-  # end
+  def part_two({grid, start, finish}, save_at_least \\ 100) do
+    # recompute the path as %{pos => {index, next_pos}}
+    track = compute_path(grid, start, finish) |> dbg()
+
+    Grid.print(track, fn
+      {_index, nil} -> "E"
+      {_index, _next} -> "."
+      nil -> "#"
+    end)
+
+    shortcuts = find_large_shortcuts(track, save_at_least)
+
+    length(shortcuts) |> dbg()
+
+    IO.puts("done computing shortcuts")
+    # Enum.count(shortcuts, fn {_, _, saved} -> saved >= save_at_least end)
+    Enum.filter(shortcuts, fn {_, _, saved} -> saved >= save_at_least end)
+    |> Enum.frequencies_by(fn {_, _, saved} -> saved end)
+    |> Enum.sum_by(fn {_, freq} -> freq end)
+  end
+
+  defp find_large_shortcuts(track, save_at_least) do
+    Enum.flat_map(track, fn {pos, _} -> find_large_shortcuts(pos, track, save_at_least) end)
+  end
+
+  defp find_large_shortcuts(activation_pos, track, save_at_least) do
+    {activation_index, _} = Map.fetch!(track, activation_pos)
+
+    IO.write(".")
+
+    Enum.flat_map(track, fn
+      {^activation_pos, _} ->
+        []
+
+      {next_pos, {dest_index, next_next}} when next_next != next_pos and dest_index > activation_index ->
+        dist = manhattan(activation_pos, next_pos)
+        saved = dest_index - activation_index - dist
+
+        if saved >= save_at_least do
+          [{activation_pos, next_pos, saved}]
+        else
+          []
+        end
+
+      _ ->
+        []
+    end)
+  end
+
+  def manhattan({x1, y1}, {x2, y2}) do
+    abs(x1 - x2) + abs(y1 - y2)
+  end
 end
