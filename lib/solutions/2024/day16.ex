@@ -4,28 +4,15 @@ defmodule AdventOfCode.Solutions.Y24.Day16 do
   alias AoC.Input
 
   def parse(input, _part) do
-    grid =
+    {grid, _, %{start: start, end: target}} =
       input
       |> Input.stream!(trim: true)
       |> Grid.parse_lines(fn
-        _, ?# ->
-          {:ok, :wall}
-
-        _, ?. ->
-          :ignore
-
-        xy, ?E ->
-          send(self(), {:end, xy})
-          {:ok, :end}
-
-        xy, ?S ->
-          send(self(), {:start, xy})
-          {:ok, :start}
+        _, ?# -> {:ok, :wall}
+        _, ?. -> :ignore
+        xy, ?E -> {:ok, :end, end: xy}
+        xy, ?S -> {:ok, :start, start: xy}
       end)
-      |> elem(0)
-
-    start = receive(do: ({:start, s} -> s))
-    target = receive(do: ({:end, s} -> s))
 
     {grid, start, target}
   end

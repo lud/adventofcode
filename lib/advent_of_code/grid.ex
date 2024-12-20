@@ -2,7 +2,6 @@ defmodule AdventOfCode.Grid do
   def parse_lines(lines, char_parser)
       when is_function(char_parser, 1)
       when is_function(char_parser, 2) do
-    # meta is a map of unique kv pairs that a grid parser function can return
     {max_x, max_y, rows, meta} =
       lines
       |> Enum.with_index()

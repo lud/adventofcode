@@ -8,24 +8,15 @@ defmodule AdventOfCode.Solutions.Y24.Day15 do
     all = input |> Input.read!() |> String.trim()
     [grid, moves] = String.split(all, "\n\n")
 
-    {grid, _, _} =
+    {grid, _, %{start_pos: start}} =
       Grid.parse_lines(String.split(grid, "\n"), fn
-        _, ?# ->
-          {:ok, :wall}
-
-        _, ?. ->
-          :ignore
-
-        _, ?O ->
-          {:ok, :crate}
-
-        xy, ?@ ->
-          send(self(), {:start_pos, xy})
-          {:ok, :bot}
+        _, ?# -> {:ok, :wall}
+        _, ?. -> :ignore
+        _, ?O -> {:ok, :crate}
+        xy, ?@ -> {:ok, :bot, start_pos: xy}
       end)
 
     moves = parse_moves(moves)
-    start = receive(do: ({:start_pos, s} -> s))
     {grid, moves, start}
   end
 
