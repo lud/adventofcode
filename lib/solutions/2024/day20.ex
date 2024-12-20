@@ -53,7 +53,7 @@ defmodule AdventOfCode.Solutions.Y24.Day20 do
 
     count =
       track
-      |> Enum.drop(save_at_least)
+      |> Enum.drop(save_at_least + 1)
       |> Enum.reduce(count, fn {dest_pos, dest_index}, count ->
         cheat_dist = manhattan(activation_pos, dest_pos)
 
