@@ -3,7 +3,7 @@ defmodule AdventOfCode.Solutions.Y24.Day20Test do
   alias AdventOfCode.Solutions.Y24.Day20, as: Solution, warn: false
   use ExUnit.Case, async: true
 
-  defp solve(input, part, args \\ []) do
+  defp solve(input, part, args) do
     problem =
       input
       |> Input.as_file()
@@ -70,13 +70,9 @@ defmodule AdventOfCode.Solutions.Y24.Day20Test do
     assert 41 == solve(input, :part_two, [_save_at_least = 70])
   end
 
-  @part_two_solution CHANGE_ME
+  @part_two_solution 1_016_066
 
   test "part two solution" do
-    assert {:ok, result} = AoC.run(2024, 20, :part_two)
-    _totalsh = 44_595_216
-    too_high = 43_498_064
-    assert result < too_high
-    assert @part_two_solution == result
+    assert {:ok, @part_two_solution} == AoC.run(2024, 20, :part_two)
   end
 end
