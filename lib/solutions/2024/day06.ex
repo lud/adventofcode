@@ -3,24 +3,14 @@ defmodule AdventOfCode.Solutions.Y24.Day06 do
   alias AoC.Input
 
   def parse(input, _part) do
-    grid =
+    {grid, _, %{start_pos: start}} =
       input
       |> Input.stream!()
       |> Grid.parse_lines(fn
-        _, ?# ->
-          {:ok, :obst}
-
-        {x, y}, ?^ ->
-          Process.put(:start_pos, {x, y})
-          {:ok, :n}
-
-        _, _ ->
-          :ignore
+        _, ?# -> {:ok, :obst}
+        xy, ?^ -> {:ok, :n, start_pos: xy}
+        _, _ -> :ignore
       end)
-      |> elem(0)
-
-    start = Process.get(:start_pos)
-    Process.delete(:start_pos)
 
     {0, xo, 0, yo} = Grid.bounds(grid)
     {grid, start, :n, {xo, yo}}
