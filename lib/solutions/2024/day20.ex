@@ -30,7 +30,7 @@ defmodule AdventOfCode.Solutions.Y24.Day20 do
   end
 
   defp compute_path(grid, start, finish) do
-    compute_path(grid, start, _previous = nil, finish, 0, [])
+    compute_path(grid, start, _prev = nil, finish, 0, [])
   end
 
   defp compute_path(_grid, finish, _prev, finish, index, acc) do
@@ -48,11 +48,13 @@ defmodule AdventOfCode.Solutions.Y24.Day20 do
     count
   end
 
-  defp count_cheats([h | t], max_cheat, save_at_least, count) do
-    {activation_pos, activation_index} = h
+  defp count_cheats([current_pos | track], max_cheat, save_at_least, count) do
+    {activation_pos, activation_index} = current_pos
 
     count =
-      Enum.reduce(t, count, fn {dest_pos, dest_index}, count ->
+      track
+      |> Enum.drop(save_at_least)
+      |> Enum.reduce(count, fn {dest_pos, dest_index}, count ->
         cheat_dist = manhattan(activation_pos, dest_pos)
 
         if cheat_dist <= max_cheat && dest_index - activation_index - cheat_dist >= save_at_least do
@@ -62,7 +64,7 @@ defmodule AdventOfCode.Solutions.Y24.Day20 do
         end
       end)
 
-    count_cheats(t, max_cheat, save_at_least, count)
+    count_cheats(track, max_cheat, save_at_least, count)
   end
 
   def manhattan({x1, y1}, {x2, y2}), do: abs(x1 - x2) + abs(y1 - y2)
