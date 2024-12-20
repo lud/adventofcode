@@ -2,38 +2,42 @@ defmodule AdventOfCode.Grid do
   def parse_lines(lines, char_parser)
       when is_function(char_parser, 1)
       when is_function(char_parser, 2) do
-    {max_x, max_y, rows} =
+    # meta is a map of unique kv pairs that a grid parser function can return
+    {max_x, max_y, rows, meta} =
       lines
       |> Enum.with_index()
-      |> Enum.reduce({0, 0, []}, fn
+      |> Enum.reduce({0, 0, [], _meta = %{}}, fn
         {<<>>, _}, acc ->
           acc
 
-        {line, y}, {max_x, _max_y, acc} ->
-          {best_x, pairs} = parse_bin_line(line, y, char_parser)
-          {max(max_x, best_x), y, [pairs | acc]}
+        {line, y}, {max_x, _max_y, acc, meta} ->
+          {best_x, pairs, meta} = parse_bin_line(line, y, char_parser, meta)
+          {max(max_x, best_x), y, [pairs | acc], meta}
       end)
 
-    {Map.new(:lists.flatten(rows)), {0, max_x, 0, max_y}}
+    {Map.new(:lists.flatten(rows)), {0, max_x, 0, max_y}, meta}
   end
 
-  defp parse_bin_line(string, y, parse_char) do
-    {high_x, pairs} =
-      for <<c::utf8 <- string>>, c != ?\n, reduce: {0, []} do
-        {x, row} ->
+  defp parse_bin_line(string, y, parse_char, meta) do
+    {high_x, pairs, meta} =
+      for <<c::utf8 <- string>>, c != ?\n, reduce: {0, [], meta} do
+        {x, row, meta} ->
           case call_parser(parse_char, {x, y}, c) do
             :ignore ->
-              {x + 1, row}
+              {x + 1, row, meta}
 
             {:ok, v} ->
-              {x + 1, [{{x, y}, v} | row]}
+              {x + 1, [{{x, y}, v} | row], meta}
+
+            {:ok, v, add_meta} ->
+              {x + 1, [{{x, y}, v} | row], Map.merge(meta, Map.new(add_meta))}
 
             other ->
               raise "Invalid return value from parser function in AdventOfCode.Grid.parse_lines/2, expected {:ok, value} or :ignore, got: #{inspect(other)}"
           end
       end
 
-    {high_x - 1, pairs}
+    {high_x - 1, pairs, meta}
   end
 
   defp call_parser(parser, xy, c) when is_function(parser, 2) do

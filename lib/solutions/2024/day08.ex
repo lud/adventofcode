@@ -3,7 +3,7 @@ defmodule AdventOfCode.Solutions.Y24.Day08 do
   alias AoC.Input
 
   def parse(input, _part) do
-    {_grid, _bounds} =
+    {_grid, _bounds, _meta} =
       input
       |> Input.stream!()
       |> Grid.parse_lines(fn
@@ -13,7 +13,7 @@ defmodule AdventOfCode.Solutions.Y24.Day08 do
       end)
   end
 
-  def part_one({grid, bounds}) do
+  def part_one({grid, bounds, _}) do
     for({xy_l, l} <- grid, {xy_r, r} <- grid, l == r, xy_l < xy_r, do: antinodes_p1(xy_l, xy_r))
     |> :lists.flatten()
     |> Enum.uniq()
@@ -39,7 +39,7 @@ defmodule AdventOfCode.Solutions.Y24.Day08 do
       y >= ya and y <= yo
   end
 
-  def part_two({grid, bounds}) do
+  def part_two({grid, bounds, _}) do
     for(
       {xy_l, l} <- grid,
       {xy_r, r} <- grid,
