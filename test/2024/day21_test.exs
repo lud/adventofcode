@@ -12,14 +12,6 @@ defmodule AdventOfCode.Solutions.Y24.Day21Test do
     apply(Solution, part, [problem])
   end
 
-  test "part one onenum" do
-    input = ~S"""
-    2
-    """
-
-    assert :x == solve(input, :part_one)
-  end
-
   test "part one small" do
     input = ~S"""
     029A
@@ -56,11 +48,11 @@ defmodule AdventOfCode.Solutions.Y24.Day21Test do
     assert 126_384 == solve(input, :part_one)
   end
 
-  # @part_one_solution CHANGE_ME
-  #
-  # test "part one solution" do
-  #   assert {:ok, @part_one_solution} == AoC.run(2024, 21, :part_one)
-  # end
+  @part_one_solution 188_398
+
+  test "part one solution" do
+    assert {:ok, @part_one_solution} == AoC.run(2024, 21, :part_one)
+  end
 
   # test "part two example" do
   #   input = ~S"""
