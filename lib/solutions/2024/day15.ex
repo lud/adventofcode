@@ -2,8 +2,6 @@ defmodule AdventOfCode.Solutions.Y24.Day15 do
   alias AdventOfCode.Grid
   alias AoC.Input
 
-  IO.warn("todo use grid meta")
-
   def parse(input, _part) do
     all = input |> Input.read!() |> String.trim()
     [grid, moves] = String.split(all, "\n\n")
