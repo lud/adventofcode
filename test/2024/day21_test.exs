@@ -12,6 +12,14 @@ defmodule AdventOfCode.Solutions.Y24.Day21Test do
     apply(Solution, part, [problem])
   end
 
+  test "part one onenum" do
+    input = ~S"""
+    2
+    """
+
+    assert :x == solve(input, :part_one)
+  end
+
   test "part one small" do
     input = ~S"""
     029A
