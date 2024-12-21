@@ -206,4 +206,9 @@ defmodule AdventOfCode.Grid do
   def rotate_counter_clockwise(:w), do: :s
   def rotate_counter_clockwise(:s), do: :e
   def rotate_counter_clockwise(:e), do: :n
+
+  def which_direction({x1, y}, {x2, y}) when x2 == x1 - 1, do: :w
+  def which_direction({x1, y}, {x2, y}) when x2 == x1 + 1, do: :e
+  def which_direction({x, y1}, {x, y2}) when y2 == y1 - 1, do: :n
+  def which_direction({x, y1}, {x, y2}) when y2 == y1 + 1, do: :s
 end
