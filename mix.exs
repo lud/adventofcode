@@ -25,6 +25,7 @@ defmodule AdventOfCode.MixProject do
     [
       {:nvir, "~> 0.9.4"},
       {:aoc, "0.13.2"},
+      # {:aoc, path: "../aoc"},
       {:jason, "~> 1.4"},
       {:credo, "~> 1.7", only: [:dev], runtime: false}
     ]

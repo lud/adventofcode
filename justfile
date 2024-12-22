@@ -4,8 +4,8 @@ play:
   nohup firefox $(mix aoc.url | rg "https") >/dev/null 2>&1 &
   echo 'Good Luck :)'
 
-benchmark:
-  mix aoc.run -b
+benchmark *args:
+  mix aoc.run -b {{args}}
 
 repo:
   nohup firefox https://github.com/lud/adventofcode/ >/dev/null 2>&1 &
