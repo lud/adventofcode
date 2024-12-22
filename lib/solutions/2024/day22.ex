@@ -41,6 +41,8 @@ defmodule AdventOfCode.Solutions.Y24.Day22 do
     |> Enum.reduce(0, fn {_, v}, best -> max(best, v) end)
   end
 
+  # No-concurrency version
+  #
   # def part_two(problem) do
   #   all_sequences = Enum.map(problem, fn monkey_seed -> monkey_seed |> compute_future() |> compute_sequences() end)
   #   merged = Enum.reduce(all_sequences, fn seqs1, seq2 -> Map.merge(seqs1, seq2, fn _, v1, v2 -> v1 + v2 end) end)
