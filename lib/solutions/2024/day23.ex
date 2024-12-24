@@ -26,55 +26,54 @@ defmodule AdventOfCode.Solutions.Y24.Day23 do
   end
 
   defp link?(network, a, b) when a > b, do: link?(network, b, a)
-  defp link?(_, a, a), do: raise("autolink")
+  defp link?(_, a, a), do: raise("autolink #{a}")
   defp link?(network, a, b), do: is_map_key(network, {a, b})
 
   def part_two(problem) do
+    # Look at bjorns solution, it's more straightforward and faster.
+
     network = build_network(problem)
-
-    all_names =
-      Enum.flat_map(network, fn {{a, b}, _} -> [a, b] end)
-      |> Enum.sort()
-      |> Enum.dedup()
-      |> dbg()
-
-    subnets = Enum.map(all_names, &[&1])
-
-    best = expand_loop(subnets, all_names, network)
-    Enum.join(best, ",")
+    all_names = Enum.flat_map(network, fn {{a, b}, _} -> [a, b] end) |> Enum.uniq()
+    subnets = build_initial(all_names, []) |> Map.new()
+    {best, _} = loop_expand(subnets, network)
+    Enum.map_join(best, ",", fn {k, _true} -> k end)
   end
 
-  defp expand_loop([last_subnet], _, _) do
-    last_subnet
+  defp build_initial([h | t], acc) do
+    subnet = %{h => true}
+    candidates = Map.new(t, &{&1, true})
+    build_initial(t, [{subnet, candidates} | acc])
   end
 
-  defp expand_loop(subnets, all_names, network) do
-    subnets = expand_subnets(subnets, all_names, network)
-    expand_loop(subnets, all_names, network)
+  defp build_initial([], acc) do
+    acc
   end
 
-  defp expand_subnets(subnets, all_names, network) do
-    Enum.flat_map(subnets, fn subnet ->
-      news = Enum.filter(all_names, &(&1 not in subnet))
+  defp loop_expand(subnets, network) do
+    subnets = expand_subnets(subnets, network)
 
-      Enum.flat_map(news, fn new ->
-        if Enum.all?(subnet, fn pc -> link?(network, pc, new) end) do
-          [insert(subnet, new)]
-        else
-          []
-        end
-      end)
+    case map_size(subnets) do
+      1 -> subnets |> Map.to_list() |> hd()
+      _ -> loop_expand(subnets, network)
+    end
+  end
+
+  defp expand_subnets(subnets, network) do
+    Enum.reduce(subnets, %{}, fn sub, acc -> expand_subnet(sub, acc, network) end)
+  end
+
+  defp expand_subnet({subnet, candidates}, acc, network) do
+    Enum.reduce(candidates, acc, fn {new, _true}, acc ->
+      sub_with_new = Map.put(subnet, new, true)
+
+      with false <- Map.has_key?(acc, sub_with_new),
+           true <- Enum.all?(subnet, fn {pc, _true} -> link?(network, pc, new) end) do
+        # remove candidates that will not be linked to the new node in subset
+        new_candidates = Map.filter(candidates, fn {k, _true} -> k != new && link?(network, k, new) end)
+        Map.put(acc, sub_with_new, new_candidates)
+      else
+        _ -> acc
+      end
     end)
-    |> tap(&IO.inspect(length(&1), label: "len before"))
-    |> Enum.uniq()
-    |> tap(&IO.inspect(length(&1), label: "len after"))
   end
-
-  defp connected_from(list, pc, network) do
-    Enum.filter(list, &link?(network, pc, &1))
-  end
-
-  defp insert([h | t], c) when c < h, do: [c, h | t]
-  defp insert([h | t], c) when c > h, do: [h | insert(t, c)]
-  defp insert([], c), do: [c]
 end
