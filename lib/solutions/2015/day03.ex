@@ -1,6 +1,6 @@
 defmodule AdventOfCode.Solutions.Y15.Day03 do
-  alias AoC.Input, warn: false
   alias AdventOfCode.Grid
+  alias AoC.Input
 
   def read_file(file, _part) do
     Input.read!(file) |> String.trim()

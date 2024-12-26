@@ -1,5 +1,5 @@
 defmodule AdventOfCode.Solutions.Y23.Day13 do
-  alias AoC.Input, warn: false
+  alias AoC.Input
 
   def read_file(file, _part) do
     Input.read!(file)

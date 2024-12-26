@@ -1,5 +1,5 @@
 defmodule AdventOfCode.Solutions.Y20.Day14 do
-  alias AoC.Input, warn: false
+  alias AoC.Input
 
   @type input_path :: binary
   @type file :: input_path | %AoC.Input.TestInput{}
@@ -38,7 +38,7 @@ defmodule AdventOfCode.Solutions.Y20.Day14 do
     {:value, {String.to_integer(addr), String.to_integer(val)}}
   end
 
-  def initial() do
+  def initial do
     %{}
   end
 

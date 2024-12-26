@@ -1,5 +1,5 @@
 defmodule AdventOfCode.Solutions.Y23.Day06 do
-  alias AoC.Input, warn: false
+  alias AoC.Input
 
   def read_file(file, _part) do
     file |> Input.stream!(trim: true) |> Enum.take(2)

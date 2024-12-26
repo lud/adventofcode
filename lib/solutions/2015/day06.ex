@@ -1,6 +1,6 @@
 defmodule AdventOfCode.Solutions.Y15.Day06 do
-  alias AoC.Input, warn: false
   alias AdventOfCode.Rect
+  alias AoC.Input
 
   def read_file(file, _part) do
     Input.stream!(file, trim: true)

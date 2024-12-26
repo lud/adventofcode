@@ -1,5 +1,5 @@
 defmodule AdventOfCode.Solutions.Y22.Day18 do
-  alias AoC.Input, warn: false
+  alias AoC.Input
 
   def read_file(file, _part) do
     Input.stream_file_lines(file, trim: true)

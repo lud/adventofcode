@@ -9,7 +9,7 @@ defmodule AdventOfCode.Solutions.Y15.Day15 do
     input |> Map.new(&parse_line/1)
   end
 
-  def __atoms__(),
+  def __atoms__,
     do: [
       :calories
     ]

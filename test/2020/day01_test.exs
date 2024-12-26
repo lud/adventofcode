@@ -1,8 +1,7 @@
 defmodule AdventOfCode.Solutions.Y20.Day01Test do
+  alias AdventOfCode.Solutions.Y20.Day01, as: Solution
+  alias AoC.Input
   use ExUnit.Case, async: true
-
-  alias AdventOfCode.Solutions.Y20.Day01, as: Solution, warn: false
-  alias AoC.Input, warn: false
 
   test "verify 2020/1 - sample 1" do
     problem =

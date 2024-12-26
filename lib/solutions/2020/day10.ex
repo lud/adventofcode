@@ -1,5 +1,5 @@
 defmodule AdventOfCode.Solutions.Y20.Day10 do
-  alias AoC.Input, warn: false
+  alias AoC.Input
   require ExUnit.Assertions
 
   @type input_path :: binary

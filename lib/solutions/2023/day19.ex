@@ -1,5 +1,5 @@
 defmodule AdventOfCode.Solutions.Y23.Day19 do
-  alias AoC.Input, warn: false
+  alias AoC.Input
 
   @re_part ~r/{x=([0-9]+),m=([0-9]+),a=([0-9]+),s=([0-9]+)}/
   @re_wf ~r/([a-z]+)\{(.+)\}/

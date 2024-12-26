@@ -1,5 +1,5 @@
 defmodule AdventOfCode.Solutions.Y20.Day13 do
-  alias AoC.Input, warn: false
+  alias AoC.Input
 
   @type input_path :: binary
   @type file :: input_path | %AoC.Input.TestInput{}
@@ -73,7 +73,7 @@ defmodule AdventOfCode.Solutions.Y20.Day13 do
     expand_mod(id + add, add, i)
   end
 
-  def integers() do
+  def integers do
     Stream.iterate(1, &(&1 + 1))
   end
 end

@@ -26,7 +26,8 @@ defmodule AdventOfCode.Solutions.Y21.Day23.StepCompiler do
 end
 
 defmodule AdventOfCode.Solutions.Y21.Day23 do
-  alias AoC.Input, warn: false
+  alias AdventOfCode.Solutions.Y21.Day23.StepCompiler
+  alias AoC.Input
 
   @type input_path :: binary
   @type file :: input_path | %AoC.Input.TestInput{}
@@ -372,7 +373,7 @@ defmodule AdventOfCode.Solutions.Y21.Day23 do
   ]
 
   for start <- @poses, dest <- @poses, start != dest do
-    path = AdventOfCode.Solutions.Y21.Day23.StepCompiler.calc_steps(start, dest)
+    path = StepCompiler.calc_steps(start, dest)
 
     defp get_path(unquote(start), unquote(dest)), do: unquote(path)
   end

@@ -1,5 +1,5 @@
 defmodule AdventOfCode.Solutions.Y20.Day11 do
-  alias AoC.Input, warn: false
+  alias AoC.Input
   import Enum, only: [with_index: 1]
 
   @type input_path :: binary

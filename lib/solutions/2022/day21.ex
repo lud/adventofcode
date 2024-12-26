@@ -1,5 +1,5 @@
 defmodule AdventOfCode.Solutions.Y22.Day21 do
-  alias AoC.Input, warn: false
+  alias AoC.Input
 
   @type input_path :: binary
   @type file :: input_path | %AoC.Input.TestInput{}

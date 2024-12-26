@@ -1,6 +1,6 @@
 defmodule AdventOfCode.Solutions.Y24.Day16 do
-  alias AdventOfCode.PathFinder.Multi
   alias AdventOfCode.Grid
+  alias AdventOfCode.PathFinder.Multi
   alias AoC.Input
 
   def parse(input, _part) do

@@ -1,6 +1,6 @@
 defmodule AdventOfCode.Solutions.Y15.Day13Test do
-  alias AoC.Input, warn: false
-  alias AdventOfCode.Solutions.Y15.Day13, as: Solution, warn: false
+  alias AdventOfCode.Solutions.Y15.Day13, as: Solution
+  alias AoC.Input
   use ExUnit.Case, async: true
 
   # To run the test, run one of the following commands:

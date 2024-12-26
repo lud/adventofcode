@@ -1,9 +1,6 @@
 defmodule AdventOfCode.Solutions.Y21.Day24Test do
   use ExUnit.Case, async: true
 
-  alias AdventOfCode.Solutions.Y21.Day24, as: Solution, warn: false
-  alias AoC.Input, warn: false
-
   # To run the test, run the following command:
   #
   #     mix test test/2021/day_24_test.exs

@@ -1,5 +1,5 @@
 defmodule AdventOfCode.Solutions.Y20.Day20 do
-  alias AoC.Input, warn: false
+  alias AoC.Input
   import :lists, only: [reverse: 1]
 
   @type input_path :: binary

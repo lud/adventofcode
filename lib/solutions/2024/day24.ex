@@ -111,14 +111,14 @@ defmodule AdventOfCode.Solutions.Y24.Day24 do
 
       # AND gate should lead to an OR gate
       {out, {:AND, _, _}}, acc ->
-        leads_to_OR? =
+        leads_to_or? =
           Enum.find_value(gates, fn
             {_, {:OR, ^out, _}} -> true
             {_, {:OR, _, ^out}} -> true
             _ -> false
           end)
 
-        if leads_to_OR?, do: acc, else: [out | acc]
+        if leads_to_or?, do: acc, else: [out | acc]
 
       {out, {:OR, _, _}}, acc ->
         # OR pointing to Z output is invalid
@@ -131,28 +131,28 @@ defmodule AdventOfCode.Solutions.Y24.Day24 do
 
         # OR into OR is invalid, the current computation should be directed
         # elsewhere.
-        leads_to_OR? =
+        leads_to_or? =
           Enum.find_value(gates, fn
             {_, {:OR, ^out, _}} -> true
             {_, {:OR, _, ^out}} -> true
             _ -> false
           end)
 
-        if leads_to_OR?, do: [out | acc], else: acc
+        if leads_to_or?, do: [out | acc], else: acc
 
       {"z00", {:XOR, "x00", "y00"}}, acc ->
         acc
 
       # input XOR gate should be reused in another XOR
       {out, {:XOR, <<x1, _, _>>, <<x2, _, _>>}}, acc when x1 == ?x when x2 == ?x ->
-        leads_to_OR? =
+        leads_to_xor? =
           Enum.find_value(gates, fn
             {_, {:XOR, ^out, _}} -> true
             {_, {:XOR, _, ^out}} -> true
             _ -> false
           end)
 
-        if leads_to_OR?, do: acc, else: [out | acc]
+        if leads_to_xor?, do: acc, else: [out | acc]
 
       # other XOR gates should be redirected to output
       {"z" <> _out, {:XOR, _, _}}, acc ->

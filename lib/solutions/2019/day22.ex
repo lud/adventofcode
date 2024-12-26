@@ -1,5 +1,5 @@
 defmodule AdventOfCode.Solutions.Y19.Day22 do
-  alias AoC.Input, warn: false
+  alias AoC.Input
 
   # DISCLAIMER
   #

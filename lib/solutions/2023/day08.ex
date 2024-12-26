@@ -1,5 +1,5 @@
 defmodule AdventOfCode.Solutions.Y23.Day08 do
-  alias AoC.Input, warn: false
+  alias AoC.Input
 
   # @aaa 4276545
   # @zzz 5921370
