@@ -90,7 +90,7 @@ defmodule AdventOfCode.Solutions.Y22.Day16 do
     |> Enum.filter(fn {_, {_, status}} -> status == :closed end)
     |> case do
       [] ->
-        [%S1{s | minute: minute + 1}]
+        [%{s | minute: minute + 1}]
 
       list ->
         Enum.flat_map(list, fn {k, {rate, :closed}} ->
@@ -121,7 +121,7 @@ defmodule AdventOfCode.Solutions.Y22.Day16 do
           end
         end)
         |> case do
-          [] -> [%S1{s | minute: minute + 1}]
+          [] -> [%{s | minute: minute + 1}]
           l -> l
         end
     end
@@ -267,13 +267,13 @@ defmodule AdventOfCode.Solutions.Y22.Day16 do
   defp bump_minutes(s) do
     case s do
       %S2{me_minute: me, el_minute: el} when me < 27 and el < 27 ->
-        [%S2{s | me_minute: me + 1, el_minute: el + 1}]
+        [%{s | me_minute: me + 1, el_minute: el + 1}]
 
       %S2{me_minute: me} when me < 27 ->
-        [%S2{s | me_minute: me + 1}]
+        [%{s | me_minute: me + 1}]
 
       %S2{el_minute: el} when el < 27 ->
-        [%S2{s | el_minute: el + 1}]
+        [%{s | el_minute: el + 1}]
     end
   end
 
