@@ -22,15 +22,15 @@ defmodule AdventOfCode.Solutions.Y25.Day02 do
   end
 
   defp invalid_p1?(n) do
-    mirror?(Integer.digits(n))
+    splits?(Integer.digits(n))
   end
 
-  defp mirror?([a, a]), do: true
-  defp mirror?([a, b, a, b]), do: true
-  defp mirror?([a, b, c, a, b, c]), do: true
-  defp mirror?([a, b, c, d, a, b, c, d]), do: true
-  defp mirror?([a, b, c, d, e, a, b, c, d, e]), do: true
-  defp mirror?(_), do: false
+  defp splits?([a, a]), do: true
+  defp splits?([a, b, a, b]), do: true
+  defp splits?([a, b, c, a, b, c]), do: true
+  defp splits?([a, b, c, d, a, b, c, d]), do: true
+  defp splits?([a, b, c, d, e, a, b, c, d, e]), do: true
+  defp splits?(_), do: false
 
   def part_two(problem) do
     problem
