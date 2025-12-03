@@ -25,22 +25,22 @@ defmodule AdventOfCode.Solutions.Y25.Day03 do
   end
 
   defp best_jolts(bank, len) do
-    init_candidate = {len, bank, []}
+    init_candidate = {len, bank, 0}
 
-    best_candidate =
+    {_, _, jolts} =
       Enum.reduce(11..0//-1, init_candidate, fn need_remaining_digits, candidate ->
-        {rest_len, bank_rest, digits} = candidate
-        best_candidate(bank_rest, rest_len, need_remaining_digits, digits)
+        {rest_len, bank_rest, jolts} = candidate
+        best_candidate(bank_rest, rest_len, need_remaining_digits, jolts)
       end)
 
-    value_of(best_candidate)
+    jolts
   end
 
-  defp best_candidate(bank, len, need_remaining_digits, digits_acc) do
+  defp best_candidate(bank, len, need_remaining_digits, jolts) do
     max_index_plus_one = len - need_remaining_digits
     {candidates, _rest} = Enum.split(bank, max_index_plus_one)
 
-    {digit, index} =
+    {value, index} =
       candidates
       |> Enum.with_index()
       |> Enum.reduce({0, 0}, fn {value, index}, {best_val, best_index} ->
@@ -52,13 +52,6 @@ defmodule AdventOfCode.Solutions.Y25.Day03 do
 
     {_, rest} = Enum.split(bank, index + 1)
     rest_len = len - index - 1
-
-    true = length(rest) == rest_len
-    {rest_len, rest, [digit | digits_acc]}
-  end
-
-  defp value_of(candidate) do
-    {_, _, rev_digits} = candidate
-    Integer.undigits(:lists.reverse(rev_digits))
+    {rest_len, rest, jolts * 10 + value}
   end
 end
