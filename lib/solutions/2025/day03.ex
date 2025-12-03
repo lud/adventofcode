@@ -25,21 +25,19 @@ defmodule AdventOfCode.Solutions.Y25.Day03 do
   end
 
   defp best_jolts(bank, len) do
-    init_candidate = {0, len, bank, []}
+    init_candidate = {len, bank, []}
 
     best_candidate =
-      Enum.reduce(11..0, init_candidate, fn need_remaining_digits, candidate ->
-        {_index, rest_len, bank_rest, digits} = candidate
+      Enum.reduce(11..0//-1, init_candidate, fn need_remaining_digits, candidate ->
+        {rest_len, bank_rest, digits} = candidate
         best_candidate(bank_rest, rest_len, need_remaining_digits, digits)
       end)
 
     value_of(best_candidate)
   end
 
-  # finds the highest numbers with at least `need_remaining` digits at the
-  # right`
-  defp best_candidate(bank, len, need_remaining, digits_acc) do
-    max_index_plus_one = len - need_remaining
+  defp best_candidate(bank, len, need_remaining_digits, digits_acc) do
+    max_index_plus_one = len - need_remaining_digits
     {candidates, _rest} = Enum.split(bank, max_index_plus_one)
 
     {digit, index} =
@@ -56,11 +54,11 @@ defmodule AdventOfCode.Solutions.Y25.Day03 do
     rest_len = len - index - 1
 
     true = length(rest) == rest_len
-    {index, rest_len, rest, [digit | digits_acc]}
+    {rest_len, rest, [digit | digits_acc]}
   end
 
   defp value_of(candidate) do
-    {_, _, _, rev_digits} = candidate
+    {_, _, rev_digits} = candidate
     Integer.undigits(:lists.reverse(rev_digits))
   end
 end
