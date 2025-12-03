@@ -21,89 +21,46 @@ defmodule AdventOfCode.Solutions.Y25.Day03 do
 
   def part_two([first | _] = banks) do
     len = length(first)
-
-    banks
-    # |> Enum.drop(1)
-    # |> Enum.take(1)
-    |> Enum.map(&best_jolts(&1, len))
-
-    # raise "foo"
-    |> Enum.sum()
+    Enum.sum_by(banks, &best_jolts(&1, len))
   end
 
   defp best_jolts(bank, len) do
-    bank |> IO.inspect(limit: :infinity, label: "bank")
-    init_candidates = best_indices(bank, len, 11, [])
+    init_candidate = {0, len, bank, []}
 
-    candidates =
-      Enum.reduce(10..0, init_candidates, fn need_remaining_digits, candidates ->
-        candidates = secondary_indices(candidates, need_remaining_digits)
-
+    best_candidate =
+      Enum.reduce(11..0, init_candidate, fn need_remaining_digits, candidate ->
+        {_index, rest_len, bank_rest, digits} = candidate
+        best_candidate(bank_rest, rest_len, need_remaining_digits, digits)
       end)
 
-    best_candidate(candidates)
+    value_of(best_candidate)
   end
 
   # finds the highest numbers with at least `need_remaining` digits at the
   # right`
-  defp best_indices(bank, len, need_remaining, digits_acc) do
+  defp best_candidate(bank, len, need_remaining, digits_acc) do
     max_index_plus_one = len - need_remaining
-    {candidates, rest} = Enum.split(bank, max_index_plus_one)
+    {candidates, _rest} = Enum.split(bank, max_index_plus_one)
 
-    candidates
-    |> Enum.with_index()
-    |> Enum.reduce({0, []}, fn {value, index}, {best, acc} ->
-      case value do
-        ^best -> {best, [index | acc]}
-        n when n > best -> {n, [index]}
-        n when n < best -> {best, acc}
-      end
-    end)
-    |> case do
-      {0, _} ->
-        exit(:bad!)
-
-      {n, indices} ->
-        Enum.map([Enum.min(indices)], fn index ->
-          {_, rest} = Enum.split(bank, index + 1)
-          rest_len = len - index - 1
-
-          true = length(rest) == rest_len
-          {[n | digits_acc], index, rest_len, rest}
-        end)
-    end
-  end
-
-  defp secondary_indices(candidates, need_remaining) do
-    Enum.flat_map(candidates, fn {digits, index, rest_len, bank_rest} ->
-      best_indices(bank_rest, rest_len, need_remaining, digits)
-    end)
-  end
-
-  # this is an optimization to go faster, but it is not needed
-  # when we have the same digits for a candidate, we keep the lowest index only
-  defp remove_duplicates([{same_digits, index_a, _, _} = a, {same_digits, index_b, _, _} = b | candidates]) do
-    if index_a < index_b do
-      remove_duplicates([a | candidates])
-    else
-      remove_duplicates([b | candidates])
-    end
-  end
-
-  defp remove_duplicates([candidate | candidates]) do
-    [candidate | remove_duplicates(candidates)]
-  end
-
-  defp remove_duplicates([]) do
-    []
-  end
-
-  defp best_candidate(candidates) do
-    candidates =
-      Enum.reduce(candidates, 0, fn {rev_digits, _, _, _}, acc ->
-        max(acc, Integer.undigits(:lists.reverse(rev_digits)))
+    {digit, index} =
+      candidates
+      |> Enum.with_index()
+      |> Enum.reduce({0, 0}, fn {value, index}, {best_val, best_index} ->
+        case value do
+          n when n > best_val -> {n, index}
+          _ -> {best_val, best_index}
+        end
       end)
+
+    {_, rest} = Enum.split(bank, index + 1)
+    rest_len = len - index - 1
+
+    true = length(rest) == rest_len
+    {index, rest_len, rest, [digit | digits_acc]}
+  end
+
+  defp value_of(candidate) do
+    {_, _, _, rev_digits} = candidate
+    Integer.undigits(:lists.reverse(rev_digits))
   end
 end
-
-# 8181 81911112111
