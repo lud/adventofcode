@@ -32,11 +32,13 @@ defmodule AdventOfCode.Solutions.Y25.Day03 do
   end
 
   defp best_jolts(bank, len) do
+    bank |> IO.inspect(limit: :infinity, label: "bank")
     init_candidates = best_indices(bank, len, 11, [])
 
     candidates =
       Enum.reduce(10..0, init_candidates, fn need_remaining_digits, candidates ->
-        secondary_indices(candidates, need_remaining_digits)
+        candidates = secondary_indices(candidates, need_remaining_digits)
+
       end)
 
     best_candidate(candidates)
@@ -62,7 +64,7 @@ defmodule AdventOfCode.Solutions.Y25.Day03 do
         exit(:bad!)
 
       {n, indices} ->
-        Enum.map(indices, fn index ->
+        Enum.map([Enum.min(indices)], fn index ->
           {_, rest} = Enum.split(bank, index + 1)
           rest_len = len - index - 1
 
@@ -73,12 +75,27 @@ defmodule AdventOfCode.Solutions.Y25.Day03 do
   end
 
   defp secondary_indices(candidates, need_remaining) do
-    candidates
-    |> Enum.flat_map(fn {digits, index, rest_len, bank_rest} ->
-      # Possible optimization, if collected digits are the same for two
-      # candidates, just keep the candidate with the lowest index
+    Enum.flat_map(candidates, fn {digits, index, rest_len, bank_rest} ->
       best_indices(bank_rest, rest_len, need_remaining, digits)
     end)
+  end
+
+  # this is an optimization to go faster, but it is not needed
+  # when we have the same digits for a candidate, we keep the lowest index only
+  defp remove_duplicates([{same_digits, index_a, _, _} = a, {same_digits, index_b, _, _} = b | candidates]) do
+    if index_a < index_b do
+      remove_duplicates([a | candidates])
+    else
+      remove_duplicates([b | candidates])
+    end
+  end
+
+  defp remove_duplicates([candidate | candidates]) do
+    [candidate | remove_duplicates(candidates)]
+  end
+
+  defp remove_duplicates([]) do
+    []
   end
 
   defp best_candidate(candidates) do
