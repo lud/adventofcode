@@ -2,18 +2,12 @@ defmodule AdventOfCode.Solutions.Y25.Day04 do
   alias AoC.Input
 
   def parse(input, _part) do
-    input
-    |> Input.stream!(trim: true)
-    |> Enum.with_index()
-    |> Enum.reduce(%{}, fn {row, y}, acc ->
-      row
-      |> String.graphemes()
-      |> Enum.with_index()
-      |> Enum.reduce(acc, fn
-        {"@", x}, acc -> Map.put(acc, {x, y}, :roll)
-        _, acc -> acc
-      end)
-    end)
+    lines = Input.stream!(input, trim: true)
+
+    for {row, y} <- Enum.with_index(lines),
+        {"@", x} <- Enum.with_index(String.graphemes(row)),
+        reduce: %{},
+        do: (grid -> Map.put(grid, {x, y}, true))
   end
 
   def part_one(grid) do
@@ -21,8 +15,8 @@ defmodule AdventOfCode.Solutions.Y25.Day04 do
   end
 
   def part_two(grid) do
-    new_grid = loop_remove(grid)
-    map_size(grid) - map_size(new_grid)
+    clear_grid = loop_remove(grid)
+    map_size(grid) - map_size(clear_grid)
   end
 
   defp loop_remove(grid) do
