@@ -17,20 +17,28 @@ defmodule AdventOfCode.Solutions.Y25.Day04 do
   end
 
   def part_one(grid) do
-    Enum.count(grid, &less_than_four_neighbors?(&1, grid))
+    map_size(accessibles(grid))
   end
 
-  defp less_than_four_neighbors?({{x, y}, :roll}, grid) do
-    for nx <- (x - 1)..(x + 1),
-        ny <- (y - 1)..(y + 1),
-        {nx, ny} != {x, y} do
-      (Map.has_key?(grid, {nx, ny}) && 1) || 0
+  def part_two(grid) do
+    new_grid = loop_remove(grid)
+    map_size(grid) - map_size(new_grid)
+  end
+
+  defp loop_remove(grid) do
+    case Map.drop(grid, Map.keys(accessibles(grid))) do
+      ^grid -> grid
+      new_grid -> loop_remove(new_grid)
     end
-    |> Enum.sum()
+  end
+
+  defp accessibles(grid) do
+    Map.filter(grid, &less_than_four_neighbors?(&1, grid))
+  end
+
+  defp less_than_four_neighbors?({{x, y}, _}, grid) do
+    for(nx <- (x - 1)..(x + 1), ny <- (y - 1)..(y + 1), {nx, ny} != {x, y}, do: {nx, ny})
+    |> Enum.count(&Map.has_key?(grid, &1))
     |> Kernel.<(4)
   end
-
-  # def part_two(problem) do
-  #   problem
-  # end
 end

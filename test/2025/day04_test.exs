@@ -35,21 +35,26 @@ defmodule AdventOfCode.Solutions.Y25.Day04Test do
     assert {:ok, @part_one_solution} == AoC.run(2025, 4, :part_one)
   end
 
-  # test "part two example" do
-  #   input = ~S"""
-  #   This is an
-  #   example input.
-  #   replace with
-  #   an example from
-  #   the AoC website.
-  #   """
-  #
-  #   assert CHANGE_ME == solve(input, :part_two)
-  # end
+  test "part two example" do
+    input = ~S"""
+    ..@@.@@@@.
+    @@@.@.@.@@
+    @@@@@.@.@@
+    @.@@@@..@.
+    @@.@@@@.@@
+    .@@@@@@@.@
+    .@.@.@.@@@
+    @.@@@.@@@@
+    .@@@@@@@@.
+    @.@.@@@.@.
+    """
 
-  # @part_two_solution CHANGE_ME
-  #
-  # test "part two solution" do
-  #   assert {:ok, @part_two_solution} == AoC.run(2025, 4, :part_two)
-  # end
+    assert 43 == solve(input, :part_two)
+  end
+
+  @part_two_solution 9609
+
+  test "part two solution" do
+    assert {:ok, @part_two_solution} == AoC.run(2025, 4, :part_two)
+  end
 end
