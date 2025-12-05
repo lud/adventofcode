@@ -65,7 +65,7 @@ defmodule AdventOfCode.Solutions.Y20.Day19 do
 
     candidates
     |> Enum.filter(&Regex.match?(re, &1))
-    |> length
+    |> length()
   end
 
   def part_two({rulemap, candidates}) do
@@ -84,7 +84,7 @@ defmodule AdventOfCode.Solutions.Y20.Day19 do
   defp assemble_rule([{:group, _} | _] = groups, map) do
     groups
     |> Enum.map_join("|", fn {:group, group} -> assemble_rule(group, map) end)
-    |> wrap_parens
+    |> wrap_parens()
   end
 
   defp assemble_rule({:order, indexes}, map) do
@@ -110,7 +110,7 @@ defmodule AdventOfCode.Solutions.Y20.Day19 do
       left <> "{#{n}}" <> right <> "{#{n}}"
     end
     |> Enum.join("|")
-    |> wrap_parens
+    |> wrap_parens()
   end
 
   defp assemble_rule(:a, _), do: "a"

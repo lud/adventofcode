@@ -91,7 +91,7 @@ defmodule AdventOfCode.Solutions.Y20.Day16 do
       |> Enum.group_by(&elem(&1, 1), &elem(&1, 0))
       |> Enum.map(&match_group_rules(&1, rules))
       |> reduce_groups([], %{})
-      |> find_departures_indexes
+      |> find_departures_indexes()
 
     Enum.reduce(departure_idxs, 1, fn index, acc ->
       acc * Enum.at(ticket, index)

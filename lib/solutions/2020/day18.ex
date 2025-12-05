@@ -99,7 +99,7 @@ defmodule AdventOfCode.Solutions.Y20.Day18 do
   defp eval_line_p2(line) do
     line
     |> Enum.map(&reduce_expr/1)
-    |> apply_additions
+    |> apply_additions()
     |> apply_multiplications(nil)
   end
 

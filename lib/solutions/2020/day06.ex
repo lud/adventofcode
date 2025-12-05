@@ -32,14 +32,14 @@ defmodule AdventOfCode.Solutions.Y20.Day06 do
   @spec part_one(problem) :: integer
   def part_one(problem) do
     problem
-    |> Enum.map(fn group -> group |> String.graphemes() |> Enum.uniq() |> length end)
+    |> Enum.map(fn group -> group |> String.graphemes() |> Enum.uniq() |> length() end)
     |> Enum.sum()
   end
 
   @spec part_two(problem) :: integer
   def part_two(problem) do
     problem
-    |> Enum.map(fn group -> group |> Enum.reduce(&(&1 -- (&1 -- &2))) |> length end)
+    |> Enum.map(fn group -> group |> Enum.reduce(&(&1 -- (&1 -- &2))) |> length() end)
     |> Enum.sum()
   end
 end

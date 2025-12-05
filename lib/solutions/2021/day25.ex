@@ -14,7 +14,7 @@ defmodule AdventOfCode.Solutions.Y21.Day25 do
   def parse_input(input, _part) do
     input = Enum.to_list(input)
     yo = length(input) - 1
-    xo = (hd(input) |> byte_size) - 1
+    xo = (hd(input) |> byte_size()) - 1
     {xo, yo}
 
     grid =

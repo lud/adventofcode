@@ -31,7 +31,7 @@ defmodule AdventOfCode.Solutions.Y20.Day11 do
     map
     |> reduce_map_p1()
     |> Enum.filter(fn {_, val} -> val == ?# end)
-    |> length
+    |> length()
   end
 
   defp reduce_map_p1(map) do
@@ -76,7 +76,7 @@ defmodule AdventOfCode.Solutions.Y20.Day11 do
     map
     |> reduce_map_p2(max_x, max_y)
     |> Enum.filter(fn {_, val} -> val == ?# end)
-    |> length
+    |> length()
   end
 
   defp reduce_map_p2(map, max_x, max_y) do

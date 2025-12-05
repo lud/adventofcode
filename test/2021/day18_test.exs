@@ -75,15 +75,15 @@ defmodule AdventOfCode.Solutions.Y21.Day18Test do
   end
 
   test "magnitude" do
-    assert 143 == "[[1,2],[[3,4],5]]" |> to_problem() |> hd |> Solution.magnitude()
+    assert 143 == "[[1,2],[[3,4],5]]" |> to_problem() |> hd() |> Solution.magnitude()
 
     assert 1384 ==
-             "[[[[0,7],4],[[7,8],[6,0]]],[8,1]]" |> to_problem() |> hd |> Solution.magnitude()
+             "[[[[0,7],4],[[7,8],[6,0]]],[8,1]]" |> to_problem() |> hd() |> Solution.magnitude()
 
     assert 3488 ==
              "[[[[8,7],[7,7]],[[8,6],[7,7]]],[[[0,7],[6,6]],[8,7]]] "
              |> to_problem()
-             |> hd
+             |> hd()
              |> Solution.magnitude()
   end
 

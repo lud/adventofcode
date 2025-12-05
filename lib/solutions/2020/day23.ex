@@ -27,7 +27,7 @@ defmodule AdventOfCode.Solutions.Y20.Day23 do
     |> to_list(1)
     |> Enum.drop(1)
     |> Integer.undigits()
-    |> to_string
+    |> to_string()
   end
 
   def part_two(cups) do

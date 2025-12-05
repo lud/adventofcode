@@ -40,7 +40,7 @@ defmodule AdventOfCode.Solutions.Y20.Day20 do
     # to solve part 1 we get all sides that have only two neighbours
     # the we multiply
     all_signatures
-    |> get_corners
+    |> get_corners()
     |> Enum.reduce(1, fn corner_id, acc -> corner_id * acc end)
   end
 
@@ -65,7 +65,7 @@ defmodule AdventOfCode.Solutions.Y20.Day20 do
   end
 
   defp expand_tile({id, rows}, signatures? \\ true, coords \\ nil) do
-    top_row = rows |> hd
+    top_row = rows |> hd()
     bottom_row = rows |> List.last()
     left_col = rows |> Enum.map(&hd/1)
     right_col = rows |> Enum.map(&List.last/1)
@@ -158,7 +158,7 @@ defmodule AdventOfCode.Solutions.Y20.Day20 do
         {_, []} -> false
         {_, _} -> true
       end)
-      |> hd
+      |> hd()
 
     {t1, t2} = transform
 
@@ -395,7 +395,7 @@ defmodule AdventOfCode.Solutions.Y20.Day20 do
 
   def apply_transform(rows, {:rotate, 180}) do
     rows
-    |> reverse
+    |> reverse()
     |> Enum.map(&reverse/1)
   end
 

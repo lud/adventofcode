@@ -41,14 +41,14 @@ defmodule AdventOfCode.Solutions.Y20.Day04 do
   def part_one(problem) do
     problem
     |> Enum.filter(&validate_passport_one/1)
-    |> length
+    |> length()
   end
 
   @spec part_two(problem) :: integer
   def part_two(problem) do
     problem
     |> Enum.filter(fn a -> validate_passport_one(a) && validate_passport_two(a) end)
-    |> length
+    |> length()
   end
 
   defp validate_passport_one(%{byr: _, iyr: _, eyr: _, hgt: _, hcl: _, ecl: _, pid: _}) do

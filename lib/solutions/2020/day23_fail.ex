@@ -22,7 +22,7 @@ defmodule AdventOfCode.Solutions.Y20.Day23Fail do
       cups
       |> print_move("INITIAL")
       |> moves(1, moves_amount, Enum.max(cups))
-      |> to_answer
+      |> to_answer()
 
     IO.puts("---------------------------------")
     result

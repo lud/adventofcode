@@ -38,7 +38,7 @@ defmodule AdventOfCode.Solutions.Y20.Day02 do
     len =
       password
       |> Enum.filter(&(&1 == char))
-      |> length
+      |> length()
 
     len >= lo and len <= hi
   end

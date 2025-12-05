@@ -25,8 +25,8 @@ defmodule AdventOfCode.Solutions.Y20.Day08 do
 
   def part_one(problem) do
     problem
-    |> load_state
-    |> run_til_repeat
+    |> load_state()
+    |> run_til_repeat()
     |> case do
       {:infinite_loop, %{acc: acc}} -> acc
     end

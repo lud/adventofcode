@@ -25,7 +25,7 @@ defmodule AdventOfCode.Solutions.Y20.Day05 do
     problem
     |> Stream.map(&seat_id/1)
     |> Enum.sort()
-    |> find_self_seat
+    |> find_self_seat()
   end
 
   def seat_id(letters) do

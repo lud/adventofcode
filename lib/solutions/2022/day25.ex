@@ -77,7 +77,7 @@ defmodule AdventOfCode.Solutions.Y22.Day25 do
   defp loop(map) do
     case Enum.find(map, fn {_index, v} -> v > 2 end) do
       nil -> map
-      {index, _} -> map |> map_add(index, -5) |> map_add(index + 1, 1) |> loop
+      {index, _} -> map |> map_add(index, -5) |> map_add(index + 1, 1) |> loop()
     end
   end
 

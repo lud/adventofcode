@@ -29,13 +29,13 @@ defmodule AdventOfCode.Solutions.Y20.Day24 do
     problem
     |> Enum.map(fn line -> Enum.reduce(line, {0, 0}, &add_qr/2) end)
     |> Enum.reduce(%{}, &flip_tile/2)
-    |> count_blacks
+    |> count_blacks()
   end
 
   defp count_blacks(qrmap) do
     qrmap
     |> Enum.filter(&black?/1)
-    |> length
+    |> length()
   end
 
   def part_two(problem) do
@@ -46,7 +46,7 @@ defmodule AdventOfCode.Solutions.Y20.Day24 do
 
     initial_map
     |> run_days(1, 100)
-    |> count_blacks
+    |> count_blacks()
   end
 
   defp run_days(qrmap, day, max) when day > max do
