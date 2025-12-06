@@ -22,19 +22,10 @@ defmodule AdventOfCode.Solutions.Y25.Day06 do
     ops = String.split(ops, " ", trim: true)
 
     rows
-    |> Stream.unfold(fn
-      [[] | _] ->
-        nil
-
-      rows ->
-        {rows, col} = Enum.map_reduce(rows, [], fn [h | t], acc -> {t, [h | acc]} end)
-        {:lists.reverse(col), rows}
-    end)
-    |> Stream.map(fn str_digits ->
-      case str_digits |> Enum.join("") |> String.trim() do
-        "" -> nil
-        str_num -> String.to_integer(str_num)
-      end
+    |> Enum.zip_with(fn digits -> String.trim(Enum.join(digits)) end)
+    |> Stream.map(fn
+      "" -> nil
+      str_num -> String.to_integer(str_num)
     end)
     |> Stream.chunk_by(&is_integer/1)
     |> Stream.filter(&(&1 != [nil]))
@@ -42,6 +33,6 @@ defmodule AdventOfCode.Solutions.Y25.Day06 do
     |> Enum.sum_by(fn {numbers, op} -> apply_op(op, numbers) end)
   end
 
-  defp apply_op("*", args), do: Enum.reduce(args, &Kernel.*/2)
-  defp apply_op("+", args), do: Enum.reduce(args, &Kernel.+/2)
+  defp apply_op("+", args), do: Enum.sum(args)
+  defp apply_op("*", args), do: Enum.product(args)
 end
