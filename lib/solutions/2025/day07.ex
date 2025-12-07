@@ -12,14 +12,10 @@ defmodule AdventOfCode.Solutions.Y25.Day07 do
     start = Enum.find_index(first_row, fn x -> x == ?S end)
 
     layers =
-      Enum.map(rows, fn line ->
-        line
-        |> Enum.with_index()
-        |> Enum.reduce(%{}, fn
-          {?., _}, acc -> acc
-          {?S, _}, acc -> acc
-          {?^, x}, acc -> Map.put(acc, x, true)
-        end)
+      Enum.map(rows, fn row ->
+        for {?^, x} <- Enum.with_index(row),
+            do: {x, true},
+            into: %{}
       end)
 
     {start, layers}
