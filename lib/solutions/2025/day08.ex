@@ -18,22 +18,36 @@ defmodule AdventOfCode.Solutions.Y25.Day08 do
   end
 
   def part_one(xyzs, n_pairs \\ 1000) do
-    circuits = xyzs |> Enum.with_index() |> Map.new()
+    circuits = Map.new(Enum.with_index(xyzs))
 
-    all_distances = for a <- xyzs, b <- xyzs, a != b, into: %{}, do: {{min(a, b), max(a, b)}, distance(a, b)}
-    all_distances = Enum.sort(all_distances, fn {_, dist_a}, {_, dist_b} -> dist_a <= dist_b end)
-
-    circuits =
-      all_distances
-      |> Enum.take(n_pairs)
-      |> Enum.reduce(circuits, fn {{a, b}, _}, circuits -> merge_circuits(circuits, a, b) end)
-
-    circuits
+    xyzs
+    |> all_distances()
+    |> Enum.take(n_pairs)
+    |> Enum.reduce(circuits, fn {{a, b}, _}, circuits -> merge_circuits(circuits, a, b) end)
     |> Enum.group_by(&elem(&1, 1))
     |> Enum.map(fn {_, list} -> length(list) end)
     |> Enum.sort(:desc)
     |> Enum.take(3)
     |> Enum.product()
+  end
+
+  def part_two(xyzs, _ \\ nil) do
+    circuits = Map.new(Enum.with_index(xyzs))
+
+    xyzs
+    |> all_distances()
+    |> Enum.reduce_while(circuits, fn {{a, b}, _}, circuits ->
+      circuits = merge_circuits(circuits, a, b)
+
+      if single_circuit?(circuits),
+        do: {:halt, x(a) * x(b)},
+        else: {:cont, circuits}
+    end)
+  end
+
+  defp all_distances(xyzs) do
+    all_distances = for a <- xyzs, b <- xyzs, a != b, into: %{}, do: {{min(a, b), max(a, b)}, distance(a, b)}
+    Enum.sort(all_distances, fn {_, dist_a}, {_, dist_b} -> dist_a <= dist_b end)
   end
 
   defp merge_circuits(circuits, xyz_a, xyz_b) do
@@ -54,7 +68,12 @@ defmodule AdventOfCode.Solutions.Y25.Day08 do
     )
   end
 
-  # def part_two(problem) do
-  #   problem
-  # end
+  defp single_circuit?(map) do
+    case Enum.uniq(Map.values(map)) do
+      [_, _ | _] -> false
+      [_] -> true
+    end
+  end
+
+  defp x({x, _, _}), do: x
 end
