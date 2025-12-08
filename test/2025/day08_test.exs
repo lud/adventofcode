@@ -37,10 +37,10 @@ defmodule AdventOfCode.Solutions.Y25.Day08Test do
     """
 
     assert 40 == solve(input, :part_one, 10)
+    # flunk("oksofar")
   end
 
   @part_one_solution 57970
-  @tag :skip
   test "part one solution" do
     assert {:ok, @part_one_solution} == AoC.run(2025, 8, :part_one)
   end
