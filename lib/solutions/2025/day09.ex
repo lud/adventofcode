@@ -23,8 +23,13 @@ defmodule AdventOfCode.Solutions.Y25.Day09 do
 
     tiles
     |> all_rectangles_w_area()
-    |> Enum.filter(fn {rect, _} -> within_bounds?(rect, h_segments, v_segments) end)
-    |> Enum.reduce(0, fn {_, area}, best -> max(area, best) end)
+    |> Enum.reduce(0, fn {rect, area}, best ->
+      if area > best and within_bounds?(rect, h_segments, v_segments) do
+        area
+      else
+        best
+      end
+    end)
   end
 
   defp build_segments(tiles, horizontal \\ [], vertical \\ [])

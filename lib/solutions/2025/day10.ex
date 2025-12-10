@@ -29,6 +29,13 @@ defmodule AdventOfCode.Solutions.Y25.Day10 do
       end)
       |> Enum.sort()
 
+    jolts =
+      jolts
+      |> String.trim_trailing("}")
+      |> String.split(",")
+      |> Enum.map(&String.to_integer/1)
+      |> dbg()
+
     {lights, buttons, jolts}
   end
 
@@ -89,7 +96,7 @@ defmodule AdventOfCode.Solutions.Y25.Day10 do
     end)
   end
 
-  # def part_two(problem) do
-  #   problem
-  # end
+  def part_two(problem) do
+    problem
+  end
 end
