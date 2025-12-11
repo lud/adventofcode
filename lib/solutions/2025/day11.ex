@@ -8,17 +8,8 @@ defmodule AdventOfCode.Solutions.Y25.Day11 do
   end
 
   defp parse_line(line) do
-    <<inp::binary-size(3), ?:, rest::binary>> = line
-
-    out =
-      Enum.to_list(
-        Stream.unfold(rest, fn
-          <<>> -> nil
-          <<?\s, out::binary-size(3), next::binary>> -> {out, next}
-        end)
-      )
-
-    {inp, out}
+    <<inp::binary-size(3), ": ", rest::binary>> = line
+    {inp, String.split(rest)}
   end
 
   def part_one(full_io) do
