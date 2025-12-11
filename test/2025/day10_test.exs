@@ -38,9 +38,9 @@ defmodule AdventOfCode.Solutions.Y25.Day10Test do
     assert 33 == solve(input, :part_two)
   end
 
-  # @part_two_solution CHANGE_ME
-  #
-  # test "part two solution" do
-  #   assert {:ok, @part_two_solution} == AoC.run(2025, 10, :part_two)
-  # end
+  @part_two_solution 20626
+
+  test "part two solution" do
+    assert {:ok, @part_two_solution} == AoC.run(2025, 10, :part_two)
+  end
 end
