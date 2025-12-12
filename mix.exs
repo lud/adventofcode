@@ -24,8 +24,9 @@ defmodule AdventOfCode.MixProject do
   defp deps do
     [
       {:nvir, "~> 0.13"},
-      {:aoc, "~> 0.15"},
+      # {:aoc, "~> 0.15"},
       # {:aoc, path: "../aoc"},
+      {:aoc, github: "lud/aoc", branch: "windowssupport"},
       {:jason, "~> 1.4"},
       {:credo, "~> 1.7", only: [:dev], runtime: false}
     ]

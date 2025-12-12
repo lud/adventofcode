@@ -211,7 +211,7 @@ defmodule AdventOfCode.Solutions.Y20.Day20 do
       |> Enum.slice(1..max_row)
       |> Enum.map(&match_middle(&1, 0, []))
       |> Enum.with_index(1)
-      |> Enum.filter(fn {x_indexes, _y} -> length(x_indexes) > 0 end)
+      |> Enum.filter(fn {x_indexes, _y} -> not Enum.empty?(x_indexes) end)
 
     # we will flatten our pairs of coordinates : [{[x1, x2], y}] -> [{x1, y}, {x2, y}]
     middle_indexes = for {xs, y} <- middle_indexes, x <- xs, do: {x, y}

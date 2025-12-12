@@ -13,7 +13,6 @@ defmodule AdventOfCode.Solutions.Y25.Day12 do
         |> Enum.flat_map(&String.to_charlist/1)
         |> Enum.count(&(&1 == ?#))
       end)
-      |> dbg(charlists: :as_lists)
 
     regions =
       Enum.map(regions, fn line ->
