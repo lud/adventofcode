@@ -5,15 +5,30 @@ defmodule AdventOfCode.Solutions.Y19.Day02 do
     IntCPU.from_input(input)
   end
 
-  def part_one(problem) do
-    problem
-    |> IntCPU.write(1, 12)
-    |> IntCPU.write(2, 2)
+  def part_one(cpu) do
+    run_gravity_assist(cpu, 12, 2)
+  end
+
+  defp run_gravity_assist(cpu, noun, verb) do
+    cpu
+    |> IntCPU.write(1, noun)
+    |> IntCPU.write(2, verb)
     |> IntCPU.run()
     |> IntCPU.deref(0)
   end
 
-  # def part_two(problem) do
-  #   problem
-  # end
+  def part_two(cpu) do
+    stream =
+      Stream.flat_map(0..99, fn noun ->
+        Stream.map(0..99, fn verb -> {noun, verb} end)
+      end)
+
+    stream
+    |> Enum.find(fn {noun, verb} ->
+      19_690_720 == run_gravity_assist(cpu, noun, verb)
+    end)
+    |> case do
+      {noun, verb} -> 100 * noun + verb
+    end
+  end
 end

@@ -1,9 +1,17 @@
 defmodule AdventOfCode.IntCPU do
-  @enforce_keys [:tape, :head, :halted]
+  @enforce_keys [
+    :memory,
+
+    # instruction pointer
+    :ip,
+
+    # boolean
+    :halted
+  ]
   defstruct @enforce_keys
 
   def from_input(input) do
-    from_string(AoC.Input.read!(input |> dbg()))
+    from_string(AoC.Input.read!(input))
   end
 
   def from_string(ints_str) do
@@ -15,12 +23,12 @@ defmodule AdventOfCode.IntCPU do
   end
 
   def new(ints) do
-    tape = Map.new(Enum.with_index(ints), fn {v, addr} -> {addr, v} end)
-    %__MODULE__{tape: tape, head: 0, halted: false}
+    memory = Map.new(Enum.with_index(ints), fn {v, addr} -> {addr, v} end)
+    %__MODULE__{memory: memory, ip: 0, halted: false}
   end
 
   def run(cpu) do
-    dump(cpu)
+    # dump(cpu)
     loop(cpu)
   end
 
@@ -29,9 +37,9 @@ defmodule AdventOfCode.IntCPU do
   end
 
   defp loop(cpu) do
-    {instr, cpu} = read_instr(cpu)
+    instr = read_instr(cpu)
     cpu = exec(instr, cpu)
-    dump(cpu)
+    # dump(cpu)
     loop(cpu)
   end
 
@@ -40,59 +48,53 @@ defmodule AdventOfCode.IntCPU do
   @op_halt 99
 
   defp read_instr(cpu) do
-    {op, cpu} = read(cpu)
+    op = read(cpu)
 
     case op do
-      @op_add ->
-        {args, cpu} = read(cpu, 3)
-        {{:add, pack(args)}, cpu}
-
-      @op_mul ->
-        {args, cpu} = read(cpu, 3)
-        {{:mul, pack(args)}, cpu}
-
-      @op_halt ->
-        {:halt, cpu}
+      @op_add -> {:add, read_ahead(cpu, 3)}
+      @op_mul -> {:mul, read_ahead(cpu, 3)}
+      @op_halt -> :halt
     end
   end
 
-  # reads value at the current position and moves the head to the right
-  defp read(cpu) do
-    %{tape: tape, head: head} = cpu
-    {Map.fetch!(tape, head), %{cpu | head: head + 1}}
+  def read(cpu) do
+    deref(cpu, cpu.ip)
   end
 
-  # reads N values at the current position and moves the head to the right N
-  # times
-  defp read(cpu, amount) when is_integer(amount) do
-    {data, cpu} = Enum.map_reduce(1..amount, cpu, fn _, cpu -> read(cpu) end)
-    {data, cpu}
-  end
-
-  # reads a value without moving the head
   def deref(cpu, addr) do
-    %{tape: tape} = cpu
-    Map.fetch!(tape, addr)
+    %{memory: memory} = cpu
+    Map.fetch!(memory, addr)
   end
 
-  # writes a value at the given address without moving the head
+  # reads N values _after_ the current pointer
+  defp read_ahead(cpu, amount) when is_integer(amount) do
+    %{memory: memory, ip: ip} = cpu
+    Enum.map(1..amount, fn n -> Map.fetch!(memory, ip + n) end)
+  end
+
+  # writes a value at the given address without moving the ip
   def write(cpu, addr, value) when is_integer(value) do
-    %{tape: tape} = cpu
-    %{cpu | tape: Map.put(tape, addr, value)}
+    %{memory: memory} = cpu
+    %{cpu | memory: Map.put(memory, addr, value)}
   end
 
-  defp pack([a, b, c]), do: {a, b, c}
-
-  defp exec({:add, {a, b, c}}, cpu) do
-    a = deref(cpu, a)
-    b = deref(cpu, b)
-    write(cpu, c, a + b)
+  defp ip_move(cpu, amount) do
+    %{ip: ip} = cpu
+    %{cpu | ip: ip + amount}
   end
 
-  defp exec({:mul, {a, b, c}}, cpu) do
+  defp exec({:add, [a, b, c]}, cpu) do
     a = deref(cpu, a)
     b = deref(cpu, b)
-    write(cpu, c, a * b)
+    cpu = write(cpu, c, a + b)
+    ip_move(cpu, 4)
+  end
+
+  defp exec({:mul, [a, b, c]}, cpu) do
+    a = deref(cpu, a)
+    b = deref(cpu, b)
+    cpu = write(cpu, c, a * b)
+    ip_move(cpu, 4)
   end
 
   defp exec(:halt, cpu) do
@@ -107,12 +109,12 @@ defmodule AdventOfCode.IntCPU do
 
   defimpl Inspect do
     def inspect(cpu, _) do
-      %{tape: tape, head: head} = cpu
-      keys = Map.keys(tape)
+      %{memory: memory, ip: ip} = cpu
+      keys = Map.keys(memory)
       {min_key, max_key} = Enum.min_max(keys)
-      max_val = Enum.max(Map.values(tape))
 
       int_width = 8
+      # max_val = Enum.max(Map.values(memory))
       # cond do
       #   max_val < 1000 -> 3
       #   max_val < 10000 -> 4
@@ -120,23 +122,23 @@ defmodule AdventOfCode.IntCPU do
       #   max_val < 1_000_000 -> 6
       # end + 2
 
-      min_key..max_key
-      |> Stream.chunk_every(8)
-      |> Enum.map(fn chunk ->
-        [Enum.map_intersperse(chunk, " ", &format_int(Map.fetch!(tape, &1), &1, head, int_width)), "\n"]
-      end)
-      |> IO.iodata_to_binary()
+      "\n\n" <>
+        (min_key..max_key
+         |> Stream.chunk_every(8)
+         |> Enum.map(fn chunk ->
+           [Enum.map_intersperse(chunk, " ", &format_int(Map.fetch!(memory, &1), &1, ip, int_width)), "\n"]
+         end)
+         |> IO.iodata_to_binary())
     end
 
-    defp format_int(int, index, head, width) do
+    defp format_int(int, index, ip, width) do
       str = Integer.to_string(int)
 
-      str =
-        if head == index do
-          [IO.ANSI.inverse(), String.pad_leading("[#{str}]", width), IO.ANSI.inverse_off()]
-        else
-          String.pad_leading(str, width)
-        end
+      if ip == index do
+        [IO.ANSI.inverse(), String.pad_leading("[#{str}]", width), IO.ANSI.inverse_off()]
+      else
+        String.pad_leading(str, width)
+      end
     end
   end
 end
