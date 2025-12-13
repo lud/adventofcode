@@ -96,7 +96,7 @@ defmodule AdventOfCode.Solutions.Y25.Day10 do
 
   def part_two(machines) do
     machines
-    |> Task.async_stream(&solve_machine/1, max_concurrency: 200, ordered: false)
+    |> Task.async_stream(&solve_machine/1, max_concurrency: 200, ordered: false, timeout: :infinity)
     |> Enum.sum_by(&elem(&1, 1))
   end
 

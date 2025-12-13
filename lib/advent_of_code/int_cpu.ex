@@ -6,7 +6,10 @@ defmodule AdventOfCode.IntCPU do
     :ip,
 
     # boolean
-    :halted
+    :halted,
+
+    # function and buffer/state of IO handler
+    :io
   ]
   defstruct @enforce_keys
 
@@ -24,11 +27,15 @@ defmodule AdventOfCode.IntCPU do
 
   def new(ints) do
     memory = Map.new(Enum.with_index(ints), fn {v, addr} -> {addr, v} end)
-    %__MODULE__{memory: memory, ip: 0, halted: false}
+    %__MODULE__{memory: memory, ip: 0, halted: false, io: {:__no_io__, []}}
   end
 
-  def run(cpu) do
-    # dump(cpu)
+  def run(cpu, opts \\ []) do
+    cpu =
+      Enum.reduce(opts, cpu, fn {:io, {fun, buf}}, cpu when is_function(fun, 1) ->
+        %{cpu | io: {fun, buf}}
+      end)
+
     loop(cpu)
   end
 
@@ -45,25 +52,35 @@ defmodule AdventOfCode.IntCPU do
 
   @op_add 1
   @op_mul 2
+  @op_ioread 3
+  @op_iowrite 4
   @op_halt 99
 
   defp read_instr(cpu) do
-    op = read(cpu)
+    op = deref(cpu)
 
     case op do
       @op_add -> {:add, read_ahead(cpu, 3)}
       @op_mul -> {:mul, read_ahead(cpu, 3)}
+      @op_ioread -> {:ioread, read_ahead(cpu)}
+      @op_iowrite -> {:iowrite, read_ahead(cpu)}
       @op_halt -> :halt
     end
   end
 
-  def read(cpu) do
+  def deref(cpu) do
     deref(cpu, cpu.ip)
   end
 
   def deref(cpu, addr) do
     %{memory: memory} = cpu
     Map.fetch!(memory, addr)
+  end
+
+  # reads 1 value _after_ the current pointer
+  defp read_ahead(cpu) do
+    %{memory: memory, ip: ip} = cpu
+    Map.fetch!(memory, ip + 1)
   end
 
   # reads N values _after_ the current pointer
@@ -97,8 +114,33 @@ defmodule AdventOfCode.IntCPU do
     ip_move(cpu, 4)
   end
 
+  defp exec({:ioread, addr}, cpu) do
+    {val, cpu} = ioread(cpu)
+    cpu = write(cpu, addr, val)
+    ip_move(cpu, 2)
+  end
+
+  defp exec({:iowrite, addr}, cpu) do
+    val = deref(cpu, addr)
+    cpu = iowrite(cpu, val)
+    ip_move(cpu, 2)
+  end
+
   defp exec(:halt, cpu) do
     %{cpu | halted: true}
+  end
+
+  defp ioread(cpu) do
+    %{io: {fun, buf}} = cpu
+    {val, buf} = fun.({:input, buf})
+    cpu = %{cpu | io: {fun, buf}}
+    {val, cpu}
+  end
+
+  defp iowrite(cpu, val) do
+    %{io: {fun, buf}} = cpu
+    buf = fun.({:output, val, buf})
+    %{cpu | io: {fun, buf}}
   end
 
   # defp dump(cpu) do
