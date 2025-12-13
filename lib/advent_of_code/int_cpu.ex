@@ -101,11 +101,11 @@ defmodule AdventOfCode.IntCPU do
     %{cpu | halted: true}
   end
 
-  defp dump(cpu) do
-    IO.puts(inspect(cpu))
-    # Process.sleep(50)
-    cpu
-  end
+  # defp dump(cpu) do
+  #   IO.puts(inspect(cpu))
+  #   # Process.sleep(50)
+  #   cpu
+  # end
 
   defimpl Inspect do
     def inspect(cpu, _) do
