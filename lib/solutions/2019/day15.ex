@@ -1,5 +1,4 @@
 defmodule AdventOfCode.Solutions.Y19.Day15 do
-  alias AdventOfCode.IntCPU.IOBuf
   alias AdventOfCode.Grid
   alias AdventOfCode.IntCPU
 
@@ -20,9 +19,14 @@ defmodule AdventOfCode.Solutions.Y19.Day15 do
   @status_moved_found 2
 
   require Record
-  Record.defrecordp(:state, grid: %{}, pos: {0, 0}, next_pos: nil)
+  Record.defrecordp(:state, grid: %{}, pos: {0, 0}, next_pos: nil, oxygen_pos: nil)
 
   def part_one(cpu) do
+    {:ok, state} = explore_all_map(cpu)
+    count_backtrack(state)
+  end
+
+  def explore_all_map(cpu) do
     # Grid values will be {tile, parent} where parent is the xy for the tile we
     # went from.
     #
@@ -47,7 +51,7 @@ defmodule AdventOfCode.Solutions.Y19.Day15 do
             nil ->
               # backtrack to parent of current pos
               case Map.fetch!(grid, pos) do
-                {:free, :root} -> raise "back to zero not found oxygen"
+                {:free, :root} -> throw({:explored, state})
                 {:free, parent} -> parent
               end
 
@@ -64,8 +68,7 @@ defmodule AdventOfCode.Solutions.Y19.Day15 do
         state(pos: pos, next_pos: next_pos, grid: grid) = state
         grid = Map.put_new(grid, next_pos, {:wall, _parent = pos})
         state = state(state, grid: grid, next_pos: nil)
-
-        #  print_state(state)
+        # print_state(state)
         state
 
       {:output, @status_moved, state} ->
@@ -73,24 +76,25 @@ defmodule AdventOfCode.Solutions.Y19.Day15 do
         grid = Map.put_new(grid, next_pos, {:free, _parent = pos})
         # we move to the next pos
         state = state(state, grid: grid, pos: next_pos, next_pos: nil)
-        #  print_state(state)
+        # print_state(state)
         state
 
       {:output, @status_moved_found, state} ->
         state(pos: pos, next_pos: next_pos, grid: grid) = state
-        grid = Map.put_new(grid, next_pos, {:oxygen, _parent = pos})
+        grid = Map.put_new(grid, next_pos, {:free, _parent = pos})
         # we move to the next pos
-        state = state(state, grid: grid, pos: next_pos, next_pos: nil)
-        throw({:found, state})
+        state = state(state, grid: grid, pos: next_pos, next_pos: nil, oxygen_pos: next_pos)
+        # print_state(state)
+        state
     end
 
     IntCPU.run(cpu, io: io)
   catch
-    {:found, state} -> count_backtrack(state)
+    {:explored, state} -> {:ok, state}
   end
 
   defp count_backtrack(state) do
-    state(pos: pos, grid: grid) = state
+    state(oxygen_pos: pos, grid: grid) = state
     count_backtrack(grid, pos, 0)
   end
 
@@ -111,24 +115,105 @@ defmodule AdventOfCode.Solutions.Y19.Day15 do
   end
 
   def print_state(state) do
-    IO.puts(IO.ANSI.clear())
-    IO.puts(IO.ANSI.cursor(0, 0))
+    state(grid: grid, pos: pos, oxygen_pos: oxy) = state
 
-    state(grid: grid, pos: pos) = state
+    grid = Map.put(grid, pos, :robot)
 
-    Grid.print(Map.put(grid, pos, :robot), fn
-      :robot -> "Ö"
-      nil -> " "
-      {:wall, _} -> "#"
-      {:free, _} -> "."
-    end)
+    grid =
+      case oxy do
+        nil -> grid
+        oxy_pos -> Map.put(grid, oxy_pos, {:tank, :ignored})
+      end
 
-    Process.sleep(10)
+    print_grid(grid)
 
     state
   end
 
-  # def part_two(cpu) do
-  #   cpu
-  # end
+  def print_grid(grid) do
+    IO.puts(IO.ANSI.clear())
+    IO.puts(IO.ANSI.cursor(0, 0))
+
+    Grid.print(grid, fn
+      :robot -> "Ö/"
+      nil -> "  "
+      {:wall, _} -> [IO.ANSI.inverse(), "  ", IO.ANSI.inverse_off()]
+      {:free, _} -> ".."
+      {:tank, _} -> [IO.ANSI.red_background(), "[]", IO.ANSI.default_background()]
+    end)
+
+    Process.sleep(10)
+    grid
+  end
+
+  def print_grid_flood(grid) do
+    IO.puts(IO.ANSI.clear())
+    IO.puts(IO.ANSI.cursor(0, 0))
+
+    Grid.print(grid, fn
+      :robot -> "Ö/"
+      nil -> "  "
+      {:wall, _} -> [IO.ANSI.inverse(), "  ", IO.ANSI.inverse_off()]
+      {:free, true} -> [IO.ANSI.blue_background(), "~~", IO.ANSI.default_background()]
+      {:free, false} -> ".."
+      {:tank, true} -> [IO.ANSI.blue_background(), "[]", IO.ANSI.default_background()]
+    end)
+
+    Process.sleep(10)
+    grid
+  end
+
+  def part_two(cpu) do
+    {:ok, state(grid: grid, oxygen_pos: oxy_pos)} = explore_all_map(cpu)
+
+    # The "fringe" is the list of new coordinates where oxygen just flooded
+    fringe = [oxy_pos]
+
+    # We will remove the parent positions from the grid, and replace with a
+    # flooded? boolean.
+    #
+    # We keep the walls just for the print in the terminal :)
+    grid =
+      grid
+      |> Map.new(fn
+        {xy, {:wall, _}} ->
+          {xy, {:wall, false}}
+
+        {xy, {:free, _}} ->
+          {xy, {:free, false}}
+      end)
+      # The tank starts flooded.
+      |> Map.put(oxy_pos, {:tank, true})
+
+    # print_grid_flood(grid)
+
+    loop_flood(fringe, grid, 0)
+  end
+
+  defp loop_flood(fringe, grid, minutes) do
+    Enum.flat_map(fringe, fn xy ->
+      xy
+      |> Grid.cardinal4()
+      |> Enum.flat_map(fn neigh_xy ->
+        case Map.get(grid, neigh_xy) do
+          {:free, false} -> [neigh_xy]
+          _ -> []
+        end
+      end)
+    end)
+    |> case do
+      [] ->
+        minutes
+
+      new_fringe ->
+        grid =
+          Enum.reduce(new_fringe, grid, fn xy, grid ->
+            Map.put(grid, xy, {:free, true})
+          end)
+
+        # print_grid_flood(grid)
+
+        loop_flood(new_fringe, grid, minutes + 1)
+    end
+  end
 end
