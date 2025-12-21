@@ -10,7 +10,7 @@ defmodule AdventOfCode.Solutions.Y19.Day09 do
     IntCPU.run(cpu, io: IOBuf.new([1])) |> IntCPU.outputs() |> hd()
   end
 
-  # def part_two(cpu) do
-  #   cpu
-  # end
+  def part_two(cpu) do
+    IntCPU.run(cpu, io: IOBuf.new([2])) |> IntCPU.outputs() |> hd()
+  end
 end

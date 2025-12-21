@@ -37,21 +37,9 @@ defmodule AdventOfCode.Solutions.Y19.Day09Test do
     assert {:ok, @part_one_solution} == AoC.run(2019, 9, :part_one)
   end
 
-  # test "part two example" do
-  #   input = ~S"""
-  #   This is an
-  #   example input.
-  #   replace with
-  #   an example from
-  #   the AoC website.
-  #   """
-  #
-  #   assert CHANGE_ME == solve(input, :part_two)
-  # end
+  @part_two_solution 86025
 
-  # @part_two_solution CHANGE_ME
-  #
-  # test "part two solution" do
-  #   assert {:ok, @part_two_solution} == AoC.run(2019, 9, :part_two)
-  # end
+  test "part two solution" do
+    assert {:ok, @part_two_solution} == AoC.run(2019, 9, :part_two)
+  end
 end
