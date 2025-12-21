@@ -6,6 +6,15 @@ defmodule AdventOfCode.IntCPU.IOBuf do
   end
 
   def read(%{input: [h | t]} = buf), do: {h, %{buf | input: t}}
-  # TODO optimize writing output, not append to end of list
-  def write(%{output: t} = buf, v), do: %{buf | output: t ++ [v]}
+
+  # Output is reversed
+  def write(%{output: t} = buf, v), do: %{buf | output: [v | t]}
+
+  def as_fun(buf) do
+    fn
+      :init -> buf
+      {:input, buf} -> read(buf)
+      {:output, value, buf} -> write(buf, value)
+    end
+  end
 end
