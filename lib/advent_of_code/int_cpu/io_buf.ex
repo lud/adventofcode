@@ -6,7 +6,7 @@ defmodule AdventOfCode.IntCPU.IOBuf do
   end
 
   def read(%{input: [h | t]} = buf), do: {h, %{buf | input: t}}
-  def read(%{input: []} = buf), do: raise("empty IOBuf input")
+  def read(%{input: []}), do: raise("empty IOBuf input")
 
   # Output is reversed
   def write(%{output: t} = buf, v), do: %{buf | output: [v | t]}

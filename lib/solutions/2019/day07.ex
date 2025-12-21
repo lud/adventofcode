@@ -1,7 +1,7 @@
 defmodule AdventOfCode.Solutions.Y19.Day07 do
-  alias AdventOfCode.Permutations
-  alias AdventOfCode.IntCPU.IOBuf
   alias AdventOfCode.IntCPU
+  alias AdventOfCode.IntCPU.IOBuf
+  alias AdventOfCode.Permutations
 
   def parse(input, _part) do
     IntCPU.from_input(input)
@@ -32,15 +32,33 @@ defmodule AdventOfCode.Solutions.Y19.Day07 do
   end
 
   defp to_thrusters_feedback(cpu, params) do
-    cpus = Enum.map(params, &provide_param(cpu, &1)) |> dbg()
-
-    # {_, buf} = IntCPU.run(cpu, io: IOBuf.new([h, prev_output])).io
-    # [out] = buf.output
-    # to_thrusters_feedback(cpu, t, out)
+    cpus = Enum.map(params, &provide_param(cpu, &1))
+    loop(cpus, [], 0)
   end
 
   defp provide_param(cpu, param) do
     {:suspended, :ioread, cpu, cont} = IntCPU.run(cpu)
-    cont.(cpu, param) |> dbg()
+    cpu = cont.(cpu, param)
+    IntCPU.resume(cpu)
+  end
+
+  defp loop([h | t], suspendeds, prev_output) do
+    {:suspended, :ioread, cpu, cont} = h
+    cpu = cont.(cpu, prev_output)
+    {:suspended, {:iowrite, val}, cpu, cont} = IntCPU.resume(cpu)
+    cpu = cont.(cpu)
+
+    case IntCPU.resume(cpu) do
+      {:suspended, :ioread, _, _} = sus -> loop(t, [sus | suspendeds], val)
+      %{halted: true} = _cpu -> loop(t, suspendeds, val)
+    end
+  end
+
+  defp loop([], [_ | _] = suspendeds, prev_output) do
+    loop(:lists.reverse(suspendeds), [], prev_output)
+  end
+
+  defp loop([], [], final_output) do
+    final_output
   end
 end

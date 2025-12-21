@@ -220,7 +220,6 @@ defmodule AdventOfCode.IntCPU do
 
   defp exec({:iowrite, addr}, cpu) do
     val = read_value(cpu, addr)
-
     suspend({:iowrite, val}, cpu, fn cpu -> move_ahead(cpu, 2) end)
   end
 
@@ -400,11 +399,9 @@ defmodule AdventOfCode.IntCPU do
   end
 
   defimpl Inspect do
-    alias AdventOfCode.IntCPU
-
     def inspect(cpu, _) do
       # IntCPU.dump_to_iolist(cpu)
-      "#CPU<>"
+      "#CPU<halted?=#{cpu.halted}>"
       #   %{memory: memory, ip: ip} = cpu
       #   all_intrs = instruction_chunks(cpu)
       #   keys = Map.keys(memory)

@@ -1,6 +1,6 @@
 defmodule AdventOfCode.Solutions.Y19.Day07Test do
-  alias AoC.Input, warn: false
   alias AdventOfCode.Solutions.Y19.Day07, as: Solution, warn: false
+  alias AoC.Input, warn: false
   use ExUnit.Case, async: true
 
   defp solve(input, part) do
@@ -35,9 +35,9 @@ defmodule AdventOfCode.Solutions.Y19.Day07Test do
     assert 139_629_729 == solve(input, :part_two)
   end
 
-  # @part_two_solution CHANGE_ME
-  #
-  # test "part two solution" do
-  #   assert {:ok, @part_two_solution} == AoC.run(2019, 7, :part_two)
-  # end
+  @part_two_solution 4_215_746
+
+  test "part two solution" do
+    assert {:ok, @part_two_solution} == AoC.run(2019, 7, :part_two)
+  end
 end
