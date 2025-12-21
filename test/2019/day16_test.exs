@@ -91,24 +91,21 @@ defmodule AdventOfCode.Solutions.Y19.Day16Test do
     assert 01_029_498 = solve("12345678", :part_one, 4)
   end
 
-  @tag :skip
   test "part one example" do
     assert 24_176_176 == solve("80871224585914546619083218645595", :part_one)
     assert 73_745_418 == solve("19617804207202209144916044189917", :part_one)
     assert 52_432_133 == solve("69317163492948606335995924319873", :part_one)
-
-    flunk("ok so far")
   end
 
   # test "does it repeat?" do
   #   assert 24_176_176 == solve("80871224585914546619083218645595", :part_one)
   # end
 
-  # @part_one_solution CHANGE_ME
-  #
-  # test "part one solution" do
-  #   assert {:ok, @part_one_solution} == AoC.run(2019, 16, :part_one)
-  # end
+  @part_one_solution 68_764_632
+
+  test "part one solution" do
+    assert {:ok, @part_one_solution} == AoC.run(2019, 16, :part_one)
+  end
 
   # test "part two example" do
   #   input = ~S"""

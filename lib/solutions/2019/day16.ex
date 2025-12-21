@@ -105,18 +105,18 @@ defmodule AdventOfCode.Solutions.Y19.Day16 do
     Stream.concat(t, Stream.cycle(full_pattern))
   end
 
-  def part_two(digits) do
-    size = length(digits)
-    digits = Enum.flat_map(1..10000, fn _ -> digits end)
-    size = size * 10000
-    true = size == length(digits)
+  # def part_two(digits) do
+  #   size = length(digits)
+  #   digits = Enum.flat_map(1..10000, fn _ -> digits end)
+  #   size = size * 10000
+  #   true = size == length(digits)
 
-    1..100
-    |> Enum.reduce(digits, fn i, digits ->
-      IO.puts("phase: #{i}")
-      apply_fft(digits, size)
-    end)
-    |> Enum.take(8)
-    |> Integer.undigits()
-  end
+  #   1..100
+  #   |> Enum.reduce(digits, fn i, digits ->
+  #     IO.puts("phase: #{i}")
+  #     apply_fft(digits, size)
+  #   end)
+  #   |> Enum.take(8)
+  #   |> Integer.undigits()
+  # end
 end
