@@ -11,10 +11,31 @@ defmodule AdventOfCode.Solutions.Y19.Day11 do
   @white 1
 
   def part_one(cpu) do
-    cpu
+    map_size(run_robot(cpu, @black))
+  end
 
-    grid = %{}
+  def part_two(cpu) do
+    grid = run_robot(cpu, @white)
+
+    grid
+    |> Grid.format(fn
+      :n -> ?^
+      :w -> ?<
+      :s -> ?v
+      :e -> ?>
+      1 -> ?#
+      0 -> ?\s
+      nil -> ?\s
+    end)
+    |> IO.iodata_to_binary()
+    |> String.split("\n")
+    |> Enum.map_join("\n", &String.trim_trailing/1)
+    |> tap(&IO.puts/1)
+  end
+
+  defp run_robot(cpu, init_color) do
     pos = {0, 0}
+    grid = %{}
     dir = :n
     state = :painter
 
@@ -23,24 +44,17 @@ defmodule AdventOfCode.Solutions.Y19.Day11 do
         {grid, pos, dir, state}
 
       {:input, {grid, pos, dir, state}} ->
-        color = Map.get(grid, pos, @black)
+        default =
+          case pos do
+            {0, 0} -> init_color
+            _ -> @black
+          end
+
+        color = Map.get(grid, pos, default)
         {color, {grid, pos, dir, state}}
 
       {:output, color, {grid, pos, dir, :painter}} ->
         grid = Map.put(grid, pos, color)
-
-        # IO.puts("---------------")
-
-        # Grid.print(Map.put(grid, pos, dir), fn
-        #   :n -> ?^
-        #   :w -> ?<
-        #   :s -> ?v
-        #   :e -> ?>
-        #   1 -> ?#
-        #   0 -> ?\s
-        #   nil -> ?\s
-        # end)
-
         {grid, pos, dir, :turner}
 
       {:output, rotation, {grid, pos, dir, :turner}} ->
@@ -54,11 +68,6 @@ defmodule AdventOfCode.Solutions.Y19.Day11 do
         {grid, pos, dir, :painter}
     end
 
-    grid = IntCPU.run(cpu, io: io).io |> elem(1) |> elem(0)
-    map_size(grid)
+    _grid = IntCPU.run(cpu, io: io).io |> elem(1) |> elem(0)
   end
-
-  # def part_two(cpu) do
-  #   cpu
-  # end
 end
