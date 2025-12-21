@@ -11,7 +11,10 @@ defmodule AdventOfCode.IntCPU do
     :halted,
 
     # function and buffer/state of IO handler
-    :io
+    :io,
+
+    # addr offset for read with mode 2
+    :relative_base
   ]
   defstruct @enforce_keys
 
@@ -30,7 +33,7 @@ defmodule AdventOfCode.IntCPU do
 
   def new(ints) do
     memory = Map.new(Enum.with_index(ints), fn {v, addr} -> {addr, v} end)
-    %__MODULE__{memory: memory, ip: 0, halted: false, io: :external_io}
+    %__MODULE__{memory: memory, ip: 0, halted: false, io: :external_io, relative_base: 0}
   end
 
   def run(cpu, opts \\ []) do
@@ -45,6 +48,7 @@ defmodule AdventOfCode.IntCPU do
           %{cpu | io: {fun, fun.(:init)}}
       end)
 
+    cpu |> IO.inspect(limit: :infinity, label: "cpu")
     loop(cpu)
   end
 
@@ -90,6 +94,13 @@ defmodule AdventOfCode.IntCPU do
     end
   end
 
+  def outputs(cpu) do
+    case cpu do
+      %{io: {_, %IOBuf{output: out}}} -> :lists.reverse(out)
+      other -> raise "CPU does not hold an IOBuf IO state"
+    end
+  end
+
   @op_add 1
   @op_mul 2
   @op_ioread 3
@@ -98,18 +109,19 @@ defmodule AdventOfCode.IntCPU do
   @op_jumpf 6
   @op_lt 7
   @op_eq 8
+  @op_offset 9
   @op_halt 99
 
   # Parameter modes
   #
   # The rules use bad names on purpose to make everything unclear
   # "position" is "by ref", take the value at given address
-  #
+  # "relative" is "by ref" + offset
   # "immediate" is "by value", just use the value as-is
 
   @mode_position 0
   @mode_immediate 1
-  # @mode_relative 2
+  @mode_relative 2
 
   defp read_instr(cpu) do
     full_op = deref(cpu)
@@ -124,6 +136,7 @@ defmodule AdventOfCode.IntCPU do
       @op_jumpf -> {:jumpf, with_modes(read_ahead(cpu, 2), modes)}
       @op_eq -> {:eq, with_modes(read_ahead(cpu, 3), modes)}
       @op_lt -> {:lt, with_modes(read_ahead(cpu, 3), modes)}
+      @op_offset -> {:offset, with_modes(read_ahead(cpu), modes)}
       @op_halt -> :halt
       _ -> raise "unknown operation #{inspect(op)}"
     end
@@ -153,17 +166,21 @@ defmodule AdventOfCode.IntCPU do
     deref(cpu, cpu.ip)
   end
 
-  def deref(cpu, addr) when is_integer(addr) do
+  def deref(cpu, addr) when is_integer(addr) and addr >= 0 do
     %{memory: memory} = cpu
-    Map.fetch!(memory, addr)
+    Map.get(memory, addr, 0)
   end
 
-  defp read_value(cpu, {value, @mode_position}) do
-    deref(cpu, value)
+  defp read_value(cpu, {addr, @mode_position}) do
+    deref(cpu, addr)
   end
 
   defp read_value(_cpu, {value, @mode_immediate}) do
     value
+  end
+
+  defp read_value(cpu, {offset, @mode_relative}) do
+    deref(cpu, cpu.relative_base + offset)
   end
 
   # reads 1 value _after_ the current pointer
@@ -275,6 +292,14 @@ defmodule AdventOfCode.IntCPU do
     move_ahead(cpu, 4)
   end
 
+  defp exec({:offset, modifier}, cpu) do
+    modifier = read_value(cpu, modifier)
+
+    cpu
+    |> Map.update!(:relative_base, &(&1 + modifier))
+    |> move_ahead(2)
+  end
+
   defp exec(:halt, cpu) do
     {:halted, %{cpu | halted: true}}
   end
@@ -346,6 +371,10 @@ defmodule AdventOfCode.IntCPU do
             chunk = "#{dump_op(op_val, "EQ?")} #{dump_param(a)} #{dump_param(b)} #{dump_param(c)}"
             {chunk, move_ahead(cpu, 4)}
 
+          {:offset, n} ->
+            chunk = "#{dump_op(op_val, "OFFSET")} #{dump_param(n)}"
+            {chunk, move_ahead(cpu, 2)}
+
           {:data, n} when is_integer(n) ->
             chunk = "#{dump_op(n, "DATA")} #{dump_param(n)}"
             {chunk, move_ahead(cpu, 1)}
@@ -381,15 +410,24 @@ defmodule AdventOfCode.IntCPU do
     |> String.pad_leading(9)
   end
 
-  defp dump_param({addr_or_val, mode}) do
+  defp dump_param({val, mode}) do
     mode_str =
       case mode do
-        @mode_position -> "*"
-        @mode_immediate -> "="
-        other -> "?(#{other})"
+        @mode_position ->
+          "*"
+
+        @mode_immediate ->
+          "="
+
+        @mode_relative ->
+          if val > 0 do
+            "+"
+          else
+            ""
+          end
       end
 
-    str = mode_str <> Integer.to_string(addr_or_val)
+    str = mode_str <> Integer.to_string(val)
     String.pad_leading(str, 9)
   end
 
@@ -400,8 +438,8 @@ defmodule AdventOfCode.IntCPU do
 
   defimpl Inspect do
     def inspect(cpu, _) do
-      # IntCPU.dump_to_iolist(cpu)
-      "#CPU<halted?=#{cpu.halted}>"
+      AdventOfCode.IntCPU.dump_to_iolist(cpu)
+      # "#CPU<halted?=#{cpu.halted}>"
       #   %{memory: memory, ip: ip} = cpu
       #   all_intrs = instruction_chunks(cpu)
       #   keys = Map.keys(memory)
