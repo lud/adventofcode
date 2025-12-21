@@ -48,8 +48,8 @@ defmodule AdventOfCode.IntCPU do
     loop(cpu)
   end
 
-  defp suspend(tag, cpu, accept_value_cpu) do
-    {:suspended, tag, cpu, accept_value_cpu}
+  defp suspend(tag, cpu, cont) do
+    {:suspended, tag, cpu, cont}
   end
 
   def resume(cpu) do
@@ -73,7 +73,7 @@ defmodule AdventOfCode.IntCPU do
 
       {_, _} ->
         {val, cpu} = ioread(cpu)
-        cpu = cont.(val, cpu)
+        cpu = cont.(cpu, val)
         resume(cpu)
     end
   end
@@ -212,7 +212,7 @@ defmodule AdventOfCode.IntCPU do
   end
 
   defp exec({:ioread, addr}, cpu) do
-    suspend(:ioread, cpu, fn val, cpu ->
+    suspend(:ioread, cpu, fn cpu, val ->
       cpu = write(cpu, addr, val)
       move_ahead(cpu, 2)
     end)
@@ -403,7 +403,8 @@ defmodule AdventOfCode.IntCPU do
     alias AdventOfCode.IntCPU
 
     def inspect(cpu, _) do
-      IntCPU.dump_to_iolist(cpu)
+      # IntCPU.dump_to_iolist(cpu)
+      "#CPU<>"
       #   %{memory: memory, ip: ip} = cpu
       #   all_intrs = instruction_chunks(cpu)
       #   keys = Map.keys(memory)

@@ -40,7 +40,7 @@ defmodule AdventOfCode.Solutions.Y19.Day07 do
   end
 
   defp provide_param(cpu, param) do
-    {:ioread, cpu} = IntCPU.run(cpu)
-    IntCPU.resume_read(cpu, param)
+    {:suspended, :ioread, cpu, cont} = IntCPU.run(cpu)
+    cont.(cpu, param) |> dbg()
   end
 end
