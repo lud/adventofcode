@@ -20,16 +20,18 @@ defmodule AdventOfCode.Solutions.Y19.Day16 do
   end
 
   defp apply_fft(digits, size) do
-    digits
-    |> Enum.with_index(1)
-    |> Enum.map(fn {_, pattern_repeats} ->
-      if rem(pattern_repeats, 100) == 0 do
-        pattern_repeats |> IO.inspect(limit: :infinity, label: "pattern_repeats")
-      end
+    # on each digit index, the first nth-1 digits are multiplied by zero, so for
+    # each digit we will only consider the remaining ones
 
-      value_of(digits, 1, pattern_repeats, 0)
-      # |> IO.inspect(limit: :infinity, label: "digit #{pattern_repeats}")
-    end)
+    {[], new_digits} =
+      Enum.reduce(1..size, {digits, _new_digits = []}, fn
+        offset, {[h | t] = digits, new_digits} ->
+          val = value_of(digits, offset, _pattern_repeats = offset, 0)
+          new_digits = [val | new_digits]
+          {t, new_digits}
+      end)
+
+    :lists.reverse(new_digits)
   end
 
   # pattern_repeats the the digit we are trying to compute, which determines the
@@ -91,32 +93,64 @@ defmodule AdventOfCode.Solutions.Y19.Day16 do
     end
   end
 
-  # |> tap(
-  #   &(&1
-  #     |> Integer.undigits()
-  #     |> Integer.to_string()
-  #     |> String.pad_leading(32, "0")
-  #     |> IO.puts())
-  # )
+  def part_two(digits, _ \\ nil) do
+    # Part two has a simplification
+    #
+    # We assume that the signal offset will ask us to find a singal position in
+    # the second half of the final signal.
+    #
+    # So we can discard the first half of the giant inputs at each step,
+    # because:
+    # * each digit index is only dependent on the greater digit indexes, as each
+    #   beginning is multiplied by zero (this is in part 1)
+    # * in part 2 we will only look for numbers in the second half
+    #
+    #
+    # Another observation (I was helped to figure it out) is that the nth digit
+    # of the new iteration is equal to the nth 0..n digits of the previous
+    # iteration.
+    #
+    #
+    # Example from the input
+    #
+    #    Input signal: 12345678
+    #
+    #    1*1  + 2*0  + 3*-1 + 4*0  + 5*1  + 6*0  + 7*-1 + 8*0  = 4 1*0  + 2*1  +
+    #    3*1  + 4*0  + 5*0  + 6*-1 + 7*-1 + 8*0  = 8 1*0  + 2*0  + 3*1  + 4*1  +
+    #    5*1  + 6*0  + 7*0  + 8*0  = 2 1*0  + 2*0  + 3*0  + 4*1  + 5*1  + 6*1  +
+    #    7*1  + 8*0  = 2 1*0  + 2*0  + 3*0  + 4*0  + 5*1  + 6*1  + 7*1  + 8*1  =
+    #    6 1*0  + 2*0  + 3*0  + 4*0  + 5*0  + 6*1  + 7*1  + 8*1  = 1 1*0  + 2*0
+    #    + 3*0  + 4*0  + 5*0  + 6*0  + 7*1  + 8*1  = 5 1*0  + 2*0  + 3*0  + 4*0
+    #    + 5*0  + 6*0  + 7*0  + 8*1  = 8
+    #
+    # The last digit (bottom line) is 8.
+    #
+    # 2nd last digit was 7, we add 8 => 15 => mod(10) => 5, the new digit is 5
 
-  defp make_pattern(size, nth_digit) do
-    [h | t] = full_pattern = Enum.flat_map(@base_pattern, fn d -> List.duplicate(d, nth_digit) end)
-    # The first repetition must ignore the first number
-    Stream.concat(t, Stream.cycle(full_pattern))
+    # 3rd last digit was 6, we add 8 + 7 => 15 + 6 => 21 => mod(10) => 1
+    #
+    # After phase 1: 48226158 (from the rules)
+    #
+    # it ends by 158
+    #
+    # This is another reason why we do not need to compute numbers before the
+    # offset
+
+    size = length(digits)
+    digits = Enum.flat_map(1..10000, fn _ -> digits end)
+    size = size * 10000
+
+    IO.warn("remove that expensive check", [])
+    true = size == length(digits)
+
+    1..100
+    |> Enum.reduce(digits, fn i, digits ->
+      IO.puts("phase: #{i}")
+      apply_fft(digits, size)
+    end)
+    |> Enum.take(8)
+    |> Integer.undigits()
+
+    raise "todo remember to take the signal at offset"
   end
-
-  # def part_two(digits) do
-  #   size = length(digits)
-  #   digits = Enum.flat_map(1..10000, fn _ -> digits end)
-  #   size = size * 10000
-  #   true = size == length(digits)
-
-  #   1..100
-  #   |> Enum.reduce(digits, fn i, digits ->
-  #     IO.puts("phase: #{i}")
-  #     apply_fft(digits, size)
-  #   end)
-  #   |> Enum.take(8)
-  #   |> Integer.undigits()
-  # end
 end
