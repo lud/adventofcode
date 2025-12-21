@@ -201,6 +201,11 @@ defmodule AdventOfCode.IntCPU do
     %{cpu | memory: Map.put(memory, addr, value)}
   end
 
+  def write(cpu, {offset, @mode_relative}, value) when is_integer(value) do
+    %{memory: memory, relative_base: base} = cpu
+    %{cpu | memory: Map.put(memory, base + offset, value)}
+  end
+
   def write(cpu, addr, value) when is_integer(value) and is_integer(addr) do
     write(cpu, {addr, @mode_position}, value)
   end

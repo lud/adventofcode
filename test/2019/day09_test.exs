@@ -40,23 +40,11 @@ defmodule AdventOfCode.Solutions.Y19.Day09Test do
     end
   end
 
-  # test "part one example" do
-  #   input = ~S"""
-  #   This is an
-  #   example input.
-  #   replace with
-  #   an example from
-  #   the AoC website.
-  #   """
+  @part_one_solution 3_638_931_938
 
-  #   assert CHANGE_ME == solve(input, :part_one)
-  # end
-
-  # @part_one_solution CHANGE_ME
-  #
-  # test "part one solution" do
-  #   assert {:ok, @part_one_solution} == AoC.run(2019, 9, :part_one)
-  # end
+  test "part one solution" do
+    assert {:ok, @part_one_solution} == AoC.run(2019, 9, :part_one)
+  end
 
   # test "part two example" do
   #   input = ~S"""

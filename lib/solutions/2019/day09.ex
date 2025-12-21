@@ -1,15 +1,16 @@
 defmodule AdventOfCode.Solutions.Y19.Day09 do
-  alias AoC.Input
+  alias AdventOfCode.IntCPU
+  alias AdventOfCode.IntCPU.IOBuf
 
   def parse(input, _part) do
-    Input.read!(input)
+    IntCPU.from_input(input)
   end
 
-  def part_one(problem) do
-    problem
+  def part_one(cpu) do
+    IntCPU.run(cpu, io: IOBuf.new([1])) |> IntCPU.outputs() |> hd()
   end
 
-  # def part_two(problem) do
-  #   problem
+  # def part_two(cpu) do
+  #   cpu
   # end
 end
