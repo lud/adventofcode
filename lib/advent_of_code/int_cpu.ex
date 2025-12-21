@@ -429,6 +429,9 @@ defmodule AdventOfCode.IntCPU do
           else
             ""
           end
+
+        other ->
+          "?(#{other})"
       end
 
     str = mode_str <> Integer.to_string(val)
