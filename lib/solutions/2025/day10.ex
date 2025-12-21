@@ -72,10 +72,6 @@ defmodule AdventOfCode.Solutions.Y25.Day10 do
     end)
   end
 
-  # TODO we are repeating: [0, 1] and [1, 0] should be the same XOR result, we
-  # should just iterate on digits, right ? But we still need to return [0, 0]
-  # somehow
-
   defp stream_buttons(1, buttons) do
     Enum.map(buttons, &[&1])
   end

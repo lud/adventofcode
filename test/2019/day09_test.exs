@@ -1,8 +1,8 @@
 defmodule AdventOfCode.Solutions.Y19.Day09Test do
-  alias AdventOfCode.IntCPU.IOBuf
   alias AdventOfCode.IntCPU
-  alias AoC.Input, warn: false
+  alias AdventOfCode.IntCPU.IOBuf
   alias AdventOfCode.Solutions.Y19.Day09, as: Solution, warn: false
+  alias AoC.Input, warn: false
   use ExUnit.Case, async: true
 
   describe "support for new operators and modes" do

@@ -1,6 +1,6 @@
 defmodule AdventOfCode.Solutions.Y19.Day16Test do
-  alias AoC.Input, warn: false
   alias AdventOfCode.Solutions.Y19.Day16, as: Solution, warn: false
+  alias AoC.Input, warn: false
   use ExUnit.Case, async: true
 
   defp solve(input, part, n_phases \\ 100) do
@@ -107,7 +107,6 @@ defmodule AdventOfCode.Solutions.Y19.Day16Test do
     assert {:ok, @part_one_solution} == AoC.run(2019, 16, :part_one)
   end
 
-  @tag :skip
   test "part two example" do
     input = ~S"""
     03036732577212944063491565474664
@@ -116,9 +115,9 @@ defmodule AdventOfCode.Solutions.Y19.Day16Test do
     assert 84_462_026 == solve(input, :part_two)
   end
 
-  # @part_two_solution CHANGE_ME
-  #
-  # test "part two solution" do
-  #   assert {:ok, @part_two_solution} == AoC.run(2019, 16, :part_two)
-  # end
+  @part_two_solution 52_825_021
+
+  test "part two solution" do
+    assert {:ok, @part_two_solution} == AoC.run(2019, 16, :part_two)
+  end
 end

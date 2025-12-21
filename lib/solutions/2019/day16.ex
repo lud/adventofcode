@@ -2,19 +2,14 @@ defmodule AdventOfCode.Solutions.Y19.Day16 do
   alias AoC.Input
 
   def parse(input, _part) do
-    input |> Input.read!() |> String.trim() |> String.to_integer() |> Integer.digits()
+    input |> Input.read!() |> String.trim() |> String.graphemes() |> Enum.map(&String.to_integer/1)
   end
-
-  @base_pattern [0, 1, 0, -1]
 
   def part_one(digits, n_phases \\ 100) do
     size = length(digits)
 
     1..n_phases
-    |> Enum.reduce(digits, fn i, digits ->
-      IO.puts("phase: #{i}")
-      _digits = apply_fft(digits, size)
-    end)
+    |> Enum.reduce(digits, fn _, digits -> apply_fft(digits, size) end)
     |> Enum.take(8)
     |> Integer.undigits()
   end
@@ -25,7 +20,7 @@ defmodule AdventOfCode.Solutions.Y19.Day16 do
 
     {[], new_digits} =
       Enum.reduce(1..size, {digits, _new_digits = []}, fn
-        offset, {[h | t] = digits, new_digits} ->
+        offset, {[_ | t] = digits, new_digits} ->
           val = value_of(digits, offset, _pattern_repeats = offset, 0)
           new_digits = [val | new_digits]
           {t, new_digits}
@@ -110,6 +105,7 @@ defmodule AdventOfCode.Solutions.Y19.Day16 do
     # of the new iteration is equal to the nth 0..n digits of the previous
     # iteration.
     #
+    # IT DOES ONLY WORK FOR THE 2ND HALF OF THE SIGNAL
     #
     # Example from the input
     #
@@ -131,26 +127,32 @@ defmodule AdventOfCode.Solutions.Y19.Day16 do
     #
     # After phase 1: 48226158 (from the rules)
     #
-    # it ends by 158
+    # it ends by 158.
+    #
+    # This will not work for the first half of the input because the beginning
+    # of the pattern does not allow that. After the half, the pattern is only 1
+    # for the digits we want.
     #
     # This is another reason why we do not need to compute numbers before the
     # offset
 
-    size = length(digits)
-    digits = Enum.flat_map(1..10000, fn _ -> digits end)
-    size = size * 10000
-
-    IO.warn("remove that expensive check", [])
-    true = size == length(digits)
+    offset = digits |> Enum.take(7) |> Integer.undigits()
+    digits = Enum.flat_map(1..10000, fn _ -> digits end) |> Enum.drop(offset)
 
     1..100
-    |> Enum.reduce(digits, fn i, digits ->
-      IO.puts("phase: #{i}")
-      apply_fft(digits, size)
-    end)
+    |> Enum.reduce(digits, fn _, digits -> apply_fft_p2(digits) end)
     |> Enum.take(8)
     |> Integer.undigits()
+  end
 
-    raise "todo remember to take the signal at offset"
+  defp apply_fft_p2(digits) do
+    # `prev` is the previous sum without applying modulo
+    {_, new_digits} =
+      List.foldr(digits, {0, []}, fn digit, {prev, new_digits} ->
+        next = rem(prev + digit, 10)
+        {next, [next | new_digits]}
+      end)
+
+    new_digits
   end
 end
