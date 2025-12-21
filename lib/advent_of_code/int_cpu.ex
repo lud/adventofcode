@@ -162,9 +162,7 @@ defmodule AdventOfCode.IntCPU do
     %{cpu | ip: ip + amount}
   end
 
-  # move addresses are given in immediate mode, as the value is the address
-  # itself, we do not derefence an address to get another address
-  defp move_to(cpu, {addr, @mode_immediate}) do
+  defp move_to(cpu, addr) when is_integer(addr) do
     %{cpu | ip: addr}
   end
 
@@ -196,6 +194,7 @@ defmodule AdventOfCode.IntCPU do
 
   defp exec({:jumpt, [a, b]}, cpu) do
     a = read_value(cpu, a)
+    b = read_value(cpu, b)
 
     if a != 0 do
       move_to(cpu, b)
@@ -206,6 +205,7 @@ defmodule AdventOfCode.IntCPU do
 
   defp exec({:jumpf, [a, b]}, cpu) do
     a = read_value(cpu, a)
+    b = read_value(cpu, b)
 
     if a == 0 do
       move_to(cpu, b)
@@ -278,7 +278,7 @@ defmodule AdventOfCode.IntCPU do
       op_val = deref(cpu)
 
       {chunk, cpu} =
-        case read_instr_safe(cpu) |> dbg() do
+        case read_instr_safe(cpu) do
           {:add, [a, b, c]} ->
             chunk = "#{dump_op(op_val, "ADD")} #{dump_param(a)} #{dump_param(b)} #{dump_param(c)}"
             {chunk, move_ahead(cpu, 4)}

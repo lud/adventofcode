@@ -56,9 +56,9 @@ defmodule AdventOfCode.Solutions.Y19.Day05Test do
     assert 1001 = test_num.(1_000_000)
   end
 
-  # @part_two_solution 4_283_952
+  @part_two_solution 4_283_952
 
-  # test "part two solution" do
-  #   assert {:ok, @part_two_solution} == AoC.run(2019, 5, :part_two)
-  # end
+  test "part two solution" do
+    assert {:ok, @part_two_solution} == AoC.run(2019, 5, :part_two)
+  end
 end

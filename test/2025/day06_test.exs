@@ -1,6 +1,6 @@
 defmodule AdventOfCode.Solutions.Y25.Day06Test do
-  alias AoC.Input, warn: false
   alias AdventOfCode.Solutions.Y25.Day06, as: Solution, warn: false
+  alias AoC.Input, warn: false
   use ExUnit.Case, async: true
 
   defp solve(input, part) do
