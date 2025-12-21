@@ -5,15 +5,6 @@ defmodule AdventOfCode.Solutions.Y19.Day09Test do
   alias AdventOfCode.Solutions.Y19.Day09, as: Solution, warn: false
   use ExUnit.Case, async: true
 
-  defp solve(input, part) do
-    problem =
-      input
-      |> Input.as_file()
-      |> Solution.parse(part)
-
-    apply(Solution, part, [problem])
-  end
-
   describe "support for new operators and modes" do
     test "quine" do
       # this program should output itself

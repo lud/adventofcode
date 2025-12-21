@@ -48,7 +48,6 @@ defmodule AdventOfCode.IntCPU do
           %{cpu | io: {fun, fun.(:init)}}
       end)
 
-    cpu |> IO.inspect(limit: :infinity, label: "cpu")
     loop(cpu)
   end
 
@@ -97,7 +96,7 @@ defmodule AdventOfCode.IntCPU do
   def outputs(cpu) do
     case cpu do
       %{io: {_, %IOBuf{output: out}}} -> :lists.reverse(out)
-      other -> raise "CPU does not hold an IOBuf IO state"
+      _other -> raise "CPU does not hold an IOBuf IO state"
     end
   end
 
