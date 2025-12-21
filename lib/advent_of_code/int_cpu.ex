@@ -445,8 +445,8 @@ defmodule AdventOfCode.IntCPU do
 
   defimpl Inspect do
     def inspect(cpu, _) do
-      AdventOfCode.IntCPU.dump_to_iolist(cpu)
-      # "#CPU<halted?=#{cpu.halted}>"
+      # AdventOfCode.IntCPU.dump_to_iolist(cpu)
+      "#CPU<halted?=#{cpu.halted}>"
       #   %{memory: memory, ip: ip} = cpu
       #   all_intrs = instruction_chunks(cpu)
       #   keys = Map.keys(memory)
