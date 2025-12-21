@@ -1,7 +1,6 @@
 defmodule AdventOfCode.Solutions.Y19.Day11 do
   alias AdventOfCode.Grid
   alias AdventOfCode.IntCPU
-  alias AdventOfCode.IntCPU.IOBuf
 
   def parse(input, _part) do
     IntCPU.from_input(input)
