@@ -30,7 +30,7 @@ defmodule AdventOfCode.IntCPU do
 
   def new(ints) do
     memory = Map.new(Enum.with_index(ints), fn {v, addr} -> {addr, v} end)
-    %__MODULE__{memory: memory, ip: 0, halted: false, io: {:__no_io__, []}}
+    %__MODULE__{memory: memory, ip: 0, halted: false, io: :external_io}
   end
 
   def run(cpu, opts \\ []) do
@@ -48,15 +48,46 @@ defmodule AdventOfCode.IntCPU do
     loop(cpu)
   end
 
-  defp loop(%{halted: true} = cpu) do
-    cpu
+  defp suspend(tag, cpu, accept_value_cpu) do
+    {:suspended, tag, cpu, accept_value_cpu}
+  end
+
+  def resume(cpu) do
+    loop(cpu)
   end
 
   defp loop(cpu) do
     instr = read_instr(cpu)
-    cpu = exec(instr, cpu)
-    # dump(cpu)
-    loop(cpu)
+
+    case exec(instr, cpu) do
+      {:suspended, _, _, _} = sus -> maybe_auto_io(sus)
+      {:halted, new_cpu} -> new_cpu
+      %__MODULE__{} = new_cpu -> loop(new_cpu)
+    end
+  end
+
+  defp maybe_auto_io({:suspended, :ioread, cpu, cont} = sus) do
+    case cpu.io do
+      :external_io ->
+        sus
+
+      {_, _} ->
+        {val, cpu} = ioread(cpu)
+        cpu = cont.(val, cpu)
+        resume(cpu)
+    end
+  end
+
+  defp maybe_auto_io({:suspended, {:iowrite, val}, cpu, cont} = sus) do
+    case cpu.io do
+      :external_io ->
+        sus
+
+      {_, _} ->
+        cpu = iowrite(cpu, val)
+        cpu = cont.(cpu)
+        resume(cpu)
+    end
   end
 
   @op_add 1
@@ -181,15 +212,16 @@ defmodule AdventOfCode.IntCPU do
   end
 
   defp exec({:ioread, addr}, cpu) do
-    {val, cpu} = ioread(cpu)
-    cpu = write(cpu, addr, val)
-    move_ahead(cpu, 2)
+    suspend(:ioread, cpu, fn val, cpu ->
+      cpu = write(cpu, addr, val)
+      move_ahead(cpu, 2)
+    end)
   end
 
   defp exec({:iowrite, addr}, cpu) do
     val = read_value(cpu, addr)
-    cpu = iowrite(cpu, val)
-    move_ahead(cpu, 2)
+
+    suspend({:iowrite, val}, cpu, fn cpu -> move_ahead(cpu, 2) end)
   end
 
   defp exec({:jumpt, [a, b]}, cpu) do
@@ -245,7 +277,7 @@ defmodule AdventOfCode.IntCPU do
   end
 
   defp exec(:halt, cpu) do
-    %{cpu | halted: true}
+    {:halted, %{cpu | halted: true}}
   end
 
   defp ioread(cpu) do
